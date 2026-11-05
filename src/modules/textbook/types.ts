@@ -79,6 +79,10 @@ export interface Lesson {
   grammarExtra?: Record<string, GrammarExtra>
   /** Kanji thêm tay (ngoài các chữ tự rút ra từ từ vựng). */
   kanjiExtra?: string
+  /** Hội thoại, bài nghe, bài đọc bạn chép từ sách (mục Hội thoại / Luyện nghe / Đọc hiểu). */
+  tracks?: Track[]
+  /** Bài viết của bạn (mục Đọc hiểu · Viết). */
+  writing?: string
   updatedAt: number
 }
 
@@ -139,4 +143,39 @@ export interface BookNote {
   text?: string
   createdAt: number
   updatedAt: number
+}
+
+/** Một câu trong đoạn hội thoại / bài nghe / bài đọc. */
+export interface TrackLine {
+  id: string
+  speaker?: string
+  jp: string
+  vi?: string
+  /** Giây bắt đầu của câu trong file audio (có sau khi bạn "đồng bộ"). */
+  t?: number
+}
+
+/** Mục chứa đoạn văn: Hội thoại, Luyện nghe hay Đọc hiểu. */
+export type TrackSection = 'dialogue' | 'listening' | 'reading'
+
+/** Một đoạn hội thoại / bài nghe / bài đọc trong bài, có thể kèm file audio của bạn. */
+export interface Track {
+  id: string
+  section: TrackSection
+  title?: string
+  lines: TrackLine[]
+  /** Mã file audio trong bảng textbookMedia (LessonAudio). */
+  audioId?: string
+  createdAt: number
+}
+
+/** File audio bạn gắn cho một đoạn. Bảng `textbookMedia` (không sao lưu), `lessonId` = mã bài. */
+export interface LessonAudio {
+  id: string
+  lessonId: string
+  kind: 'audio'
+  name: string
+  size: number
+  blob: Blob
+  createdAt: number
 }
