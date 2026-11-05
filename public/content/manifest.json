@@ -39,6 +39,19 @@
         "size": 3038468,
         "sha256": "443d8312f165dc67ae9c1f3333467c797be0b202ebb7f711862e2d6d8500e4d2"
       }
+    },
+    {
+      "id": "tatoeba-ja",
+      "title": "Câu ví dụ (Tatoeba)",
+      "description": "48.734 câu ví dụ có furigana và bản dịch tiếng Anh, gắn với từng từ trong từ điển",
+      "license": "Câu ví dụ: Tatoeba (tatoeba.org), CC BY 2.0 FR",
+      "version": 1,
+      "contentHash": "4e979a93cdaf6eabebed00fc29b8bb96dfffb8b3a8b0f8733b0200a7b7ff9105",
+      "full": {
+        "url": "tatoeba-ja.v1.pack",
+        "size": 3911094,
+        "sha256": "f70bf3f6e491e08373a4debe4379ac3c86d2a9f6d17307ff094bf00fbbbe90ff"
+      }
     }
   ]
 }
