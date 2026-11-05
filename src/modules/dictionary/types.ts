@@ -7,6 +7,8 @@
 /** id các gói nội dung của module này (xem public/content/manifest.json). */
 export const WORD_PACK = 'jmdict-en'
 export const KANJI_PACK = 'kanjidic'
+/** Gói nghĩa tiếng Việt (tùy chọn): cùng id với gói jmdict-en. */
+export const VI_PACK = 'jmdict-vi'
 
 /** Một cách viết bằng Kanji của từ. */
 export interface KanjiForm {
@@ -47,6 +49,16 @@ export interface WordData {
   nf?: number // nhóm tần suất trên báo chí (1 = phổ biến nhất … 48)
   q?: number // thứ hạng tần suất (Wikipedia tiếng Nhật), càng nhỏ càng phổ biến
   j?: number // cấp JLPT: 5 = N5 … 1 = N1
+}
+
+/**
+ * Nghĩa tiếng Việt của một từ trong gói jmdict-vi (id giống hệt id trong jmdict-en).
+ * Nghĩa thứ i của `s` ứng với nghĩa thứ i (tiếng Anh) của từ trong jmdict-en.
+ */
+export interface ViData {
+  s?: string[][] // nghĩa tiếng Việt theo từng nghĩa JMdict; [] = nghĩa đó chưa có tiếng Việt
+  m?: 1 // 1 = các nghĩa trong `s` là bản dịch (máy) từ nghĩa tiếng Anh, chưa có người duyệt
+  w?: string[] // nghĩa tiếng Việt do người viết (Wiktionary tiếng Việt), cho cả từ
 }
 
 /** Dữ liệu một chữ Kanji trong gói kanjidic. */

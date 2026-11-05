@@ -7,9 +7,11 @@ export interface DictPrefs {
   hover: boolean
   /** Số nghĩa tối đa hiện trong popup. */
   popupSenses: number
+  /** Ngôn ngữ nghĩa: 'both' = tiếng Việt kèm tiếng Anh nhỏ bên dưới, 'vi' = chỉ tiếng Việt, 'en' = chỉ tiếng Anh. */
+  lang: 'both' | 'vi' | 'en'
   set: (p: Partial<Omit<DictPrefs, 'set'>>) => void
 }
 
 export const useDictPrefs = create<DictPrefs>()(
-  persist((set) => ({ hover: true, popupSenses: 3, set: (p) => set(p) }), { name: 'hibi-dictionary' }),
+  persist((set) => ({ hover: true, popupSenses: 3, lang: 'both', set: (p) => set(p) }), { name: 'hibi-dictionary' }),
 )

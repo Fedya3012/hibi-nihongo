@@ -4,7 +4,9 @@ import { formatBytes } from '@/core/db'
 import { Card } from '@/design/components/Card'
 import { Button } from '@/design/components/Button'
 import { useDictInstaller, useDictPacks } from '../lib/packs'
-import { WORD_PACK } from '../types'
+import { VI_PACK, WORD_PACK } from '../types'
+
+const packName = (id: string) => (id === WORD_PACK ? 'từ vựng' : id === VI_PACK ? 'nghĩa tiếng Việt' : 'Kanji')
 
 export function PackSetup({ compact = false }: { compact?: boolean }) {
   const packs = useDictPacks()
@@ -28,7 +30,7 @@ export function PackSetup({ compact = false }: { compact?: boolean }) {
           <h2 className="font-semibold">Tải dữ liệu từ điển về máy</h2>
           <p className="text-sm text-muted">
             Từ điển chạy hoàn toàn offline. Cần tải một lần{size ? ` khoảng ${formatBytes(size)}` : ''}: hơn 190.000 từ
-            (JMdict, nghĩa tiếng Anh), 13.000 Kanji kèm âm Hán Việt, pitch accent và cấp JLPT. Cài xong mất khoảng 1 phút.
+            (JMdict, nghĩa tiếng Anh, kèm nghĩa tiếng Việt cho các từ JLPT), 13.000 Kanji kèm âm Hán Việt, pitch accent và cấp JLPT. Cài xong mất khoảng 1 phút.
           </p>
         </>
       ) : pending.length > 0 ? (
@@ -52,7 +54,7 @@ export function PackSetup({ compact = false }: { compact?: boolean }) {
             <div className="h-full bg-primary transition-all" style={{ width: `${p?.phase === 'install' ? pct : 5}%` }} />
           </div>
           <p className="text-xs text-muted">
-            {!p ? 'Đang chuẩn bị…' : p.phase === 'download' ? `Đang tải ${p.pack === WORD_PACK ? 'từ vựng' : 'Kanji'}…` : `Đang cài ${p.pack === WORD_PACK ? 'từ vựng' : 'Kanji'}: ${pct}%`}
+            {!p ? 'Đang chuẩn bị…' : p.phase === 'download' ? `Đang tải ${packName(p.pack)}…` : `Đang cài ${packName(p.pack)}: ${pct}%`}
             {' '}Đừng đóng app trong lúc cài.
           </p>
         </div>

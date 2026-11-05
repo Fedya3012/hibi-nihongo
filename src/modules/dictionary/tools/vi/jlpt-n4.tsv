@@ -1,0 +1,1399 @@
+# Nghĩa tiếng Việt cho từ JLPT N4 — dịch từ nghĩa tiếng Anh của JMdict (CC BY-SA 4.0), chưa có người duyệt.
+# Cột: id JMdict, số thứ tự nghĩa, nghĩa tiếng Anh gốc, nghĩa tiếng Việt. Xem tools/build-vi-pack.mjs.
+1532910	0	to sound; to ring; to resound; to echo; to roar; to rumble	kêu; reo; vang lên; vang dội; gầm
+1255430	0	moon	mặt trăng
+1255430	1	month	tháng
+1313580	0	thing; matter	việc; điều; chuyện
+1313580	1	incident; occurrence; event; something serious; trouble; crisis	sự việc; sự cố; chuyện nghiêm trọng
+1313580	2	circumstances; situation; state of affairs	tình hình; hoàn cảnh
+1313580	3	work; business; affair	công việc
+1313580	4	after an inflectable word, creates a noun phrase indicating something the speaker does not feel close to	(sau từ biến đổi) tạo cụm danh từ chỉ điều người nói thấy xa lạ
+1313580	5	nominalizing suffix	hậu tố danh từ hóa
+1313580	6	pretending to ...; playing make-believe ...	giả vờ ...; chơi trò ...
+1313580	7	alias; also known as; otherwise known as; or	tức là; còn gọi là
+1313580	8	necessity; need	sự cần thiết
+1313580	9	you should ...; I advise that you ...; it's important to ...	nên ...; điều quan trọng là ...
+1463770	0	day; days	ngày
+1463770	1	sun; sunshine; sunlight	mặt trời; ánh nắng
+1463770	2	(the) day; daytime; daylight	ban ngày
+1463770	3	date; deadline	ngày tháng; hạn chót
+1463770	4	(past) days; time (e.g. of one's childhood)	những ngày (thơ ấu...); thời
+1463770	5	case (esp. unfortunate); event	trường hợp; khi (chuyện không may)
+1157080	0	good; advantage; benefit; welfare	lợi ích; điều tốt
+1157080	1	sake; purpose; objective; aim	vì; để; mục đích
+1157080	2	consequence; result; effect	do; kết quả là
+1157080	3	affecting; regarding; concerning	về; đối với
+1589060	0	to perform; to do; to conduct oneself; to carry out	tiến hành; thực hiện; làm
+1250220	0	form; shape; figure	hình dạng; hình
+1250220	1	visage	dung mạo
+1546200	0	business; task; errand; engagement	việc; việc bận
+1546200	1	use; purpose	công dụng; mục đích
+1546200	2	for the use of ...; used for ...; made for ...	dùng cho ...; dành cho ...
+1546200	3	call of nature; excretion	đi vệ sinh
+1605840	0	appearing ...; looking ...	có vẻ ...; trông như ...
+1605840	1	way to ...; method of ...ing	cách ...
+1605840	2	form; style; design	kiểu; dạng
+1605840	3	like; similar to	giống như
+1605840	4	thing (thought or spoken)	điều (nghĩ, nói)
+1385910	0	to break; to fracture; to break off; to snap off; to pick (e.g. flowers)	bẻ; gãy; ngắt (hoa)
+1385910	1	to fold; to bend	gấp; uốn cong
+1385910	2	to make (origami)	gấp (giấy origami)
+1385910	3	to interrupt; to end	ngắt (lời); chấm dứt
+1482340	0	program (e.g. TV); programme	chương trình (tivi, radio)
+1355810	0	case; situation	trường hợp; tình huống
+1421210	0	earthquake	động đất
+1373860	0	the world; society; the universe	thế giới; xã hội; vũ trụ
+1373860	1	sphere; circle; world	giới; lĩnh vực
+1373860	2	world-renowned; world-famous	nổi tiếng thế giới
+1373860	3	realm governed by one Buddha; space	cõi (một vị Phật); thế giới (Phật giáo)
+1457730	0	inside; within	bên trong; trong
+1457730	1	while (e.g. one is young); during; within (e.g. a day); in the course of	trong khi (còn trẻ...); trong vòng
+1457730	2	among; amongst; (out) of; between	trong số
+1457730	3	in (secret, chaos, poverty, etc.); amidst; with (e.g. success)	trong (bí mật, hỗn loạn...)
+1457730	4	within oneself; one's feelings; inner thoughts	trong lòng; nội tâm
+1457730	5	we; our company; our organization	chúng tôi; công ty chúng tôi
+1457730	6	one's home; one's family	nhà mình; gia đình mình
+1457730	7	my spouse; my husband; my wife	chồng tôi; vợ tôi
+1457730	8	signed on behalf of (husband's name) by his wife	(vợ) ký thay chồng
+1457730	9	I; me	tôi; tớ
+1457730	10	imperial palace grounds	trong cung điện
+1457730	11	emperor	hoàng đế
+1549660	0	use; utilization; utilisation; application	sử dụng; tận dụng
+1155060	0	not exceeding; and downward; ... and below	không quá; từ ... trở xuống
+1155060	1	below (e.g. standard); under (e.g. a level)	dưới (mức)
+1155060	2	the below-mentioned; the following; the rest	sau đây; như sau; phần còn lại
+1487660	0	necessary; needed; essential; indispensable	cần thiết; thiết yếu
+1487660	1	necessity; need; requirement	sự cần thiết; nhu cầu
+1441390	0	dot; spot; point; speck; mark	chấm; điểm; vết
+1441390	1	mark (in an exam, etc.); grade; score; points	điểm (bài thi)
+1441390	2	point (in a game); score; goal; run	điểm (thi đấu); bàn thắng
+1441390	3	point (in geometry)	điểm (hình học)
+1441390	4	point; aspect; matter; detail; part; respect; way; viewpoint	điểm; khía cạnh; mặt
+1441390	5	(punctuation) mark (e.g. comma, period, decimal point); dot	dấu (phẩy, chấm, thập phân)
+1441390	6	"dot" stroke (in a Chinese character)	nét chấm (chữ Hán)
+1441390	7	counter for points, marks, goals, etc.	(đếm điểm, bàn thắng)
+1441390	8	counter for goods, items, articles of clothing, works of art, etc.	(đếm món hàng, quần áo, tác phẩm)
+1312420	0	match; game; bout; contest	trận đấu; cuộc thi đấu
+1155120	0	not less than; ... and over; ... and above; ... and upwards; ... or more	từ ... trở lên; hơn
+1155120	1	beyond (e.g. one's expectations); above; more than; further than	vượt quá (mong đợi); hơn
+1155120	2	above-mentioned; aforementioned; foregoing	đã nêu trên
+1155120	3	since ...; seeing that ...; now that ...; once ...	một khi ...; vì đã ...
+1155120	4	that's all; that is the end; the end	hết; xin hết
+1329590	0	to receive; to get	nhận; được
+1329590	1	to catch (e.g. a ball)	bắt (bóng)
+1329590	2	to be struck by (wind, waves, sunlight, etc.)	hứng (gió, sóng, nắng)
+1329590	3	to sustain (damage); to incur (a loss); to suffer (an injury); to feel (influence)	chịu (thiệt hại); bị (thương); chịu (ảnh hưởng)
+1329590	4	to undergo (e.g. surgery); to take (a test); to accept (a challenge)	trải qua (phẫu thuật); dự (thi); nhận (thách thức)
+1329590	5	to be given (e.g. life, talent)	được ban (sự sống, tài năng)
+1329590	6	to find funny; to find humorous; to be amused (by)	thấy buồn cười; thích thú
+1329590	7	to follow; to succeed; to be descended from	kế thừa; nối tiếp
+1329590	8	to face (south, etc.)	hướng về (phía nam...)
+1329590	9	to be modified by	được bổ nghĩa bởi
+1329590	10	to obtain (a pawned item, etc.) by paying a fee	chuộc (đồ cầm)
+1329590	11	to be well-received; to become popular; to go down well	được ưa chuộng; được hoan nghênh
+1155090	0	with the exception of; excepting	ngoài ra; trừ
+1215230	0	space (between); gap; interval; distance; stretch	khoảng giữa; khoảng cách; khe hở
+1215230	1	period of time (during, while); duration; interval	trong khoảng thời gian; trong lúc
+1215230	2	between (two parties or things)	giữa (hai bên)
+1215230	3	among (a group)	trong số
+1215230	4	relations (between); relationship	quan hệ (giữa)
+1215230	5	midpoint; average; halfway; middle ground	điểm giữa; trung bình
+1215230	6	due to; because of	vì; do
+1225130	0	technology; engineering	công nghệ; kỹ thuật
+1225130	1	technique; skill	kỹ năng; kỹ thuật
+1225130	2	art; craft	nghệ thuật; tay nghề
+1405790	0	to continue; to last; to go on	tiếp tục; kéo dài
+1405790	1	to continue (without a break); to be unbroken	liên tục; không gián đoạn
+1405790	2	to occur again and again	xảy ra liên tiếp
+1405790	3	to lead to; to connect to; to adjoin	dẫn tới; nối với; tiếp giáp
+1405790	4	to come after; to follow; to succeed; to rank next to	theo sau; kế tiếp; đứng sau
+1405790	5	to hold out; to keep; to last	trụ được; giữ được
+1293990	0	beginning; outset; first; onset	ban đầu; đầu tiên
+1316300	0	period; epoch; era; age	thời đại; thời kỳ
+1316300	1	the times; those days	thời thế; thời ấy
+1316300	2	oldness; ancientness; antiquity	sự cổ kính
+1316300	3	antique; period piece	đồ cổ
+1215810	0	relation; relationship; connection	quan hệ; mối liên hệ
+1215810	1	participation; involvement; concern	liên quan; dính líu
+1215810	2	influence; effect	ảnh hưởng
+1215810	3	sexual relations; sexual relationship	quan hệ tình dục
+1215810	4	related to; connected to	liên quan đến ...
+1543240	0	plans; arrangement; schedule; program; programme; expectation; estimate	kế hoạch; dự định; lịch trình
+1281020	0	to think (about, of); to think over; to ponder; to contemplate; to reflect (on); to meditate (on)	nghĩ; suy nghĩ; cân nhắc
+1281020	1	to consider; to bear in mind; to allow for; to take into consideration	xem xét; tính đến
+1281020	2	to think (that); to believe; to hold (a view); to judge; to conclude; to suspect	cho rằng; tin rằng
+1281020	3	to intend (to do); to think of (doing); to plan	định (làm); có ý định
+1281020	4	to predict; to anticipate; to expect; to imagine	dự đoán; tưởng tượng
+1281020	5	to come up with; to think up; to contrive; to devise	nghĩ ra; sáng chế ra
+1281020	6	to consider (as); to regard (as); to look on (as); to take; to view	coi là; xem như
+1293810	0	end; conclusion	cuối cùng; kết thúc
+1293810	1	last; final; latest; most recent	cuối cùng; sau cùng
+1293810	2	no sooner than; once; right after (often having negative consequences)	một khi đã ... thì (hậu quả xấu)
+1293810	3	one's final moments	giây phút cuối đời
+1075500	0	soft	mềm
+1075500	1	software	phần mềm
+1075500	2	soft hat; felt hat	mũ phớt
+1075500	3	soft serve ice cream	kem ốc quế (kem mềm)
+1075500	4	softball	bóng mềm (softball)
+1405800	0	to continue; to keep up; to keep on	tiếp tục; duy trì
+1589350	0	to think; to consider; to believe; to reckon	nghĩ; cho rằng; tin
+1589350	1	to think (of doing); to plan (to do)	định (làm)
+1589350	2	to judge; to assess; to regard	đánh giá; coi là
+1589350	3	to imagine; to suppose; to dream	tưởng tượng; mơ
+1589350	4	to expect; to look forward to	mong đợi
+1589350	5	to feel; to be (in a state of mind); to desire; to want	cảm thấy; mong muốn
+1589350	6	to recall; to remember	nhớ lại
+1483070	0	he; him	anh ấy; ông ấy
+1483070	1	boyfriend	bạn trai
+1526920	0	cartoon; comic; comic strip; manga	truyện tranh; manga
+1286400	0	international	quốc tế
+1286400	1	diplomatic intercourse	bang giao
+1345250	0	woman; female	phụ nữ; nữ giới
+1345250	1	feminine gender	giống cái (ngữ pháp)
+1390360	0	war	chiến tranh
+1390360	1	fighting; fierce competition	cuộc chiến; cạnh tranh khốc liệt
+1550140	0	reason; pretext; motive	lý do; cớ; động cơ
+1307550	0	to start; to begin; to commence; to initiate; to originate	bắt đầu; khởi đầu
+1307550	1	to start up (a business, society, etc.); to open (e.g. a store); to establish	mở (cửa hàng, doanh nghiệp); thành lập
+1307550	2	to start ...; to begin to ...	bắt đầu ...
+1550190	0	opposite side; bottom; other side; side hidden from view; undersurface; reverse side	mặt sau; mặt trái; đáy
+1550190	1	rear; back; behind	phía sau; đằng sau
+1550190	2	lining; inside	lớp lót; bên trong
+1550190	3	in the shadows; behind the scenes; offstage; behind (someone's) back	sau hậu trường; sau lưng (ai đó)
+1550190	4	more (to something than meets the eye); hidden side (e.g. of one's personality); unknown circumstances; different side	mặt khuất; ẩn tình
+1550190	5	proof	bằng chứng
+1550190	6	opposite (of a prediction, common sense, etc.); contrary	ngược lại (dự đoán, lẽ thường)
+1550190	7	inverse (of a hypothesis, etc.)	mệnh đề đảo
+1550190	8	bottom (of an inning); last half (of an inning)	nửa sau hiệp (bóng chày)
+1483540	0	to compare; to make a comparison	so sánh
+1483540	1	to compete; to vie	thi đua; ganh đua
+1219680	0	to approach; to draw near; to come near; to be close to	đến gần; lại gần
+1219680	1	to gather (in one place); to come together; to meet	tụ tập; gặp nhau
+1219680	2	to stop by (while on one's way to another place); to drop by; to make a short visit	ghé qua; tạt vào
+1219680	3	to grow old; to grow high (number, etc.)	già đi; tăng (con số)
+1219680	4	to grow (wrinkly)	(nếp nhăn) hằn lên
+1219680	5	to lean against; to recline on	tựa vào
+1219680	6	to push one's opponent while holding their belt	đẩy đối thủ khi nắm đai (sumo)
+1219680	7	to decide on a price and come to a deal	ngã giá; chốt giao dịch
+1219680	8	to be swayed by (a person); to yield to	nghiêng theo; nhượng bộ
+1432920	0	avenue; street; way; road	đường phố; đại lộ
+1432920	1	coming and going; street traffic	sự qua lại; xe cộ qua lại
+1432920	2	flow (of water, air, etc.)	sự lưu thông (nước, không khí)
+1432920	3	transmission (of sound); reach (e.g. of voice)	độ vang (tiếng nói)
+1432920	4	fame; reputation; popularity	danh tiếng
+1432920	5	the same status or way; as (e.g. as expected, as I said)	theo đúng (như dự kiến, như đã nói)
+1432920	6	understanding; comprehension	sự hiểu
+1432920	7	counter for sets of things; counter for methods, ways, types	(đếm bộ, cách, kiểu)
+1426530	0	caution; being careful; attention (heed); warning; advice	chú ý; cẩn thận; nhắc nhở; cảnh báo
+1588730	0	to choose; to select	chọn; lựa chọn
+1101570	0	personal computer	máy tính cá nhân
+1365980	0	to advance; to go forward	tiến lên; đi tới
+1365980	1	to precede; to go ahead (of)	đi trước
+1365980	2	to make progress; to improve	tiến bộ; tiến triển
+1365980	3	to deepen; to heighten	trở nên sâu sắc; nặng thêm
+1365980	4	to be fast (of a clock); to be ahead	(đồng hồ) chạy nhanh
+1365980	5	to do of one's own free will	tự nguyện làm
+1510790	0	to change; to be transformed; to be altered; to vary	thay đổi; biến đổi
+1510790	1	to move to	chuyển sang
+1510790	2	to be different; to be uncommon; to be unusual	khác thường; kỳ lạ
+1254180	0	to decide; to choose; to determine; to make up one's mind; to resolve; to set one's heart on; to settle; to arrange; to set; to appoint; to fix	quyết định; chọn; ấn định; sắp xếp
+1254180	1	to clinch (a victory); to decide (the outcome of a match)	chốt (chiến thắng)
+1254180	2	to persist in doing; to go through with	quyết làm đến cùng
+1254180	3	to always do; to have made a habit of	luôn làm; thành thói quen
+1254180	4	to take for granted; to assume	cho là đương nhiên
+1254180	5	to dress up; to dress to kill; to dress to the nines	ăn diện; diện đẹp
+1254180	6	to carry out successfully (a move in sports, a pose in dance, etc.); to succeed in doing	thực hiện thành công (động tác)
+1254180	7	to immobilize with a double-arm lock (in sumo, judo, etc.)	khóa tay (sumo, judo)
+1254180	8	to eat or drink something; to take illegal drugs	ăn uống; dùng ma túy
+1258520	0	study; research; investigation	nghiên cứu
+1391780	0	line; stripe; stria	đường; vạch; sọc
+1391780	1	line (e.g. telephone line); wire	đường dây (điện thoại); dây
+1391780	2	ray (e.g. X-ray); beam	tia (X); chùm (sáng)
+1391780	3	line (e.g. of a railroad); track; route; lane	tuyến (đường sắt); làn
+1391780	4	outline; contours; form	đường nét; dáng
+1391780	5	level	mức
+1391780	6	division	sự phân chia
+1391780	7	line (of action); position; approach; policy; principle	đường lối; lập trường; chính sách
+1391780	8	impression one leaves; air one gives off	ấn tượng để lại
+1075940	0	type; kind; sort; style	kiểu; loại
+1075940	1	type (of person); (ideal) type; one's type	típ người; mẫu người (ưa thích)
+1075940	2	typewriter	máy đánh chữ
+1075940	3	typing	đánh máy
+1253190	0	to go out to meet	đi đón
+1253190	1	to receive; to welcome; to greet; to salute; to hail; to reach; to approach; to enter (a phase, era, etc.)	đón tiếp; chào đón; bước vào (giai đoạn mới)
+1253190	2	to accept (e.g. as a member of a group or family)	nhận (vào gia đình, tổ chức)
+1253190	3	to call for; to summon; to invite	mời; triệu
+1253190	4	to approach (a certain time, a point in one's life, etc.)	đến (thời điểm nào đó)
+1351430	0	introduction; presentation; referral; listing	giới thiệu
+1508750	0	(husked grains of) rice	gạo
+1508750	1	staple (product, etc.); necessity	hàng thiết yếu
+1312350	0	examination; exam; test	kỳ thi; bài thi
+1312350	1	trial; experiment; test	thử nghiệm; thí nghiệm
+1441400	0	to be lit (e.g. electricity comes on); to be lighted	(đèn) sáng; bật
+1441400	1	to catch fire	bắt lửa
+1509430	0	distinction; difference; discrimination	sự khác biệt; sự phân biệt
+1509430	1	separate; different; another; extra	riêng; khác; thêm
+1509430	2	exception; exclusion	ngoại lệ
+1509430	3	classified by; ranked by; according to	theo (phân loại)
+1433680	0	to soak (in); to steep; to dip; to dunk	ngâm; nhúng
+1433680	1	to pickle; to preserve (in salt, vinegar, etc.)	muối (dưa); ngâm (giấm)
+1455280	0	special; particular; extraordinary; exceptional; especial	đặc biệt
+1402730	0	to send (a thing); to dispatch; to despatch; to transmit	gửi; chuyển
+1402730	1	to take or escort (a person somewhere); to see off (a person)	đưa (ai đó); tiễn
+1402730	2	to bid farewell (to the departed); to bury	tiễn biệt (người đã khuất); chôn cất
+1402730	3	to spend (time); to live one's life	trải qua (thời gian); sống
+1402730	4	to pass (down the line)	chuyền (theo hàng)
+1402730	5	to affix okurigana	thêm okurigana
+1483090	0	they; them	họ; bọn họ
+1546220	0	preparation; arrangements; provision; getting ready; laying out (e.g. a meal)	chuẩn bị; sửa soạn
+1080000	0	tennis	quần vợt; tennis
+1314600	0	to resemble; to look like; to be like; to be alike; to be similar; to take after	giống; giống như
+1582200	0	on the way; en route; halfway	trên đường; giữa đường
+1582200	1	in the middle of; midway	giữa chừng
+1318720	0	freedom; liberty	tự do
+1313850	0	accident; incident; trouble	tai nạn; sự cố
+1313850	1	circumstances; reasons	lý do; hoàn cảnh
+1251320	0	economy; economics	kinh tế
+1251320	1	finance; (one's) finances; financial circumstances	tài chính
+1251320	2	being economical; economy; thrift	sự tiết kiệm
+1261190	0	cause; origin; source	nguyên nhân
+1304510	0	to remain; to be left	còn lại; ở lại
+1590770	0	substitute; replacement; substituting; replacing	thay thế; sự thay
+1590770	1	stand-in; proxy; alternate; deputy; relief; successor	người thay thế
+1590770	2	compensation; exchange; return	bù lại; đổi lại
+1590770	3	another helping; second helping; seconds; refill	suất thêm (ăn); bát thứ hai
+1590770	4	upcoming program; upcoming programme	chương trình sắp tới
+1554820	0	force; strength; might; vigour; vigor; energy	sức; sức mạnh; năng lượng
+1554820	1	capability; ability; proficiency; capacity; faculty	năng lực; khả năng
+1554820	2	efficacy; effect	hiệu quả; hiệu lực
+1554820	3	effort; endeavours; endeavors; exertions	nỗ lực
+1554820	4	power; authority; influence; good offices; agency	quyền lực; ảnh hưởng
+1554820	5	support; help; aid; assistance	sự giúp đỡ
+1554820	6	stress; emphasis	sự nhấn mạnh
+1554820	7	means; resources	tiềm lực; phương tiện
+1386460	0	explanation; exposition	giải thích; thuyết minh
+1333560	0	to collect; to assemble; to gather	thu thập; tập hợp; sưu tầm
+1454750	0	limited express (train for which a limited-express ticket is required)	tàu tốc hành đặc biệt
+1454750	1	limited express (train making a limited no. of stops)	tàu tốc hành (ít điểm dừng)
+1454750	2	great hurry	rất gấp
+1483150	0	she; her	cô ấy
+1483150	1	girlfriend	bạn gái
+1355850	0	place; location; spot; position	nơi; địa điểm; vị trí
+1355850	1	room; space	chỗ; không gian
+1355850	2	basho; wrestling tournament	giải đấu sumo
+1236950	0	education; schooling; training; instruction; teaching; upbringing	giáo dục; đào tạo
+1236950	1	culture; cultivation; education	học thức
+1320140	0	failure; mistake; blunder	thất bại; sai lầm
+1510650	0	to change; to alter; to transform; to convert; to turn; to vary	thay đổi; biến đổi
+1510650	1	to reform; to revise; to amend	cải cách; sửa đổi
+1202440	0	to open; to undo; to unseal; to unpack	mở; mở ra
+1202440	1	to bloom; to unfold; to spread out	nở (hoa); trải ra
+1202440	2	to open (for business, e.g. in the morning)	mở cửa (kinh doanh)
+1202440	3	to be wide (gap, etc.); to widen	rộng ra; giãn ra
+1202440	4	to hold (meeting, party, etc.); to give; to open	tổ chức (cuộc họp, bữa tiệc)
+1202440	5	to found (nation, dynasty, sect, etc.); to open (a new business); to set up; to establish; to start	lập (quốc gia, triều đại, môn phái); thành lập
+1202440	6	to open (ports, borders, etc.)	mở (cảng, biên giới)
+1202440	7	to open (an account)	mở (tài khoản)
+1202440	8	to open up (new land, path, etc.); to clear; to develop	khai hoang; mở (đường); phát triển
+1202440	9	to open (a file, etc.)	mở (tệp)
+1202440	10	to extract (root); to reduce (equation)	khai (căn); giải (phương trình)
+1202440	11	to cut open (fish)	mổ (cá)
+1202440	12	to change (kanji into hiragana)	viết (kanji) bằng hiragana
+1202440	13	to flare (e.g. skirt)	xòe ra (váy)
+1202440	14	to slacken (into a poor posture)	ngồi thõng; dáng uể oải
+1497190	0	normal; ordinary; regular; usual; common; average	bình thường; thông thường; phổ thông
+1497190	1	normally; ordinarily; usually; generally; commonly	thường thì; thông thường
+1497190	2	local train; train that stops at every station	tàu thường (dừng mọi ga)
+1293780	0	recently; lately; these days; nowadays; right now	gần đây; dạo này
+1293780	1	nearest; closest	gần nhất
+1214330	0	simple; easy; uncomplicated	đơn giản; dễ
+1214330	1	brief; quick; light	ngắn gọn; nhanh; nhẹ nhàng
+1576900	0	sound; noise; report	âm thanh; tiếng động
+1576900	1	note	nốt nhạc
+1576900	2	fame	tiếng tăm
+1576900	3	Chinese-derived character reading	âm On (cách đọc gốc Hán)
+1535880	0	to turn back (e.g. half-way)	quay lại (giữa đường)
+1535880	1	to return; to go back	trở về; quay về
+1535880	2	to recover (e.g. something lost); to be returned	lấy lại được; được trả lại
+1535880	3	to rebound; to spring back	bật lại; nảy lại
+1322700	0	society; public; community; the world	xã hội; cộng đồng
+1322700	1	social studies	môn xã hội
+1602440	0	to increase; to multiply	tăng; tăng lên
+1538330	0	conclusion from reasoning, judgement or calculation based on something read or heard; reason; cause; meaning; circumstances; situation	lý do; nguyên nhân; ý nghĩa; tình hình; lẽ ra (kết luận suy ra)
+1558050	0	history	lịch sử
+1182620	0	10^8; 100,000,000; hundred million	trăm triệu; 100.000.000
+1106010	0	multi-floor building; multi-storey building	tòa nhà cao tầng
+1106010	1	bill	hóa đơn
+1375970	0	politics; government	chính trị
+1272780	0	light	ánh sáng
+1272780	1	illumination; ray; beam; gleam; glow	tia sáng; ánh sáng lấp lánh
+1272780	2	happiness; hope	niềm vui; hy vọng
+1272780	3	influence; power	ảnh hưởng; uy lực
+1272780	4	vision; eyesight	thị lực
+1420160	0	man; male	nam giới; đàn ông
+1420160	1	masculine gender	giống đực (ngữ pháp)
+1223660	0	to raise; to raise up; to set up; to pick up	dựng dậy; nâng lên; đỡ dậy
+1223660	1	to wake; to wake up; to waken; to awaken	đánh thức
+1223660	2	to cause; to bring about; to lead to; to trigger; to give rise to; to create; to generate (e.g. heat, electricity); to produce	gây ra; dẫn đến; tạo ra; sinh ra (nhiệt, điện)
+1223660	3	to start; to begin; to launch; to establish; to found; to set up; to open	bắt đầu; khởi xướng; thành lập
+1223660	4	to plough; to plow; to till	cày (đất)
+1223660	5	to fall ill with	bị (bệnh)
+1223660	6	to transcribe; to write down (what is spoken)	ghi chép lại (lời nói)
+1223660	7	to turn over (a card)	lật (lá bài)
+1198660	0	assembly hall; meeting place; venue; grounds	hội trường; địa điểm tổ chức
+1578700	0	factory; plant; mill; workshop	nhà máy; xưởng
+1348430	0	novel; (short) story	tiểu thuyết; truyện
+1259140	0	to be seen; to be in sight	nhìn thấy được; trông thấy
+1259140	1	to look; to seem; to appear	trông có vẻ; dường như
+1259140	2	to come	đến (kính ngữ)
+1198360	0	meeting; conference; session; assembly; council; convention; congress	cuộc họp; hội nghị
+1314400	0	office	văn phòng
+1591420	0	to be decided; to be settled; to be fixed; to be arranged	được quyết định; được ấn định
+1591420	1	to be unchanging; to be the same (as always); to be fixed; to be set	cố định; luôn như vậy
+1591420	2	to be a fixed rule; to be destined; to be a convention; to be a custom; to be common knowledge	là quy định; là lệ thường
+1591420	3	to be well executed (of a manoeuvre in a sport, game, etc.); to go well; to succeed; to connect (of a punch)	(động tác) thành công; trúng (cú đấm)
+1591420	4	to look good (of clothing); to look sharp; to be stylish; to suit one; to be held in place (of a hairdo)	(trang phục) đẹp; hợp; (kiểu tóc) vào nếp
+1591420	5	to be struck and held (of a pose in kabuki)	(kabuki) giữ dáng
+1362490	0	forest	rừng
+1362490	1	shrine grove	rừng thiêng (quanh đền)
+1473230	0	twice; double	gấp đôi
+1473230	1	times; -fold	lần; gấp (n lần)
+1473230	2	1-nth; 1 to n; 1 in n	tỉ lệ một trên n
+1335080	0	enough; sufficient; plenty; adequate; satisfactory	đủ; đầy đủ
+1335080	1	sufficiently; fully; thoroughly; well; perfectly	đầy đủ; kỹ lưỡng
+1335080	2	division into ten	chia làm mười
+1156530	0	opinion; view; comment	ý kiến; quan điểm
+1352290	0	to rise; to go up; to come up; to ascend; to be raised	lên; đi lên; được nâng lên
+1352290	1	to enter (esp. from outdoors); to come in; to go in	vào (nhà)
+1352290	2	to enter (a school); to advance to the next grade	vào (trường); lên lớp
+1352290	3	to get out (of water); to come ashore	lên bờ; ra khỏi nước
+1352290	4	to increase	tăng
+1352290	5	to improve; to make progress	tiến bộ
+1352290	6	to be promoted; to advance	được thăng chức
+1352290	7	to be made (of profit, etc.)	thu được (lợi nhuận)
+1352290	8	to occur (esp. of a favourable result)	đạt được (kết quả tốt)
+1352290	9	to be adequate (to cover expenses, etc.)	đủ (trang trải chi phí)
+1352290	10	to be finished; to be done; to be over	xong; hoàn thành
+1352290	11	(of rain) to stop; to lift	(mưa) tạnh
+1352290	12	to stop (working properly); to cut out; to give out; to die	hỏng; chết máy; cạn (pin)
+1352290	13	to win (in a card game, etc.)	thắng (bài)
+1352290	14	to be arrested	bị bắt
+1352290	15	to turn up (of evidence, etc.)	(bằng chứng) lộ ra
+1352290	16	to be deep fried	được chiên xong
+1352290	17	to be spoken loudly	được nói to
+1352290	18	to get nervous; to get stage fright	hồi hộp; run (khi lên sân khấu)
+1352290	19	to be offered (to the gods, etc.)	được dâng (lên thần)
+1352290	20	to go; to visit	đến thăm (khiêm nhường)
+1352290	21	to eat; to drink	ăn; uống (kính ngữ)
+1352290	22	to be listed (as a candidate)	được đưa vào danh sách (ứng viên)
+1352290	23	to serve (in one's master's home)	vào hầu (nhà chủ)
+1352290	24	to go north	đi lên phía bắc
+1352290	25	to be complete; to finish	xong; hoàn tất
+1228690	0	hurrying (to somewhere); rushing; hastening	đi gấp; vội đến
+1228690	1	express (train)	tàu tốc hành
+1604800	0	to face	đối diện; hướng về
+1604800	1	to go towards; to head towards	đi về phía; hướng tới
+1382250	0	seat	chỗ ngồi; ghế
+1382250	1	location (of a gathering, etc.); place	nơi (họp mặt)
+1382250	2	position; post	chức vị; vị trí
+2759530	0	some (at the start of a number in place of a digit)	vài (thay cho chữ số đầu)
+1441870	0	to convey; to report; to transmit; to communicate; to tell; to impart; to propagate; to teach; to bequeath	truyền đạt; báo; nói lại; truyền lại; dạy
+1389880	0	speciality; specialty; subject of study; expert; area of expertise	chuyên môn; chuyên ngành; chuyên gia
+1303770	0	industry	công nghiệp; ngành nghề
+1303770	1	livelihood; occupation	sinh kế; nghề nghiệp
+1228560	0	sudden; abrupt; unexpected	đột ngột; bất ngờ
+1228560	1	urgent; pressing	gấp; khẩn cấp
+1228560	2	steep; sharp; precipitous	dốc; đứng
+1228560	3	rapid; swift; fast	nhanh; xiết
+1228560	4	emergency; crisis; danger	tình huống khẩn cấp; nguy cấp
+1228560	5	urgency; hurrying; haste	sự gấp gáp
+1228560	6	(in gagaku or noh) end of a song	đoạn kết (nhạc gagaku, kịch Noh)
+1554010	0	both; both sides; both parties	cả hai; hai bên
+1357210	0	to decorate; to ornament; to adorn	trang trí; trang hoàng
+1357210	1	to display; to exhibit; to put on show; to arrange	bày; trưng bày
+1357210	2	to mark (e.g. the day with a victory); to adorn (e.g. the front page); to grace (e.g. the cover)	tô điểm (ngày, trang bìa)
+1357210	3	to affect (a manner); to keep up (appearances); to embellish; to dress up; to be showy; to be pretentious	làm màu; giữ thể diện; khoe khoang
+1501350	0	complex; complicated; intricate; mixed (feelings)	phức tạp; rắc rối; lẫn lộn (cảm xúc)
+1408810	0	to hit; to strike; to knock; to beat; to punch; to slap; to tap; to bang; to clap; to pound	đánh; đập; gõ; đấm; vỗ
+1408810	1	to strike (noon, etc.); to sound (cymbals, etc.); to beat (a drum, etc.)	điểm (giờ); đánh (trống, chiêng)
+1408810	2	to beat (rhythmically, e.g. pulse, waves, etc.)	đập (nhịp, mạch, sóng)
+1408810	3	to move; to impress; to touch	làm cảm động
+1408810	4	to drive in; to hammer in; to put in; to inject	đóng (đinh); tiêm
+1408810	5	to type; to send; to transmit	gõ (phím); gửi (điện tín)
+1408810	6	to insert; to write in; to mark	ghi vào; đánh dấu
+1408810	7	to make (noodles, etc.); to prepare	làm (mì)
+1408810	8	to till (soil)	xới (đất)
+1408810	9	to sprinkle; to throw; to cast	rắc; ném; quăng (lưới)
+1408810	10	to do; to carry out; to play; to perform; to engage in (gambling, etc.)	làm; chơi; đánh (bạc)
+1408810	11	to pay (a deposit, etc.)	trả (tiền đặt cọc)
+1408810	12	to visit (on a pilgrimage)	đi hành hương
+1408810	13	to line (a coat)	lót (áo)
+1408810	14	to bind (a criminal)	trói (tội phạm)
+1017330	0	announcer; presenter; broadcaster; reporter	phát thanh viên; người dẫn chương trình
+1017330	1	in-house television talent who does on-location fluff pieces for variety shows	nhân viên đài truyền hình đi đưa tin hiện trường
+1195970	0	to pass through; to pass by; to go beyond	đi qua; vượt qua
+1195970	1	to pass (of time); to elapse	(thời gian) trôi qua
+1195970	2	to have expired; to have ended; to be over	hết hạn; đã qua
+1195970	3	to exceed; to surpass; to be above	vượt quá; hơn
+1195970	4	to be no more than ...	chẳng qua chỉ là ...
+1195970	5	to be excessive; to be too much; to be too ...	quá; quá mức
+1576250	0	once; one time; on one occasion	một lần
+1576250	1	temporarily; for a moment	tạm thời; một chút
+1576250	2	one degree; one tone; one musical interval	một độ; một cung (âm nhạc)
+1451210	0	to move; to stir; to shift; to shake; to swing	chuyển động; cử động; lay động
+1451210	1	to operate; to run; to go; to work	hoạt động; chạy (máy)
+1451210	2	to make a move; to take action; to act; to go into action	hành động; ra tay
+1451210	3	to be touched; to be influenced	bị lay động; bị ảnh hưởng
+1451210	4	to change; to vary; to fluctuate; to waver	thay đổi; dao động
+1451210	5	to be transferred	bị điều chuyển
+1529410	0	dream	giấc mơ; ước mơ
+1272280	0	traffic; transportation; communication; exchange (of ideas, etc.); intercourse	giao thông; vận tải; giao lưu
+1051970	0	concert	buổi hòa nhạc
+1431850	0	unusual; rare; curious	hiếm; lạ; hiếm có
+1431850	1	new; novel	mới lạ
+1431850	2	fine (e.g. gift)	quý (quà)
+1480670	0	opposition; resistance; antagonism; hostility; objection; dissent	phản đối; chống đối
+1480670	1	reverse; opposite; inverse; contrary	ngược lại; trái ngược
+1153930	0	safety; security	an toàn
+1518540	0	to die	qua đời; mất
+1529550	0	to be lost (e.g. luggage); to be missing	bị mất; thất lạc
+1529550	1	to be used up; to be run out; to be exhausted; to be consumed; to be reduced to zero; to not occur any more	hết; cạn
+1529550	2	to disappear (e.g. pain); to be lost (e.g. a dream, confidence)	biến mất (cơn đau); mất (niềm tin, ước mơ)
+1362640	0	deep	sâu
+1362640	1	profound	sâu sắc
+1362640	2	dense; thick	dày đặc; rậm
+1362640	3	close (relationship)	thân thiết (quan hệ)
+1362640	4	intense; strong	mãnh liệt
+1362640	5	late	khuya; muộn
+1360480	0	mind; heart; spirit	tâm; tấm lòng; tinh thần
+1360480	1	the meaning of a phrase (riddle, etc.)	ý nghĩa (câu đố)
+1079290	0	text	văn bản
+1079290	1	textbook	sách giáo khoa
+1505120	0	culture; civilization; civilisation	văn hóa; văn minh
+1505120	1	Bunka era (1804.2.11-1818.4.22)	niên hiệu Bunka (1804–1818)
+1514960	0	to get dark; to grow dark	trời tối
+1514960	1	to end (of a day, year, season, etc.); to come to an end; to close	kết thúc (ngày, năm, mùa)
+1514960	2	to be sunk in (e.g. despair); to be lost in (e.g. thought); to be overcome with	chìm trong (tuyệt vọng, suy nghĩ)
+1346150	0	to win; to gain victory	thắng; chiến thắng
+1223020	0	rule; regulation	quy tắc; quy định
+1538870	0	import; importation; introduction	nhập khẩu; du nhập
+1538870	1	afferent	hướng tâm
+1322920	0	company president; manager; director	giám đốc; chủ tịch công ty
+1589040	0	to be late; to be delayed; to fall behind schedule; to be overdue	muộn; trễ; bị chậm
+1589040	1	to fall behind (in a race, one's studies, etc.); to lag behind; to be behind (the times)	tụt lại; lạc hậu
+1589040	2	to be bereaved of; to be preceded by (someone) in death	bị mất (người thân)
+1589040	3	to be slow (of a clock or watch)	(đồng hồ) chạy chậm
+1333550	0	to gather; to collect; to assemble	tập trung; tụ tập; tập hợp
+1282490	0	suburb; residential area on the outskirt of a city; commuter belt	ngoại ô
+1531190	0	daughter	con gái
+1531190	1	girl (i.e. a young, unmarried woman)	cô gái (trẻ, chưa chồng)
+1376310	0	star (usu. not including the Sun); planet (usu. not including Earth); heavenly body	ngôi sao; hành tinh; thiên thể
+1376310	1	star (glyph, symbol, shape)	hình ngôi sao
+1376310	2	star (actor, player, etc.)	ngôi sao (diễn viên, cầu thủ)
+1376310	3	small dot; spot; fleck	chấm nhỏ; đốm
+1376310	4	star point (in go); hoshi; intersection marked with a dot	điểm sao (cờ vây)
+1376310	5	perp; perpetrator; mark; offender; suspect	thủ phạm; nghi phạm
+1376310	6	bullseye	hồng tâm
+1376310	7	one's star (that determines one's fate); one's fortune	vận mệnh; số phận
+1376310	8	point; score	điểm; điểm số
+1192700	0	science	khoa học
+1252390	0	police	cảnh sát
+1252390	1	police officer	viên cảnh sát
+1252390	2	police station	đồn cảnh sát
+1218560	0	danger; peril; hazard	nguy hiểm
+1218560	1	risk	rủi ro
+1589260	0	to drop; to lose; to let fall; to shed (light); to cast (one's gaze); to pour in (liquid); to leave behind	đánh rơi; làm rơi; đánh mất; để lại
+1589260	1	to clean off (dirt, makeup, paint, etc.); to remove (e.g. stains or facial hair); to lose; to spend money at a certain place; to omit; to leave out; to secretly let escape	tẩy (vết bẩn, trang điểm); bỏ sót; tiêu tiền (ở đâu đó)
+1589260	2	to lose (a match); to reject (an applicant); to fail (a course); to defeat (in an election)	thua (trận); đánh trượt (thí sinh); trượt (môn)
+1589260	3	to lower (e.g. shoulders or voice); to lessen (e.g. production or body weight); to worsen (quality); to reduce (e.g. rank or popularity); to speak badly of; to make light of; to fall into straitened circumstances	hạ (giọng, vai); giảm (sản lượng, cân nặng); làm giảm (chất lượng, uy tín)
+1589260	4	to fall into (e.g. a dilemma or sin); to make one's own; to have one's bid accepted; to force surrender; to take (e.g. an enemy camp or castle); to forcefully convince; to press for a confession; to deal with	chiếm (thành); trúng thầu; thuyết phục; ép cung
+1589260	5	to download; to copy from a computer to another medium	tải xuống
+1589260	6	to make someone swoon (judo)	làm ngất (judo)
+1589260	7	to finish a story (e.g. with the punch line)	kết thúc (câu chuyện bằng câu chốt)
+1589260	8	to finish (a period, e.g. of fasting)	kết thúc (thời gian ăn chay...)
+1221520	0	spirit; mind; heart	tinh thần; tâm trí; khí
+1221520	1	nature; disposition	tính khí; bản tính
+1221520	2	motivation; intention	động lực; ý định
+1221520	3	mood; feelings	tâm trạng; cảm xúc
+1221520	4	ambience; atmosphere; mood	bầu không khí
+1308690	0	citizen; citizenry; public	công dân; người dân
+1308690	1	city inhabitant; townspeople	thị dân
+1308690	2	bourgeoisie; middle class	giai cấp tư sản; tầng lớp trung lưu
+1593670	0	to search for; to look for; to hunt for; to seek	tìm; tìm kiếm
+1593670	1	to search (a house, pocket, etc.); to search through; to rummage in (e.g. a drawer); to fish around	lục tìm; lục soát
+1106400	0	piano	đàn piano
+1262530	0	severe; strict; rigid; unsparing; relentless	nghiêm khắc; khắt khe
+1262530	1	hard (to do); difficult; tricky	khó khăn; gay go
+1262530	2	intense (e.g. cold); harsh (weather); inclement	khắc nghiệt (thời tiết)
+1548550	0	to fall down; to drop; to fall (e.g. rain); to sink (e.g. sun or moon); to fall onto (e.g. light or one's gaze); to be used in a certain place (e.g. money)	rơi; rớt; (mặt trời) lặn; (ánh sáng, ánh mắt) rơi vào
+1548550	1	to be omitted; to be missing	bị bỏ sót; bị thiếu
+1548550	2	to decrease; to sink	giảm; hạ xuống
+1548550	3	to fail (e.g. exam or class); to lose (contest, election, etc.)	thi trượt; thua (cuộc thi, bầu cử)
+1548550	4	to crash; to degenerate; to degrade; to fall behind	sa sút; xuống cấp; tụt lại
+1548550	5	to become indecent (of a conversation)	(câu chuyện) trở nên thô tục
+1548550	6	to be ruined; to go under	suy tàn; phá sản
+1548550	7	to fade; to come out (e.g. a stain); to come off (e.g. makeup); to be removed (e.g. illness, possessing spirit, name on a list)	phai; (vết bẩn) sạch; (trang điểm) trôi
+1548550	8	to fall (into someone's hands); to become someone's possession	rơi vào tay (ai)
+1548550	9	to fall (into a trap); to fall (for a trick)	mắc (bẫy); mắc lừa
+1548550	10	to give in; to give up; to confess; to flee	chịu thua; khai ra; bỏ trốn
+1548550	11	to fall; to be defeated; to surrender	thất thủ; đầu hàng
+1548550	12	to come to (in the end); to end in	rốt cuộc thành
+1548550	13	to fall (in love, asleep, etc.)	rơi vào (lưới tình); chìm vào (giấc ngủ)
+1548550	14	to swoon (judo)	ngất (judo)
+1548550	15	to consent; to understand	hiểu ra; chịu
+1548550	16	to go down (of a website, server, etc.); to crash	(trang web, máy chủ) sập
+1548550	17	to log out (of an online game, chat room, etc.); to drop out; to leave; to go offline	thoát (game, phòng chat); rời mạng
+1548550	18	to die	chết
+1548550	19	to move to the depths	chìm xuống đáy
+1548550	20	to go down (of a website, server, etc.)	(trang web, máy chủ) sập
+1070650	0	stereo	âm thanh nổi; dàn stereo
+1347710	0	future (usually near); prospects	tương lai; triển vọng
+1284430	0	to come together; to merge; to unite; to meet	hợp lại; gặp nhau
+1284430	1	to fit; to match; to suit; to agree with; to be correct	vừa; hợp; khớp; đúng
+1284430	2	to be profitable; to be equitable	có lời; công bằng
+1284430	3	to do ... to each other; to do ... together	(làm) với nhau; cùng nhau
+1376600	0	right; correct	đúng; chính xác
+1376600	1	proper; righteous; just; honest; truthful; lawful	đúng đắn; chính trực; trung thực
+1446760	0	island	đảo; hòn đảo
+1446760	1	one's territory (e.g. of a sex worker, organized crime gang); one's turf	địa bàn (của băng nhóm)
+1234140	0	competition; contest; rivalry; race	cạnh tranh; cuộc đua
+1234140	1	competition (between organisms or species)	cạnh tranh (giữa các loài)
+1245570	0	airport	sân bay
+1245470	0	air; atmosphere	không khí
+1245470	1	mood; situation	bầu không khí; tình hình
+1245470	2	someone with no presence; someone who doesn't stand out at all	người mờ nhạt; người không ai để ý
+1155180	0	within; inside of; less than	trong vòng; không quá
+1559900	0	contacting; (making) contact; getting in touch; communication; correspondence; call; message	liên lạc; liên hệ; tin nhắn
+1559900	1	connection (with a train, bus, etc.); joining (a railway line, etc.); meeting	nối chuyến (tàu, xe); kết nối
+1559900	2	connection (between matters, incidents, etc.); relation; link	mối liên hệ (giữa các sự việc)
+1405890	0	graduation; completion (of a course)	tốt nghiệp; học xong
+1405890	1	moving on (from); outgrowing (something); leaving (a group, company, etc.); quitting	rời (nhóm, công ty); từ bỏ; vượt qua (giai đoạn)
+1447000	0	to throw; to hurl; to fling; to toss; to cast	ném; quăng; tung
+1447000	1	to give up; to abandon; to throw away	từ bỏ; buông xuôi
+1447000	2	to cast (a glance, shadow, doubt, etc.)	ném (ánh mắt); gieo (nghi ngờ)
+1207270	0	to enjoy (oneself)	thưởng thức; tận hưởng
+1198880	0	conversation	hội thoại; cuộc trò chuyện
+1238410	0	interest (in something); curiosity (about something); zest (for)	hứng thú; sự quan tâm
+1032390	0	overcoat	áo khoác ngoài
+1032390	1	exceeding; going over; going beyond	vượt quá
+1032390	2	exaggerated; over the top; overdrawn; overreaction	phóng đại; quá lố
+1032390	3	over par	trên điểm chuẩn (golf)
+1032390	4	overexposure	phơi sáng quá mức
+1378520	0	to live; to exist	sống; tồn tại
+1378520	1	to make a living; to subsist	kiếm sống
+1378520	2	to be in effect; to be in use; to function	còn hiệu lực; phát huy tác dụng
+1378520	3	to come to life; to be enlivened	sống động; trở nên sinh động
+1378520	4	to be safe (in baseball, go, etc.)	an toàn (bóng chày, cờ vây)
+1184170	0	to hang; to suspend; to wear (e.g. decoration)	treo; đeo (huân chương)
+1184170	1	to lower; to reduce; to bring down	hạ xuống; giảm
+1184170	2	to demote; to move back; to pull back	giáng chức; lùi lại; kéo lui
+1184170	3	to clear (plates); to remove (food, etc. from table or altar)	dọn (bát đĩa); dọn xuống
+1184170	4	to keep on playing after one has formed a scoring combination with captured cards	tiếp tục chơi sau khi đã có bộ bài ghi điểm
+1477170	0	pronunciation	phát âm
+1477170	1	production of sound	phát ra âm thanh
+1310670	0	to stop; to turn off	dừng; tắt
+1310670	1	to park	đỗ (xe)
+1310670	2	to prevent; to suppress (a cough); to hold back (tears); to hold (one's breath); to relieve (pain)	ngăn; nín (ho, nước mắt); nín (thở); giảm (đau)
+1310670	3	to stop (someone from doing something); to dissuade; to forbid; to prohibit	can ngăn; cấm
+1310670	4	to notice; to be aware of; to concentrate on; to pay attention to; to remember; to bear in mind	để ý; lưu tâm; ghi nhớ
+1310670	5	to fix (in place); to fasten; to tack; to pin; to nail; to button; to staple	cố định; gắn; ghim; đóng (đinh); cài (cúc)
+1310670	6	to detain; to keep in custody	giữ lại; tạm giữ
+1310680	0	to stop (an activity); to cease; to discontinue; to end; to quit	thôi; ngừng; bỏ
+1310680	1	to cancel; to abandon; to give up; to abolish; to abstain; to refrain	hủy; từ bỏ; bãi bỏ; kiêng
+1543750	0	reservation; appointment; booking; advance order	đặt trước; đặt chỗ; hẹn trước
+1543750	1	contract; subscription; pledge	hợp đồng; đăng ký; cam kết
+1543750	2	programming (e.g. a device); setting (e.g. a timer)	hẹn giờ; cài đặt (thiết bị)
+1329000	0	hobby; pastime	sở thích; thú vui
+1329000	1	tastes; preference; liking	gu; khẩu vị; sự ưa thích
+1315130	0	character (esp. kanji); letter; written text	chữ; chữ cái; chữ viết
+1315130	1	handwriting; penmanship	nét chữ
+1315130	2	the ... word (e.g. "the L word" = "love")	chữ ... (vd. "chữ Y" = yêu)
+1551530	0	to stand up; to put up; to set up; to erect; to raise	dựng; dựng lên; đặt đứng; giơ lên
+1551530	1	to thrust into; to bury into; to dig into	cắm vào; đâm vào
+1551530	2	to make (a noise); to start (a rumour); to raise (a cloud of dust, etc.); to cause	gây (tiếng ồn); tung (tin đồn); làm (bụi) bay
+1551530	3	to make; to establish; to set up; to develop; to formulate	lập; thiết lập; xây dựng; đề ra
+1551530	4	to put up (a political candidate); to make (one's leader)	đề cử (ứng viên); tôn làm (thủ lĩnh)
+1551530	5	to treat with respect; to give (someone) their due; to make (someone) look good; to avoid embarrassing (someone)	tôn trọng; giữ thể diện cho ai
+1551530	6	to sharpen; to make clear	mài sắc; làm rõ
+1551530	7	to shut; to close	đóng (cửa)
+1551530	8	to make tea (matcha); to perform the tea ceremony	pha trà matcha; làm trà đạo
+1551530	9	to divide by	chia cho
+1551530	10	to do ... vigorously	(làm ...) hăng say
+1158210	0	to move (house); to transfer (department)	chuyển (nhà); chuyển (bộ phận)
+1158210	1	to change the target of interest or concern	chuyển (mối quan tâm)
+1158210	2	to elapse (passage of time)	(thời gian) trôi qua
+1158210	3	to be permeated by a colour or scent	ám (màu, mùi)
+1158210	4	to be infected; to be contagious; to spread (as in fire)	lây; lan (lửa)
+1445790	0	to fall (over, down); to collapse; to take a fall; to topple	ngã; đổ; sụp
+1445790	1	to be destroyed (in a collapse); to collapse; to cave in; to crumble; to give away	sập; đổ nát
+1445790	2	to be confined to bed (with an illness); to come down with; to break down (e.g. from overwork)	ngã bệnh; gục ngã (vì làm việc quá sức)
+1445790	3	to die; to be killed	chết; tử nạn
+1445790	4	to go bankrupt (of a company, bank, etc.); to fail; to collapse; to go under	phá sản; sụp đổ
+1445790	5	to be defeated (in a game); to lose	thua (trận)
+1445790	6	to fall (of a government, dictator, etc.); to be overthrown	(chính phủ) sụp đổ; bị lật đổ
+1497980	0	to lose; to be defeated	thua; bị đánh bại
+1497980	1	to succumb; to give in; to surrender; to yield	khuất phục; chịu thua
+1497980	2	to be inferior to	kém hơn
+1497980	3	to break out in a rash due to (e.g. lacquer, shaving, etc.)	bị dị ứng nổi mẩn (sơn mài, cạo râu)
+1497980	4	to reduce the price; to give a discount; to throw in (something extra) for free	giảm giá; tặng thêm
+1283510	0	senior high school student	học sinh cấp ba
+1193610	0	fire; flame; blaze	lửa; ngọn lửa
+1278040	0	(manufacturing) industry	công nghiệp (chế tạo)
+1247250	0	you; buddy; pal	cậu; em; bạn
+1247250	1	monarch; ruler; sovereign; (one's) master	quân chủ; chủ nhân
+1307770	0	child	con; đứa trẻ
+1307770	1	young (animal)	con non (động vật)
+1307770	2	young woman; young geisha	cô gái trẻ; geisha trẻ
+1307770	3	offshoot	nhánh con
+1307770	4	interest	tiền lãi
+1307770	5	new shares	cổ phiếu mới
+1307770	6	player who is not a dealer (in cards, mahjong, etc.)	người chơi không làm cái (bài, mạt chược)
+1307770	7	bird egg	trứng chim
+1307770	8	-er (often of young women)	người ... (thường chỉ cô gái)
+1367300	0	population	dân số
+1367300	1	common talk	lời đồn đại
+1523400	0	translation	dịch; biên dịch
+1523400	1	deciphering; decoding	giải mã
+1523400	2	translation	bản dịch
+1226630	0	guest; visitor	khách; người đến thăm
+1226630	1	customer; client; shopper; spectator; audience; tourist; sightseer; passenger	khách hàng; khán giả; du khách; hành khách
+1226630	2	counter for containers used to entertain guests	(đếm đồ dùng tiếp khách)
+1220800	0	chance; opportunity	cơ hội; dịp
+1429060	0	to examine; to look up; to investigate; to check up; to sense; to study; to inquire; to search	tìm hiểu; tra cứu; điều tra; kiểm tra
+1294330	0	wife	vợ
+1294330	1	my dear; dear; honey	em yêu; mình ơi
+1294330	2	garnish (esp. one served with sashimi)	đồ ăn kèm (sashimi)
+1294330	3	embellishment	phần tô điểm
+2746070	0	edge; tip; end	mép; đầu; mút
+2746070	1	gable wall	tường đầu hồi
+2746070	2	gable	đầu hồi
+1505600	0	grammar	ngữ pháp
+1509290	0	wall; partition	tường; vách ngăn
+1509290	1	barrier; obstacle	rào cản; trở ngại
+1509290	2	Chinese "Wall" constellation (one of the 28 mansions)	sao Bích (nhị thập bát tú)
+1467710	0	heat	nhiệt; hơi nóng
+1467710	1	fever; temperature	sốt; nhiệt độ cơ thể
+1467710	2	zeal; passion; enthusiasm; mania; craze; rage	nhiệt huyết; đam mê; cơn sốt (trào lưu)
+1172660	0	to carry; to transport; to move; to convey	vận chuyển; chở; mang
+1172660	1	to come; to go	đến; đi
+1172660	2	to wield (a tool, etc.); to use	sử dụng (dụng cụ)
+1172660	3	to go (well, etc.); to proceed; to progress	tiến triển (thuận lợi)
+1444980	0	circumstances; condition; convenience	hoàn cảnh; sự thuận tiện
+1444980	1	to arrange; to manage	thu xếp
+1444980	2	to lend money; to raise money	xoay tiền; cho vay
+1444980	3	in all; in total; all told	tổng cộng
+1404390	0	son	con trai
+1404390	1	penis	dương vật
+1489340	0	surface	bề mặt
+1489340	1	face (i.e. the visible side of an object)	mặt (phía nhìn thấy)
+1489340	2	front (of a building, etc.); obverse side (i.e. "head") of a coin	mặt tiền; mặt sấp (đồng xu)
+1489340	3	outside; exterior	bên ngoài
+1489340	4	appearance	vẻ bề ngoài
+1489340	5	public	công khai
+1489340	6	first half (of an inning); top (of an inning)	nửa đầu hiệp (bóng chày)
+1489340	7	cover (for tatami mats, etc.)	mặt chiếu tatami
+1489340	8	foreground	tiền cảnh
+1517480	0	law	pháp luật; luật
+1295530	0	small	nhỏ
+1295530	1	fine; minute	mịn; li ti
+1295530	2	minor; trivial	nhỏ nhặt; vụn vặt
+1295530	3	sensitive; attentive	tinh tế; chu đáo
+1295530	4	careful; frugal; stingy	tỉ mỉ; tằn tiện; keo kiệt
+1486360	0	beautiful; pretty; lovely; sweet; pure (heart, friendship, etc.)	đẹp; xinh đẹp; trong sáng (tâm hồn, tình bạn)
+1116840	0	present; gift	quà; quà tặng
+1116840	1	to give a present or gift	tặng quà
+1255060	0	blood	máu
+1255060	1	blood; ancestry; lineage; stock	dòng máu; dòng dõi
+1255060	2	(the) blood; feelings; passions	nhiệt huyết; tình cảm
+1365040	0	parent; parents; mother and father	cha mẹ; bố mẹ
+1365040	1	dealer (in cards, mahjong, etc.); banker	nhà cái (bài, mạt chược)
+1365040	2	founder; inventor	người sáng lập; người phát minh
+1365040	3	(pet) owner	chủ (thú nuôi)
+1365040	4	key; parent (organization); main	chính; mẹ (tổ chức)
+1365040	5	ancestor; forefather	tổ tiên
+1604570	0	to discover; to find (e.g. an error in a book); to come across; to detect; to spot	tìm thấy; phát hiện
+1604570	1	to locate; to find (e.g. something missing); to find fault	tìm ra (đồ thất lạc); bắt lỗi
+1604570	2	to be used to seeing; to be familiar with	quen nhìn thấy
+1520120	0	trade (foreign)	thương mại; mậu dịch
+1120010	0	bell	chuông
+1120010	1	bel; B	đơn vị bel
+1538130	0	promise; agreement; arrangement; one's word; contract; pact; appointment; engagement; date	lời hứa; cuộc hẹn; thỏa thuận
+1538130	1	convention; rule	quy ước; quy tắc
+1538130	2	destiny; fate	số phận; định mệnh
+1423650	0	junior high school; middle school; lower secondary school	trường trung học cơ sở
+1432850	0	to go to and from (a place); to go back and forth between; to run between (e.g. bus, train, etc.); to ply between	đi lại (giữa hai nơi); chạy tuyến (xe, tàu)
+1432850	1	to go to (school, work, etc.); to attend; to commute; to frequent	đi (học, làm); lui tới
+1432850	2	to circulate (e.g. blood, electricity); to be communicated (e.g. thought)	lưu thông (máu, điện); truyền (ý nghĩ)
+1432850	3	to resemble	giống nhau
+1184160	0	to come down; to go down; to fall; to drop; to sink; to get lower	hạ xuống; giảm; rơi
+1184160	1	to hang; to dangle	treo; lủng lẳng
+1184160	2	to move back; to step back; to withdraw; to retire	lùi lại; rút lui
+1184160	3	to deteriorate; to fall off; to be downgraded	sa sút; bị hạ cấp
+1184160	4	to get closer to the present day	gần với thời hiện tại hơn
+1184160	5	to go south	đi xuống phía nam
+1347870	0	primary school; elementary school; grade school	trường tiểu học
+1414920	0	considerably; greatly; a lot	khá; đáng kể
+1604290	0	circumference; girth	chu vi; vòng
+1604290	1	surroundings; neighbourhood; neighborhood; vicinity	xung quanh; vùng lân cận
+1604290	2	people surrounding oneself; surrounding circumstances	những người xung quanh
+1382370	0	olden days; former	ngày xưa; thời xưa
+1606810	0	rate; ratio; percentage; proportion	tỉ lệ; phần trăm
+1606810	1	comparatively	tương đối
+1606810	2	contrary to expectations	ngoài dự đoán
+1237030	0	church; congregation	nhà thờ; giáo đoàn
+1555440	0	wood; woods; forest; grove; copse; thicket	rừng nhỏ; lùm cây
+1555440	1	bunch (of something); cluster; line; collection	cụm; hàng; tập hợp
+1505190	0	literature	văn học
+1604550	0	to be found; to be discovered	được tìm thấy; bị phát hiện
+1272820	0	to shine; to glitter; to be bright	chiếu sáng; lấp lánh
+1599390	0	to cure; to heal	chữa (bệnh)
+1599390	1	to fix; to correct; to repair	sửa; sửa chữa
+1599390	2	to do over again	làm lại
+1599390	3	to replace; to put back as it was	đặt lại như cũ
+1599390	4	to convert (into a different state); to transform	chuyển đổi
+1436510	0	extent; degree; measure	mức độ; chừng mực
+1436510	1	limit; bounds	giới hạn
+1436510	2	(span of) time	khoảng thời gian
+1436510	3	(a) distance	khoảng cách
+1436510	4	the state of; the status of; the condition of	tình trạng
+1436510	5	about; around; approximately; or so	khoảng; chừng
+1436510	6	as much as ...; to the extent of ...; like ...	đến mức; như
+1436510	7	the more ... the more ...	càng ... càng ...
+1510640	0	strange; odd; peculiar; weird; curious; queer; eccentric; funny; suspicious; fishy	lạ; kỳ quặc; đáng ngờ
+1510640	1	unexpected	bất ngờ
+1510640	2	change	sự thay đổi
+1510640	3	incident; disturbance; disaster; accident	biến cố; tai họa
+1510640	4	flat	giáng (âm nhạc)
+1592270	0	neck	cổ
+1592270	1	head	đầu
+1592270	2	dismissal; discharge; firing (from a job)	đuổi việc; sa thải
+1246440	0	corner; nook; recess	góc
+1246440	1	downstage right (on a noh stage)	góc phải sân khấu Noh
+1289370	0	this time; now	lần này
+1289370	1	next time; another time; shortly; soon	lần sau; sắp tới
+1289370	2	recently; lately; the other day	gần đây; hôm nọ
+1521400	0	I; me	tôi; tớ (nam giới)
+1521400	1	you	em; cháu (gọi bé trai)
+1521400	2	manservant	người hầu nam
+1322320	0	to throw away; to cast away; to dump; to discard	vứt; vứt bỏ
+1322320	1	to abandon; to desert; to leave	bỏ rơi; ruồng bỏ
+1322320	2	to give up; to resign	từ bỏ
+1450270	0	to step on; to tread on; to trample on	giẫm; đạp
+1450270	1	to set foot on (e.g. foreign soil); to stand on; to visit	đặt chân lên
+1450270	2	to experience; to undergo	trải qua
+1450270	3	to follow (rules, principles, etc.); to go through (e.g. formalities); to complete	tuân theo (quy tắc); làm (thủ tục)
+1450270	4	to estimate; to guess; to judge; to value; to appraise	ước tính; đoán; định giá
+1450270	5	to rhyme	gieo vần
+1450270	6	to succeed to (e.g. the throne)	kế vị (ngai vàng)
+1202150	0	everyone; everybody; all	mọi người; tất cả
+1202150	1	everything; all	tất cả mọi thứ
+1238680	0	to be surprised; to be astonished	ngạc nhiên; kinh ngạc
+1546550	0	leaf; blade (of grass); (pine) needle	lá; lá cây
+1559290	0	to take (someone) with one; to bring along; to go with; to be accompanied by	dẫn theo; đưa theo; đi cùng
+1593410	0	to be crowded; to be packed	đông đúc; chật ních
+1593410	1	to be complex	phức tạp
+1593410	2	to go into; to put into; to remain (seated); to be plunged into (silence); to do thoroughly	vào trong; cho vào; (im lặng) hẳn; làm kỹ
+1593410	3	to do intently	làm chăm chú
+1593410	4	to continue in the same state	giữ nguyên trạng thái
+1068550	0	screen	màn hình; màn chiếu
+1596780	0	typhoon; hurricane	bão
+1379750	0	prosperous; flourishing; thriving; successful	thịnh vượng; phát đạt
+1379750	1	popular; widespread	phổ biến; thịnh hành
+1379750	2	active; lively; energetic; vigorous; brisk; strong	sôi nổi; mạnh mẽ
+1379750	3	enthusiastic; eager; hearty; frequent; repeated	nhiệt tình; liên tục
+1595270	0	dictionary; lexicon	từ điển
+1562850	0	arm	cánh tay
+1562850	1	skill; efforts; ability	tay nghề; năng lực
+1308090	0	city	thành phố
+1433030	0	to go by; to go past; to go along; to travel along; to pass through; to use (a road); to take (a route); to go via; to go by way of	đi qua; đi ngang qua; đi theo (đường)
+1433030	1	to run (between; of a rail service, bus route, etc.); to operate (between); to connect	chạy (tuyến xe, tàu); nối
+1433030	2	to go indoors; to go into a room; to be admitted; to be shown in; to be ushered in; to come in	vào (phòng); được mời vào
+1433030	3	to penetrate; to pierce; to skewer; to go through; to come through	xuyên qua; xuyên thủng
+1433030	4	to permeate; to soak into; to spread throughout	thấm; lan khắp
+1433030	5	to carry (e.g. of a voice); to reach far	(tiếng) vang xa
+1433030	6	to be passed on (e.g. of a customer's order to the kitchen); to be relayed; to be conveyed	được chuyển đến (đơn gọi món)
+1433030	7	to pass (a test, a bill in the House, etc.); to be approved; to be accepted	đỗ (kỳ thi); được thông qua (dự luật)
+1433030	8	to go by (a name); to be known as; to be accepted as; to have a reputation for	được biết đến với tên; nổi tiếng là
+1433030	9	to be coherent; to be logical; to be reasonable; to be comprehensible; to be understandable; to make sense	hợp lý; dễ hiểu
+1433030	10	to get across (e.g. of one's point); to be understood	(ý) được hiểu
+1433030	11	to pass for; to come across as; to seem like	được xem như
+1433030	12	to be straight (e.g. wood grain)	thẳng (thớ gỗ)
+1433030	13	to be well-informed; to be wise	thông thạo
+1433030	14	to do ... completely; to do ... thoroughly	làm ... trọn vẹn
+1295070	0	to finish; to end; to be completed	xong; kết thúc
+1295070	1	to merely result in something less severe than expected	chỉ dẫn đến (hậu quả nhẹ hơn)
+1295070	2	to feel at ease	yên tâm
+1295070	3	to feel unease or guilt for troubling someone; to be sorry	áy náy; xin lỗi
+1367120	0	doll; puppet; figure	búp bê; con rối
+1596930	0	sure; certain; positive; definite	chắc chắn; xác thực
+1596930	1	reliable; trustworthy; safe; sound; firm; accurate; correct; exact	đáng tin cậy; vững; chính xác
+1596930	2	If I'm not mistaken; If I remember correctly; If I remember rightly	nếu tôi nhớ không nhầm
+1448580	0	hot water	nước nóng
+1448580	1	hot bath; hot spring	bồn tắm nước nóng; suối nước nóng
+1448580	2	molten iron	sắt nóng chảy
+1160570	0	to raise; to rear; to bring up	nuôi; nuôi dưỡng
+1160570	1	to train; to teach; to educate	đào tạo; dạy dỗ
+1160570	2	to promote the growth of; to nurture; to foster; to develop	vun đắp; phát triển
+1485520	0	airfield; airport	sân bay
+1499460	0	head (chief, director) of a section or department	trưởng phòng; trưởng ban
+1499460	1	head of a (school) club; head of a (school) team	trưởng câu lạc bộ (trường)
+1413260	0	university student; college student	sinh viên đại học
+1351360	0	to laugh	cười
+1351360	1	to smile	mỉm cười
+1351360	2	to sneer; to ridicule	cười nhạo; chế giễu
+1351360	3	to be dumbfounded; to be flabbergasted	sững sờ; ngớ người
+1530970	0	unreasonable; unnatural; unjustifiable	vô lý; không hợp lý
+1530970	1	impossible	không thể
+1530970	2	forcible; forced; compulsory	ép buộc; cưỡng ép
+1530970	3	excessive (work, etc.); immoderate	quá sức
+1530970	4	to work too hard; to try too hard	cố quá sức
+1530970	5	no way; not a chance; never; dream on	không đời nào; đừng mơ
+1530970	6	irrational	vô tỉ (số)
+1437450	0	suitable; proper; appropriate; adequate; fit; fair	thích hợp; phù hợp
+1437450	1	perfunctory; half-minded; sloppy; lazy; careless; noncommittal; unreliable; irresponsible	qua loa; đại khái; tùy tiện
+1581710	0	daytime; during the day; time from sunrise until sunset; diurnal period	ban ngày
+1372980	0	mathematics; arithmetic	toán học
+1173100	0	cloud	mây; đám mây
+1215260	0	to be in time (for)	kịp; kịp giờ
+1215260	1	to serve (suit, meet) the purpose; to be good enough; to be enough; to manage; to make do	đủ dùng; đáp ứng được
+1542070	0	playing	trò chơi; sự vui chơi
+1542070	1	play (margin between on and off, gap before pressing button or lever has an effect)	độ rơ (khoảng hở trước khi có tác dụng)
+1019280	0	alcohol	cồn; rượu
+1019280	1	(alcohol-based) hand sanitizer	nước rửa tay khô
+1591150	0	to be heard; to be audible	nghe thấy được
+1591150	1	to be said to be; to be reputed	được nói là; nghe đồn là
+1467910	0	zealous; enthusiastic; ardent; fervent; keen; eager	nhiệt tình; hăng say; chăm chỉ
+1404740	0	to be sufficient; to be enough	đủ
+1404740	1	to be worth doing; to be worthy of; to deserve	đáng (làm)
+1404740	2	to do (the job); to serve; to answer	đáp ứng được
+1584060	0	to wrap up; to pack; to bundle; to do up	gói; bọc
+1584060	1	to cover; to envelop; to shroud; to engulf	bao phủ; bao trùm
+1584060	2	to conceal (a feeling); to hide	che giấu (cảm xúc)
+1584060	3	to give (money in an envelope; as a wedding gift, funeral offering, etc.)	biếu (tiền trong phong bì)
+1590480	0	shape; form; figure; posture; pose	hình dáng; tư thế
+1590480	1	appearance	vẻ ngoài
+1590480	2	state; situation	tình trạng
+1590480	3	suitable; fit; reasonable	phù hợp; hợp lý
+1590480	4	about	khoảng
+1600160	0	price; cost	giá; giá cả
+1501620	0	to pay (e.g. money, bill)	trả (tiền)
+1501620	1	to brush off; to wipe away; to clear away; to dust off; to cut off (e.g. branches)	phủi; lau; tỉa (cành)
+1501620	2	to drive away (e.g. one's competitors)	đuổi đi
+1501620	3	to sell off (something unneeded); to dispose of	bán đi; thanh lý
+1501620	4	to pay (e.g. attention); to show (e.g. respect, concern)	chú ý; tỏ (sự tôn trọng)
+1501620	5	to make (e.g. effort, sacrifice); to expend; to exert	bỏ ra (công sức); hy sinh
+1501620	6	to move out (of one's own place); to vacate	dọn đi; dọn khỏi
+1501620	7	to sweep (e.g. one's legs); to knock aside	quét (chân); gạt sang
+1501620	8	to make a sweeping stroke (in Japanese calligraphy)	nét phẩy (thư pháp)
+1501620	9	to reset (an abacus)	gạt lại (bàn tính)
+1591430	0	feeling; sensation; mood; state of mind	cảm giác; tâm trạng
+1591430	1	preparedness; readiness; attitude	sự sẵn sàng; thái độ
+1591430	2	thought; sentiment; consideration; solicitude; gratitude	tấm lòng; tình cảm; lòng biết ơn
+1591430	3	slightly; a bit; a little	một chút; hơi
+1212670	0	to get used to; to grow accustomed to; to become familiar with	quen; quen với
+1212670	1	to become skilled in; to become experienced at	thành thạo
+1212670	2	to become tame; to become domesticated	thuần (động vật)
+1212670	3	to get used to doing	quen làm
+1004690	0	the other day; lately; recently; during this period	hôm nọ; gần đây
+1004690	1	meanwhile; in the meantime	trong lúc đó
+1496480	0	husband	chồng
+1006610	0	appearing that; seeming that; looking like; having the appearance of	có vẻ; trông như
+1449530	0	answer; reply; response; solution	câu trả lời; đáp án; lời giải
+1463930	0	diary; journal	nhật ký
+1588060	0	reception (desk); information desk	quầy lễ tân; quầy thông tin
+1588060	1	receipt; acceptance	tiếp nhận; thụ lý
+1222840	0	season; time of year	mùa
+1404700	0	to add (numbers)	cộng (số)
+1404700	1	to add (something); to top up (with something)	thêm vào; bổ sung
+1404700	2	to take care of (e.g. one's business)	giải quyết (công việc)
+1538440	0	to dance (orig. a hopping dance)	nhảy; múa
+1215330	0	to make a mistake (in); to commit an error (e.g. in calculation)	nhầm; làm sai
+1215330	1	to confuse; to mistake something for something else	nhầm lẫn (cái này với cái kia)
+1602800	0	ship; boat; watercraft; vessel; seaplane	thuyền; tàu
+1602800	1	tank; tub; vat; trough	bể; thùng; máng
+1602800	2	counter for boat-shaped containers (e.g. of sashimi)	(đếm khay hình thuyền, vd. sashimi)
+1309650	0	finger; toe; digit	ngón tay; ngón chân
+1606590	0	to part (usu. of people); to part from; to part with; to be apart from	chia tay; chia biệt
+1606590	1	to separate (of a couple); to break up; to divorce	chia tay (đôi lứa); ly hôn
+1606590	2	to lose (e.g. one's mother); to be bereaved	mất (người thân)
+1382440	0	stone	đá; hòn đá
+1382440	1	jewel; precious stone	đá quý
+1382440	2	flint (in a lighter)	đá lửa (bật lửa)
+1382440	3	stone (in go)	quân cờ (cờ vây)
+1382440	4	stone (in the bladder, kidney etc.); calculus	sỏi (thận, bàng quang)
+1382440	5	rock (in rock-paper-scissors); stone	búa (oẳn tù tì)
+1032030	0	motorcycle	xe máy; mô tô
+1172400	0	lie; fib; falsehood; untruth	lời nói dối
+1172400	1	mistake; error	sai lầm
+1172400	2	unwise move; bad decision	nước đi dở
+1172400	3	no way!; unbelievable!; really?!	không thể nào!; thật á?!
+1218760	0	to be delighted; to be glad; to be pleased	vui mừng; hài lòng
+1218760	1	to congratulate	chúc mừng
+1218760	2	to gratefully accept	vui lòng nhận
+1448440	0	to steal	ăn trộm; lấy cắp
+1309260	0	to recall; to remember; to recollect	nhớ ra; hồi tưởng
+1388410	0	senior (at work or school); superior; elder; older graduate; progenitor; old-timer	tiền bối; đàn anh, đàn chị
+1328190	0	to help; to assist; to aid	giúp; giúp đỡ
+1328190	1	to contribute to; to be a factor in	góp phần
+1594110	0	way; method; means; resource; course	cách; phương pháp
+1414580	0	mostly; ordinarily; usually; generally	thường; phần lớn
+1414580	1	probably	có lẽ
+1414580	2	most; almost all	hầu hết
+1414580	3	ordinary	bình thường
+1414580	4	proper; appropriate; moderate	vừa phải; đúng mực
+1310530	0	branch; bow; bough; twig; limb	cành; nhánh
+1040250	0	gasoline; petrol	xăng
+1450330	0	to escape; to run away	chạy trốn; bỏ chạy
+1019420	0	part-time job; side job	việc làm thêm
+1019420	1	part-time worker	người làm thêm
+1019420	2	albite	khoáng albite
+1334080	0	address (e.g. of house); residence; domicile	địa chỉ; nơi cư trú
+1244310	0	bitter	đắng
+1621470	0	Metropolis (of Tokyo); (Tokyo) Metropolitan District; metropolitan prefecture	đô (thủ đô Tokyo)
+1621470	1	counter for cities and towns	(đếm thành phố)
+1621470	2	capital	kinh đô; thủ đô
+1315240	0	temple (Buddhist)	chùa
+1390800	0	shallow; superficial	nông; hời hợt
+1390800	1	slight (wound); light (sleep); pale (colour); inadequate (knowledge)	nhẹ (vết thương); chập chờn (giấc ngủ); nhạt (màu); nông cạn (kiến thức)
+1390800	2	short (time); early; young	ngắn (thời gian); sớm; non trẻ
+1371320	0	swimming	bơi lội
+1592500	0	condition; state	tình trạng
+1592500	1	health; state (of health)	sức khỏe
+1592500	2	way; manner	cách; kiểu
+1592500	3	circumstance; luck	hoàn cảnh; may rủi
+1592500	4	face; dignity; decency; propriety	thể diện
+1586265	0	to become less crowded; to thin out; to get empty	vắng; thưa người
+1586265	1	to be hungry	đói
+1199900	0	to be broken; to break	bị hỏng; vỡ
+1199900	1	to fall through; to come to nothing	đổ bể; hỏng việc
+1557290	0	air conditioning; air cooling	điều hòa; máy lạnh
+1229840	0	to cry; to weep; to sob; to howl	khóc
+1199890	0	to break; to destroy; to demolish	làm hỏng; phá hủy; làm vỡ
+1199890	1	to wreck; to ruin; to spoil; to damage	làm hỏng; phá hoại
+1199890	2	to break (a bill, etc.)	đổi (tiền lẻ)
+1401910	0	grass; weed; herb; thatch	cỏ
+1401910	1	ninja	ninja
+1401910	2	not genuine; substandard	giả; kém chất lượng
+1401910	3	LOL; haha	lol; haha (tiếng lóng mạng)
+1413940	0	important; serious; crucial	quan trọng; hệ trọng
+1413940	1	valuable; precious	quý giá
+1413940	2	serious matter; major incident; matter of grave concern; crisis	chuyện hệ trọng; khủng hoảng
+1413940	3	great undertaking; great enterprise; great thing	đại sự; việc lớn
+1413940	4	safe; OK	không sao; ổn
+1332570	0	to pick up; to find; to gather	nhặt; nhặt được
+1397300	0	wonderful; splendid; magnificent	tuyệt vời; tráng lệ
+1304680	0	deplorable; regrettable; disappointing; vexing; unfortunate	đáng tiếc; tiếc nuối
+1426680	0	insect; bug; cricket; moth	côn trùng; sâu bọ
+1426680	1	worm; roundworm	giun
+1426680	2	one's emotions; one's feelings	cảm xúc
+1426680	3	nervousness; fretfulness	sự bồn chồn
+1426680	4	person devoted to one thing; single-minded person	người mê (một thứ)
+1426680	5	valve core	ruột van (xe)
+1426680	6	mushi (type of game played with a stripped deck)	trò chơi bài mushi
+1454180	0	tool; implement; instrument; utensil; apparatus; device	dụng cụ; công cụ
+1454180	1	means	phương tiện
+1454180	2	furniture	đồ đạc
+1228650	0	to hurry; to rush; to hasten; to make something happen sooner	vội; khẩn trương
+1472800	0	back (of body)	lưng
+1477950	0	hair (on the head)	tóc
+1333090	0	habit	thói quen
+1333090	1	(social) custom; practice; convention	tập quán; phong tục
+1539040	0	tender; kind; gentle; graceful; affectionate; amiable	dịu dàng; hiền; tốt bụng
+1445690	0	to get angry; to get mad	giận; nổi giận
+1445690	1	to tell someone off; to scold	mắng
+1445690	2	to be angular; to be square	có góc cạnh
+1258570	0	laboratory	phòng thí nghiệm
+1258570	1	seminar room	phòng seminar
+1258570	2	professor's office	phòng giáo sư
+1444270	0	to paint; to plaster; to lacquer; to varnish; to spread; to smear; to put up (wallpaper)	sơn; trát; quét; bôi; dán (giấy tường)
+1600530	0	vehicle; conveyance; transport	phương tiện giao thông
+1600530	1	ride (playground, fair, carnival); playground facility	trò chơi (khu vui chơi)
+1182710	0	rooftop	sân thượng
+1335440	0	judo	nhu đạo; judo
+1001640	0	grace (of God); benevolence (of Buddha); blessing	ơn trời; phúc
+1001640	1	assistance; help; aid	nhờ; sự giúp đỡ
+1001640	2	effects; influence	ảnh hưởng; tác động
+1209240	0	to bite	cắn
+1209240	1	to chew; to gnaw; to masticate	nhai
+1209240	2	to fumble one's words (esp. during a play, broadcast, etc.); to falter with one's words; to stutter; to stammer	vấp (lời); nói lắp
+1209240	3	to crash against (e.g. of waves); to break onto (shore)	(sóng) đập vào
+1209240	4	to engage (of cogs, zippers, etc.); to mesh; to fit together	ăn khớp (bánh răng, khóa kéo)
+1209240	5	to be involved in	dính líu
+1209240	6	to convince; to persuade	thuyết phục
+1526960	0	flavor; flavour; taste	vị; mùi vị
+1526960	1	charm; appeal; uniqueness; attractiveness	nét hấp dẫn; nét đặc sắc
+1526960	2	experience; taste (e.g. of victory)	mùi (chiến thắng); trải nghiệm
+1526960	3	smart; clever; witty; strange	khéo; dí dỏm
+1606680	0	to grow hot (e.g. water); to boil	sôi; nóng lên
+1606680	1	to get excited (at); to erupt (in applause, cheering, etc.); to be in a ferment; to take place energetically	náo nhiệt; reo hò
+1606680	2	to ferment	lên men
+1606680	3	to melt (of metal)	nóng chảy (kim loại)
+1362400	0	newspaper company	tòa soạn báo
+1065680	0	jam	mứt
+1421540	0	geography	địa lý
+1222590	0	feeling; mood	tâm trạng; cảm giác
+1207250	0	enjoyment; pleasure; diversion; amusement; hobby	niềm vui; thú vui
+1207250	1	anticipation; looking forward to	mong chờ
+1426920	0	parking lot; car park; carpark; parking garage	bãi đỗ xe
+1208020	0	to break; to be smashed	vỡ
+1208020	1	to split; to crack; to fissure; to be torn	nứt; rạn; rách
+1208020	2	to be divided (opinion, vote, etc.); to split (e.g. of a party)	(ý kiến, phiếu) chia rẽ
+1208020	3	to come to light; to become clear; to be identified; to be revealed	lộ ra; bị phát hiện
+1208020	4	to be distorted (of a sound)	(âm thanh) bị rè
+1208020	5	to be divisible (without a remainder)	chia hết
+1208020	6	to go below a minimum	xuống dưới mức tối thiểu
+1350600	0	to burn	đốt
+1350600	1	to roast; to broil; to grill; to bake; to toast; to barbecue	nướng; quay
+1350600	2	to heat; to heat up	hâm nóng
+1350600	3	to make (charcoal, pottery, bricks, etc.); to bake; to fire; to burn	nung (gốm, gạch); đốt (than)
+1350600	4	to tan (i.e. suntan); to burn	rám nắng
+1350600	5	to print (a photo); to burn (an optical disc)	in (ảnh); ghi (đĩa)
+1350600	6	to be jealous of; to be envious of; to envy	ghen tị; ganh ghét
+1148520	0	word processor	máy xử lý văn bản
+1420410	0	to notify; to advise; to inform	thông báo; báo cho biết
+1486460	0	art gallery; art museum	bảo tàng mỹ thuật
+1457210	0	to deliver; to forward; to send	giao; chuyển đến; gửi
+1457210	1	to report; to notify; to file notice (to the authorities); to give notice; to register	trình báo; khai báo; đăng ký
+1381100	0	the West; the Occident; Western countries	phương Tây
+1537980	0	to be helpful; to be useful	có ích
+1374530	0	certainly; without fail	nhất định; nhất thiết
+1374530	1	right and wrong; pros and cons	đúng sai; phải trái
+1145130	0	(cash) register	máy tính tiền
+1145130	1	cashier	quầy thu ngân; thu ngân
+1527040	0	miso; fermented condiment usu. made from soybeans	tương miso
+1527040	1	innards (from crabs, shrimps, etc.) resembling miso	gạch (cua, tôm)
+1527040	2	key (main) point; good part (of something)	điểm mấu chốt; phần hay
+1527040	3	weakling; weak person	kẻ yếu
+1527040	4	try	thử xem
+1153890	0	relief; peace of mind	yên tâm; an tâm
+1159810	0	medical science; medicine	y học
+1323500	0	hindrance; obstacle; nuisance; disturbance; interruption; interference	cản trở; phiền; quấy rầy
+1323500	1	to visit (someone's home)	ghé thăm (nhà ai đó)
+1323500	2	demon who hinders Buddhist training; demon who obstructs sentient beings from maintaining moral behaviour	ma chướng (cản trở tu hành)
+1257110	0	hard; solid; tough	cứng; rắn
+1257110	1	stiff; tight; wooden; unpolished (e.g. writing)	cứng nhắc; gượng gạo
+1257110	2	strong; firm (not viscous or easily moved)	chắc; đặc
+1257110	3	safe; steady; honest; steadfast	chắc chắn; đứng đắn
+1257110	4	obstinate; stubborn	cố chấp; bướng
+1257110	5	bookish; formal; stuffy	khô khan; trịnh trọng
+1396840	0	grandfather	ông (nội, ngoại)
+1396840	1	old man	ông lão
+1396840	2	kyogen mask used for the role of an old man	mặt nạ ông lão (kịch kyogen)
+1494860	0	inconvenience; inexpediency; unhandiness	bất tiện
+1369940	0	to ask; to enquire; to inquire	hỏi
+1369940	1	to search; to look for; to look into; to investigate	tìm; tìm hiểu; điều tra
+1396860	0	grandmother	bà (nội, ngoại)
+1279990	0	harbour; harbor; port	cảng; bến cảng
+1529390	0	to sleep	ngủ
+1529390	1	to die; to rest (in peace); to lie (buried); to sleep (in the grave)	yên nghỉ
+1529390	2	to lie idle (e.g. of resources); to lie unused; to lie untapped; to lie untouched	bị bỏ không; chưa khai thác
+1529390	3	to close one's eyes	nhắm mắt
+1545710	0	to shake; to sway; to waver	rung; lắc; dao động
+1311450	0	thread; yarn; string	chỉ; sợi; dây
+1310640	0	to cease; to stop; to be over	ngừng; tạnh; dứt
+1177820	0	far away; distant; at a distance; distant place; by far	xa; nơi xa; hơn hẳn
+1364670	0	Shinto shrine	đền thờ Thần đạo
+1597780	0	to catch; to capture; to arrest; to seize; to restrain	bắt; bắt giữ
+1597780	1	to grab; to clutch; to grasp; to seize; to hold on to	nắm; túm; giữ chặt
+1597780	2	to catch hold of (someone); to stop (e.g. a stranger in the street); to hail (a taxi, waiter, etc.); to hold (someone) back; to detain	níu (ai đó) lại; vẫy (taxi); gọi (bồi bàn)
+1597780	3	towards (someone); at (someone); in (someone's) face	nhằm vào (ai đó)
+1518070	0	to visit; to call on; to pay a visit to	thăm; đến thăm
+1434120	0	to fish; to angle; to catch	câu (cá)
+1434120	1	to lure in; to tempt; to attract; to entice; to allure	dụ dỗ; nhử
+1172870	0	driver; chauffeur	tài xế
+1599340	0	thief; burglar; robber	kẻ trộm; kẻ cắp
+1599340	1	theft; burglary; robbery	vụ trộm
+1357980	0	to touch; to feel	chạm; sờ
+1357980	1	to get involved (with); to approach	dính vào; dây vào
+1357980	2	to be harmful to; to hinder; to interfere with; to irritate	có hại; gây khó chịu
+1310050	0	(finger) ring	nhẫn
+1440670	0	employee (of a store); shop assistant; clerk; salesperson	nhân viên bán hàng
+1066680	0	suit (clothing)	bộ com lê; bộ vest
+1066680	1	suit (playing cards)	chất (bài)
+1483190	0	sad; miserable; unhappy; sorrowful	buồn; đau buồn
+1483190	1	sad; lamentable; deplorable; grievous	đáng buồn; đáng tiếc
+1599760	0	odour; odor; scent; smell; stench	mùi; hương
+1599760	1	aura; whiff; smacks of ...; sense; flavour; flavor	hơi hướng; dáng dấp
+1414470	0	outline; main points; gist; substance; essence	đại cương; ý chính
+1414470	1	generally; on the whole; mostly; almost; nearly; approximately; roughly; about	đại khái; nhìn chung; hầu hết; khoảng
+1414470	2	general; rough	chung chung; sơ lược
+1414470	3	in the first place; first and foremost; from the start; to begin with	ngay từ đầu; vốn dĩ
+1326830	0	to exchange; to swap; to barter	trao đổi; đổi
+1326830	1	to replace; to substitute	thay; thay thế
+1201280	0	coast; beach	bờ biển
+1289520	0	this evening; tonight	tối nay
+1305700	0	to ask; to inquire; to hear; to be told	hỏi; nghe (khiêm nhường)
+1305700	1	to implore (a god for an oracle); to seek direction (from your superior)	xin chỉ thị; xin ý kiến
+1305700	2	to visit	đến thăm (khiêm nhường)
+1305700	3	to speak to (a large crowd at a theatre, etc.)	trình bày (trước khán giả)
+1208640	0	to glide; to slide (e.g. on skis); to slip	trượt; lướt; trơn trượt
+1208640	1	to fail (an examination); to bomb (when telling a joke)	thi trượt; (câu đùa) không ai cười
+1208640	2	to drop; to go down; to come down; to fall (e.g. in status)	tụt xuống; sa sút
+1297110	0	slope; incline; hill	dốc; con dốc
+1297110	1	milestone; (age) mark	mốc (tuổi)
+1364360	0	serious; honest; sober; grave; earnest; steady	nghiêm túc; chăm chỉ; đứng đắn
+1257330	0	to build; to construct	xây; xây dựng
+1195840	0	section manager; section chief	trưởng phòng; trưởng ban
+1553130	0	ryokan; traditional inn; Japanese-style lodging, usu. professionally-run	nhà trọ kiểu Nhật; ryokan
+1198380	0	conference room; council room	phòng họp
+1015220	0	accessory (fashion); jewelry	đồ trang sức; phụ kiện thời trang
+1015220	1	accessory (audio, car, camera, etc.)	phụ kiện (máy móc, xe, máy ảnh)
+1474850	0	to stay at (e.g. hotel)	trọ; nghỉ lại (khách sạn)
+1474850	1	to be docked; to be berthed; to be moored	(tàu) neo đậu
+1274820	0	government worker; public servant; civil servant	công chức; viên chức nhà nước
+1193950	0	fire; conflagration	hỏa hoạn; đám cháy
+1217700	0	to persevere; to persist; to keep at it; to hang on; to hold out; to do one's best	cố gắng; kiên trì; nỗ lực hết sức
+1217700	1	to insist that; to stick to (one's opinion)	khăng khăng; giữ ý kiến
+1217700	2	to remain in a place; to stick to one's post; to refuse to budge	bám trụ; không chịu rời đi
+1227370	0	a long time (since the last time); first in a long time	lâu rồi mới; lâu ngày
+1279590	0	principal; headmaster	hiệu trưởng
+1403040	0	to make noise; to make racket; to be noisy	làm ồn; ồn ào
+1403040	1	to rustle; to swoosh	xào xạc
+1403040	2	to make merry	vui đùa ầm ĩ
+1403040	3	to clamor; to clamour; to make a fuss; to kick up a fuss	làm ầm lên; phản đối ầm ĩ
+1403040	4	to lose one's cool; to panic; to act flustered	cuống quýt; hoảng loạn
+1403040	5	to feel tense; to be uneasy; to be excited	bồn chồn; náo nức
+1426590	0	injection; jab; shot	tiêm; mũi tiêm
+1291500	0	sand; grit	cát
+1600470	0	to transfer (trains); to change (bus, train)	đổi tàu; chuyển xe
+1600470	1	to change (to another ideology, party, company, etc.); to switch (to a different system, method, etc.); to move on to (e.g. a new love interest)	chuyển sang (đảng, công ty, phương pháp khác); thay (người yêu)
+1267280	0	lake	hồ
+1165670	0	amount necessary to fill a container (e.g. cupful, spoonful, etc.); drink (usu. alcoholic)	một cốc; một chén; một ly (rượu)
+1165670	1	full	đầy
+1165670	2	one squid, octopus, crab, etc.; one boat	một con (mực, bạch tuộc, cua); một thuyền
+1165670	3	fully; to capacity	đầy ắp; hết mức
+1165670	4	a lot; much	nhiều
+1165670	5	all of ...; the entire ...	suốt; hết cả ...
+1442750	0	rural area; countryside; the sticks	nông thôn; quê
+1442750	1	hometown	quê nhà
+1238550	0	mirror; looking-glass	gương
+1238550	1	barrel head	nắp thùng
+1238550	2	page added at the beginning of a document mentioning its purpose, date, author, etc.	trang bìa ghi mục đích, ngày, người viết
+1238550	3	mirror-shaped mochi	bánh dày hình gương (kagami mochi)
+1242350	0	neighbourhood; neighborhood	hàng xóm; khu lân cận
+1028580	0	escalator	thang cuốn
+1427360	0	polite; courteous; civil	lịch sự; lễ phép
+1427360	1	careful; close; thorough; conscientious	cẩn thận; chu đáo; tỉ mỉ
+1047860	0	cake	bánh ngọt; bánh kem
+1282260	0	lecture	bài giảng
+1374550	0	terrible; dreadful	khủng khiếp; ghê gớm
+1374550	1	amazing (e.g. of strength); great (e.g. of skills); wonderful; terrific	tuyệt vời; giỏi; đáng kinh ngạc
+1374550	2	to a great extent; vast (in numbers)	rất nhiều; khổng lồ
+1374550	3	awfully; very; immensely	cực kỳ; rất
+1040260	0	gas station; petrol station	trạm xăng; cây xăng
+1319580	0	to scold; to chide; to rebuke; to reprimand	mắng; la rầy; quở trách
+1451490	0	zoo; zoological gardens	vườn thú; sở thú
+1512220	0	reply; answer; response	trả lời; hồi âm
+1096870	0	Hamburg steak; hamburger steak	thịt viên kiểu hamburg (hambāgu)
+1416700	0	shelf; ledge; rack	kệ; giá; ngăn
+1416700	1	trellis	giàn (cây leo)
+1222700	0	train (esp. long distance train)	tàu hỏa (đường dài)
+1222700	1	steam train	tàu hơi nước
+1221250	0	return; coming back	lúc về; đường về
+1419860	0	(indoor) heating	sưởi (trong nhà)
+1593480	0	scary; frightening; eerie; dreadful	sợ; đáng sợ; rùng rợn
+1533820	0	hair	tóc; lông
+1533820	1	fur; wool	lông thú; len
+1533820	2	down; plumage; feathers	lông tơ; lông vũ
+1377030	0	New Year (esp. first three days)	Tết; năm mới (ba ngày đầu)
+1377030	1	first month of the year; January	tháng Giêng; tháng một
+1270810	0	thanks; gratitude	lời cảm ơn; lòng biết ơn
+1270810	1	manners; etiquette	lễ nghi; phép lịch sự
+1270810	2	bow	cái cúi chào
+1270810	3	reward; gift	quà cảm ơn; tiền thưởng
+1270810	4	ceremony; ritual	nghi lễ
+1423240	0	kimono; Japanese traditional clothing (esp. full-length)	kimono; trang phục truyền thống Nhật
+1423240	1	clothing; clothes	quần áo
+1169340	0	to move (house); to change residence	chuyển nhà
+1219510	0	happy; glad; pleased; delighted; overjoyed	vui; vui mừng; sung sướng
+1219510	1	joyful; delightful; gratifying; pleasant	đáng mừng; dễ chịu
+1546880	0	dance	điệu nhảy; điệu múa
+1001090	0	yes; yeah; uh huh	ừ; ờ; vâng
+1001090	1	hum; hmmm; well; erm; huh?	ừm; hả?
+1001090	2	oof	ối; hự
+1421630	0	embarrassing; embarrassed; ashamed; humiliated; shy	xấu hổ; ngượng; mắc cỡ
+1421630	1	disgraceful; shameful	đáng xấu hổ; nhục nhã
+1358680	0	foodstuff; groceries	thực phẩm; đồ ăn
+1365250	0	kind; gentle; considerate; generous; friendly; nice	tử tế; tốt bụng; thân thiện
+1383310	0	baby; infant	em bé; trẻ sơ sinh
+1356750	0	tatami mat; Japanese straw floor coverings	chiếu tatami
+1589590	0	the end	sự kết thúc; cuối
+1000590	0	that sort of; that kind of; like that; such; so	như thế kia; loại đó
+1000940	0	to come; to go; to be (somewhere)	đến; đi; ở (kính ngữ)
+1000940	1	to be (doing)	đang (làm) (kính ngữ)
+1001870	0	calling on someone who is ill; enquiry; inquiry	đi thăm người ốm; sự thăm hỏi
+1002000	0	child	con (của người khác)
+1002170	0	(another's) daughter	con gái (người khác)
+1002170	1	young lady	cô gái trẻ; tiểu thư
+1002400	0	your house; your home; your family	nhà (của anh/chị); gia đình (của anh/chị)
+1002400	1	your husband	chồng (của chị)
+1002400	2	your organization	quý công ty
+1002400	3	you	anh; chị (ngôi thứ hai)
+1002500	0	local specialty or souvenir bought as a gift while travelling	quà lưu niệm; đặc sản mua làm quà
+1002500	1	present brought by a visitor	quà khách mang đến
+1002500	2	something unpleasant that one is given (e.g. an illness while on vacation); unwelcome gift; disservice	"món quà" không mong muốn (vd. bệnh mang về sau chuyến đi)
+1004710	0	these days; nowadays; now; at present; recently; lately	dạo này; gần đây; hiện nay
+1006110	0	all; completely; totally; entirely; thoroughly	hoàn toàn; hết sạch
+1006140	0	straight; quickly; directly; all of a sudden	thẳng; nhanh; bỗng nhiên
+1006140	1	quietly; gently; softly	nhẹ nhàng; khẽ
+1006140	2	to feel refreshed; to feel satisfied	thấy nhẹ nhõm; khoan khoái
+1006280	0	thereupon; hereupon	thế là; liền đó
+1007130	0	such; that sort of; that kind of; like that	như thế; như vậy
+1007130	1	no way!; never!	không thể nào!; làm gì có!
+1007310	0	so; therefore; accordingly; consequently; on those grounds; that is why; for that reason	vì vậy; cho nên
+1007310	1	like I said; I told you already	đã bảo mà
+1009320	0	drumming (noise); beating; pounding; banging; booming; stamping	(tiếng) thình thình; đùng đùng
+1009320	1	rapidly; quickly; steadily	nhanh chóng; vùn vụt
+1009320	2	continuously; one after the other; in succession	liên tục; lần lượt
+1010150	0	clearly; plainly; distinctly	rõ ràng; rành mạch
+1010150	1	to be clear; to be definite; to be certain; to be exact; to become clear; to clear up	rõ ràng; dứt khoát; (trời) quang
+1036290	0	curtain; curtains	rèm; màn cửa
+1057850	0	salad	sa lát; rau trộn
+1058480	0	sandal	dép xăng đan
+1058580	0	sandwich	bánh sandwich
+1066690	0	suitcase	va li
+1070280	0	steak	bít tết
+1102140	0	papa; dad; daddy	bố; ba
+1102140	1	sugar daddy	bố nuôi (sugar daddy)
+1164010	0	very hard; with utmost effort; with all one's might; for dear life	hết sức; cật lực; chăm chỉ
+1179005	0	to get dirty; to become dirty	bị bẩn
+1179005	1	to become sullied; to become corrupted; to lose one's chastity	bị vấy bẩn; tha hóa; mất trinh
+1185290	0	boarding; lodging; board and lodging; room and board	ở trọ
+1185290	1	boarding house; lodging house; lodgings	nhà trọ
+1185930	0	underwear	đồ lót
+1192420	0	(my) wife	vợ (tôi)
+1192420	1	inside the home; one's family	trong nhà; gia đình
+1194660	0	cherry blossom viewing; flower viewing	ngắm hoa anh đào; ngắm hoa
+1209650	0	to get dry	khô
+1213870	0	(female) nurse	y tá (nữ)
+1222770	0	to pray; to wish	cầu nguyện; cầu chúc
+1250870	0	scenery; scene; landscape	phong cảnh; cảnh sắc
+1254130	0	(not) ever; (not) by any means; (not) in the least; (not) in any way; (not) at all	tuyệt đối (không); không bao giờ
+1258710	0	silk	lụa
+1260000	0	sightseeing; watching; viewing	tham quan; xem
+1260000	1	sightseer; watcher; spectator	khách tham quan; khán giả
+1270390	0	your husband; her husband	chồng (của chị/bà ấy)
+1282340	0	auditorium; lecture hall	giảng đường; hội trường
+1291270	0	to give; to offer	biếu; tặng (khiêm nhường)
+1291270	1	to lift up; to hold up; to raise	nâng lên; giơ lên
+1293640	0	month after next	tháng sau nữa
+1293650	0	week after next	tuần sau nữa
+1293700	0	most; extremely	nhất; cực kỳ
+1302070	0	to go; to come; to call	đi; đến (khiêm nhường)
+1302070	1	to be defeated; to collapse; to die	bị đánh bại; gục; chết
+1302070	2	to be annoyed; to be nonplussed	bó tay; chịu thua; bực mình
+1302070	3	to be madly in love	say mê
+1302070	4	to visit (shrine, grave)	đi viếng (đền, mộ)
+1313080	0	dentist	nha sĩ
+1320230	0	discourtesy; impoliteness	thất lễ; bất lịch sự
+1320230	1	excuse me; goodbye	xin lỗi; xin phép; tạm biệt
+1320230	2	to leave	xin phép về
+1320230	3	to be rude	vô lễ
+1323010	0	to apologize; to apologise	xin lỗi; tạ lỗi
+1328090	0	glove; mitten; mitt	găng tay
+1345605	0	slowly; quietly; steadily; gradually; gingerly	từ từ; chầm chậm; rón rén
+1345605	1	soon; momentarily; before long; any time now	sắp; đến lúc
+1346370	0	to eat; to drink	ăn; uống (kính ngữ)
+1348530	0	small bird; little bird	chim nhỏ
+1349410	0	barbershop; barber shop; barber	tiệm cắt tóc; thợ cắt tóc
+1350080	0	eraser; rubber	cục tẩy; gôm
+1350610	0	to burn; to be roasted; to be heated; to be sunburnt; to fade (in the sun); to glow red (i.e. of the sky at sunset)	cháy; được nướng; nóng lên; rám nắng; phai màu; (trời) ửng đỏ
+1350610	1	to be jealous; to be envious	ghen tị
+1357250	0	to plant; to grow; to raise	trồng
+1357250	1	to insert; to transplant; to implant; to set (type)	cấy; ghép; xếp (chữ in)
+1357250	2	to inoculate (e.g. an infectious agent)	cấy (vi khuẩn); tiêm chủng
+1357250	3	to instill (idea, value, etc.); to inculcate	gieo (tư tưởng); khắc sâu
+1360320	0	sleeping in late; oversleeping	ngủ dậy muộn; ngủ quên
+1360320	1	late riser; sleepyhead	người hay dậy muộn
+1362950	0	to say; to tell; to state; to express; to offer; to extend (greetings, congratulations, etc.)	nói; thưa; bày tỏ (khiêm nhường)
+1362950	1	to do	làm (khiêm nhường)
+1363090	0	to say; to be called	nói; tên là (khiêm nhường)
+1363090	1	to do	làm (khiêm nhường)
+1371920	0	water supply; water service; waterworks	nước máy; hệ thống cấp nước
+1371920	1	channel; strait	eo biển
+1371920	2	water course; waterway	đường dẫn nước
+1372800	0	very; extremely; surprisingly; considerably; awfully; terribly	rất; khá; đáng kể
+1372800	1	terrible; horrid; contemptible; reprehensible	quá đáng; tệ hại
+1372800	2	remarkable; extraordinary	đáng kể; phi thường
+1383260	0	baby; infant	em bé
+1385920	0	to break; to be broken; to snap; to fracture	gãy; bị bẻ gãy
+1385920	1	to be folded	bị gấp
+1385920	2	to give in; to back down; to yield; to submit	nhượng bộ; chịu thua
+1385920	3	to turn (a corner)	rẽ (góc)
+1395620	0	(not) at all; (not) in the slightest	hoàn toàn (không)
+1395620	1	wholly; entirely; completely; totally	hoàn toàn
+1395620	2	extremely; very	rất; cực kỳ
+1408220	0	to put on weight; to gain weight; to grow fat; to get stout	béo lên; tăng cân
+1421900	0	to do	làm (khiêm nhường)
+1426290	0	lunch break; noon recess; noon rest period	nghỉ trưa
+1438770	0	weather forecast; weather report	dự báo thời tiết
+1440660	0	exhibition	triển lãm
+1443660	0	electric light	đèn điện
+1443760	0	telegram	điện báo; bức điện
+1454670	0	particularly; especially; in particular; expressly	đặc biệt là
+1467620	0	to get wet	bị ướt
+1484930	0	very; extremely; exceedingly	rất; cực kỳ
+1487400	0	always; without exception; necessarily; certainly; without fail; positively; invariably	nhất định; chắc chắn; luôn luôn
+1490670	0	goods; article; thing	hàng hóa; đồ vật
+1496890	0	futon; Japanese bedding consisting of a mattress and a duvet	chăn đệm futon
+1496890	1	round cushion used for Zen meditation (traditionally made of woven bulrush leaves)	đệm ngồi thiền tròn
+1500800	0	review (of learned material); revision	ôn tập
+1501660	0	to boil; to heat	đun sôi; đun nóng
+1501660	1	to excite	làm phấn khích
+1501660	2	to melt (metal)	nấu chảy (kim loại)
+1511790	0	to tidy up; to put in order; to straighten up; to put away	dọn dẹp; sắp xếp gọn; cất đi
+1511790	1	to settle (problem); to clear (dispute)	giải quyết (vấn đề, tranh chấp)
+1511790	2	to finish; to bring something to an end	làm xong
+1511790	3	to marry off (e.g. a daughter)	gả (con gái)
+1511790	4	to do away with someone; to bump someone off	khử; thủ tiêu
+1519230	0	lost article; something forgotten	đồ để quên
+1529330	0	sleepy; drowsy; somnolent	buồn ngủ
+1534870	0	cotton (material)	vải bông; vải cotton
+1534870	1	red silk-cotton tree (Bombax ceiba)	cây gạo
+1543070	0	preparation for a lesson	chuẩn bị bài
+1546300	0	tasks; things to do; errand; business (to take care of); affairs; engagement	việc; việc bận; việc cần làm
+1552760	0	absence; being away from home	vắng nhà; đi vắng
+1552760	1	house-sitting; house-sitter	trông nhà; người trông nhà
+1552760	2	being left unattended to (of one's studies, etc.); neglecting	sao nhãng
+1556370	0	for example; for instance; e.g.	ví dụ; chẳng hạn
+1556630	0	to grow cold (from room temperature, e.g. in refrigerator); to get chilly; to cool down	lạnh đi; nguội đi
+1579720	0	lonely; lonesome; solitary; desolate	cô đơn; buồn tẻ; hiu quạnh
+1588320	0	to transcribe; to duplicate; to reproduce; to imitate; to trace	chép; sao chép; bắt chước; đồ lại
+1588320	1	to describe	miêu tả
+1588320	2	to film; to picture; to photograph	chụp; quay (phim)
+1588550	0	selling area; counter; section; department; sales floor	quầy bán hàng; khu bán hàng
+1588550	1	favorable time to sell; good time to sell	thời điểm bán tốt
+1589030	0	present; gift	quà tặng
+1589110	0	closet	tủ âm tường (đựng chăn)
+1593570	0	knowing	biết (kính ngữ)
+1593570	1	(an) acquaintance	người quen
+1599400	0	to get better; to get well; to recover (from an illness); to be cured; to be restored; to heal	khỏi (bệnh); bình phục; lành
+1599420	0	very; considerably; easily; readily; fairly; quite; highly; rather	khá; rất; mãi mà
+1599420	1	by no means; not readily	mãi không; khó mà
+1599420	2	middle; half-way point	giữa chừng
+1599420	3	excellent; wonderful; very good	tuyệt; rất tốt
+1600280	0	throat	cổ họng
+1600280	1	singing voice	giọng hát
+1601650	0	drawer	ngăn kéo
+1601650	1	withdrawal (of money from an account)	rút tiền
+1601650	2	variety of knowledge and experience useful for handling things impromptu	vốn hiểu biết, kinh nghiệm để ứng biến
+1603550	0	to praise; to commend; to compliment; to speak well of; to speak highly of	khen; khen ngợi
+1604135	0	festival; feast; carnival	lễ hội
+1605510	0	to become thin; to lose weight; to reduce (one's) weight; to slim	gầy đi; giảm cân
+1605510	1	to be barren; to be infertile; to be sterile	cằn cỗi (đất)
+1605630	0	soft; tender; pliant; supple; limber; limp	mềm; mềm mại; dẻo
+1605630	1	gentle; mild; mellow	dịu dàng; êm dịu
+1605630	2	informal; light; flexible (e.g. thinking)	thân mật; nhẹ nhàng; linh hoạt (suy nghĩ)
+1612770	0	congratulation; congratulations; celebration; festival	chúc mừng; lễ mừng
+1612770	1	congratulatory gift; present	quà mừng
+2008740	0	so much; so; like that	đến thế; như thế
+2394370	0	ah; oh	a; ồ
+2394370	1	hey!	này!
+2607730	0	excuse me! (when calling out to someone)	xin lỗi! (khi gọi ai đó)
+2846390	0	to get mended; to be repaired; to be fixed	được sửa; được chữa
+2846390	1	to return to normal; to recover (e.g. one's temper); to be restored; to improve; to rally; to come right	trở lại bình thường; hồi phục
+2846390	2	to be corrected; to get put right; to be rectified	được sửa cho đúng
+2846390	3	to come right; to cure (itself); to get cured	tự khỏi; được chữa khỏi
+2846390	4	to sit properly	ngồi ngay ngắn
+2846390	5	to be promoted; to rise	được thăng chức
+2846390	6	to have one's crimes forgiven	được tha tội

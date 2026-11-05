@@ -7,10 +7,11 @@ import {
   fetchManifest, installPackFile, listPacks, planUpdates, runUpdates, useDbQuery,
   type InstalledPack, type Progress, type UpdatePlanItem,
 } from '@/core/db'
-import { KANJI_PACK, WORD_PACK } from '../types'
+import { KANJI_PACK, VI_PACK, WORD_PACK } from '../types'
 import { clearSearchCache } from './search'
+import { clearViCache } from './vi'
 
-export const DICT_PACKS = [WORD_PACK, KANJI_PACK]
+export const DICT_PACKS = [WORD_PACK, KANJI_PACK, VI_PACK]
 
 export interface DictPackState {
   loading: boolean
@@ -58,7 +59,7 @@ function install(): Promise<void> {
       // Gói Kanji nhỏ, cài trước để có thông tin Kanji sớm
       plan.sort((a, b) => (a.pack.id === KANJI_PACK ? -1 : 0) - (b.pack.id === KANJI_PACK ? -1 : 0))
       const res = await runUpdates(plan, (progress) => useInstallStore.setState({ progress }))
-      clearSearchCache()
+      clearSearchCache(); clearViCache()
       useInstallStore.setState({
         running: false, plan: [], progress: undefined,
         error: res.failed.length ? res.failed.map((f) => `${f.pack}: ${f.error}`).join('\n') : undefined,
@@ -79,7 +80,7 @@ async function installFile(file: File) {
   running = (async () => {
     try {
       await installPackFile(file, (progress) => useInstallStore.setState({ progress }))
-      clearSearchCache()
+      clearSearchCache(); clearViCache()
       useInstallStore.setState({ running: false, progress: undefined })
     } catch (e) {
       useInstallStore.setState({ running: false, error: e instanceof Error ? e.message : String(e) })

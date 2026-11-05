@@ -6,7 +6,10 @@ Từ điển **offline** cho Hibi Nihongo: tra từ, tra Kanji (kèm **âm Hán 
 ## Người dùng thấy gì
 
 - **Từ điển** (mục Học → Từ điển, đường dẫn `#/dictionary`):
-  - *Tra từ*: gõ Kanji, kana, romaji (`taberu`), tiếng Anh (`eat`) hoặc dạng đã chia (`食べさせられた` → `食べる`).
+  - *Tra từ*: gõ Kanji, kana, romaji (`taberu`), tiếng Việt (`ăn`, gõ không dấu cũng được), tiếng Anh (`eat`)
+    hoặc dạng đã chia (`食べさせられた` → `食べる`).
+  - **Nghĩa tiếng Việt** hiện trên nghĩa tiếng Anh (cho các từ đã dịch, hiện là JLPT N5–N4). Tab *Dữ liệu* có nút
+    chọn "Việt + Anh / Tiếng Việt / Tiếng Anh".
   - *Phân tích câu*: dán câu, xem từng từ có furigana, thể từ điển, từ loại tiếng Việt, nghĩa; bấm từ để tra.
   - *Dữ liệu*: tải/cập nhật dữ liệu, bật/tắt "di chuột để tra", số nghĩa trong popup, ghi công nguồn dữ liệu.
 - Lần đầu mở cần bấm **Tải từ điển** (~10 MB, cài khoảng 30 giây). Sau đó chạy không cần mạng.
@@ -41,6 +44,8 @@ Hàm và component khác (đều import từ `@/modules/dictionary`):
 | `romajiToHiragana`, `furiganaParts`... | Tiện ích chữ kana |
 | `<WordEntry>`, `<KanjiInfo>`, `<Furigana>`, `<PitchAccent>` | Các khối giao diện để tự ghép |
 | `useDictPacks()` | Biết từ điển đã được tải về máy chưa |
+| `shortMeaning(id, data)` | Nghĩa ngắn (tiếng Việt nếu có, không thì tiếng Anh), dùng cho thẻ ôn tập, danh sách từ |
+| `getVi(id)`, `useVi(id)` | Nghĩa tiếng Việt theo từng nghĩa của từ (gói `jmdict-vi`) |
 | `addWordToReview`, `addKanjiToReview` | Tạo thẻ Ôn tập (qua `@/modules/review/api`) |
 
 ## Cấu trúc thư mục
@@ -58,7 +63,10 @@ Hàm và component khác (đều import từ `@/modules/dictionary`):
 | `lib/packs.ts` | Tải/cập nhật gói dữ liệu |
 | `tokenizer/` | Kuromoji chạy trong Web Worker + luật gộp từ |
 | `components/` | Popup, khối hiển thị từ, Kanji, pitch accent... |
+| `lib/vi.ts` | Đọc nghĩa tiếng Việt (gói `jmdict-vi`) |
 | `tools/build-packs.mjs` | Script tạo gói dữ liệu (chạy trên máy tính, không nằm trong app) |
+| `tools/build-vi-pack.mjs` | Script tạo gói nghĩa tiếng Việt từ `tools/vi/*.tsv` |
+| `tools/vi/jlpt-n*.tsv` | Bản dịch nghĩa tiếng Việt (mỗi dòng một nghĩa, kèm nghĩa tiếng Anh gốc) |
 
 ## Dữ liệu và cập nhật
 
@@ -85,5 +93,25 @@ vì máy dựng không tải được trực tiếp từ EDRDG. Chạy lệnh tr
 | Jonathan Waller, tanos.co.uk (qua open-anki-jlpt-decks, kanji-data) | CC BY | Cấp JLPT |
 | Kuromoji + IPADIC | Apache-2.0 / giấy phép IPADIC | Tách từ |
 
-Nghĩa hiện là **tiếng Anh**: chưa có từ điển Nhật–Việt nào vừa lớn vừa có giấy phép mở.
-Nếu sau này có, chỉ cần thêm một nguồn trong `build-packs.mjs` (trường `g` của mỗi nghĩa).
+## Nghĩa tiếng Việt (gói `jmdict-vi`)
+
+Chưa có từ điển Nhật–Việt nào vừa lớn vừa có giấy phép mở (Mazii, Dũng Mori, JaViDic... đều không dùng được:
+có bản quyền hoặc không rõ nguồn). Các nguồn đã xem:
+
+| Nguồn | Giấy phép | Kết quả |
+| --- | --- | --- |
+| Dịch nghĩa tiếng Anh của JMdict sang tiếng Việt | CC BY-SA 4.0 (bản phái sinh của JMdict) | **Đang dùng.** Đã có JLPT N5–N4 (1.138 từ, 3.160 nghĩa) |
+| Wiktionary tiếng Việt (bản trích kaikki.org) | CC BY-SA 4.0 | ~11.200 mục tiếng Nhật nhưng phần lớn là romaji/số/ký hiệu; chỉ ~2.000 nghĩa danh/động từ dùng được. Script đã hỗ trợ (`--wiktionary`), chưa đưa vào vì máy dựng không tải được |
+| Tatoeba (câu Nhật–Việt) | CC BY 2.0 FR | Chỉ vài nghìn câu, hợp làm câu ví dụ hơn |
+| JaViDic, KanjiDictVN (nghĩa Hán Việt từ thivien.net) | không rõ / có bản quyền | Không dùng |
+
+Nghĩa tiếng Việt là **dịch máy**, chưa có người duyệt; app ghi rõ điều đó và luôn giữ nghĩa tiếng Anh gốc.
+
+**Sửa hoặc thêm bản dịch**: sửa cột cuối của `tools/vi/*.tsv` (các nghĩa cách nhau bằng `; `), rồi chạy
+
+```
+node src/modules/dictionary/tools/build-vi-pack.mjs
+```
+
+Script tự tăng phiên bản gói và tạo bản vá. Khi JMdict cập nhật làm nghĩa tiếng Anh thay đổi, dòng dịch cũ tự bị bỏ;
+xuất danh sách cần dịch lại bằng `--export-todo can-dich.tsv --jlpt 1`.

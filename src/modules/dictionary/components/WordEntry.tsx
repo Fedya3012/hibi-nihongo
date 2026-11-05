@@ -13,12 +13,17 @@ import { PitchAccent } from './PitchAccent'
 import { WordBadges } from './Badges'
 import { KanjiInfo } from './KanjiInfo'
 import { useDictPrefs } from '../prefs'
+import { useVi, viSense } from '../lib/vi'
 import { WordStatusPicker } from '@/modules/vocab/api'
 
 export function WordEntry({ r, compact = false, showKanji = true }: { r: WordResult; compact?: boolean; showKanji?: boolean }) {
   const d = r.data
   const { word, reading } = headword(d)
   const maxSenses = useDictPrefs((s) => s.popupSenses)
+  const lang = useDictPrefs((s) => s.lang)
+  const vi = useVi(r.id)
+  const showVi = lang !== 'en'
+  const hasVi = showVi && d.s.some((_, i) => viSense(vi, i).length > 0)
   const senses = compact ? d.s.slice(0, maxSenses) : d.s
   const mainReading = d.r.find((x) => x.t === reading) ?? d.r[0]
   const others = [
@@ -53,7 +58,14 @@ export function WordEntry({ r, compact = false, showKanji = true }: { r: WordRes
                   {[...(s.p ?? []).map(posLabel), ...[...(s.m ?? []), ...(s.f ?? []), ...(s.d ?? [])].map(miscLabel)].join(' · ')}
                 </div>
               )}
-              <span>{s.g.join('; ')}</span>
+              {showVi && viSense(vi, i).length > 0 ? (
+                <>
+                  <span>{viSense(vi, i).join('; ')}</span>
+                  {lang === 'both' && <span className="block text-xs text-muted">{s.g.join('; ')}</span>}
+                </>
+              ) : (
+                <span>{s.g.join('; ')}</span>
+              )}
               {!compact && s.n && <span className="text-muted"> ({s.n})</span>}
               {!compact && (s.k?.length || s.r?.length) ? (
                 <span className="jp text-xs text-muted"> — chỉ dùng với {[...(s.k ?? []), ...(s.r ?? [])].join('、')}</span>
@@ -66,6 +78,14 @@ export function WordEntry({ r, compact = false, showKanji = true }: { r: WordRes
         ))}
       </ol>
       {compact && d.s.length > senses.length && <p className="text-xs text-muted">… còn {d.s.length - senses.length} nghĩa nữa</p>}
+      {showVi && vi?.w?.length ? (
+        <p className="text-sm"><span className="text-xs text-muted">Wiktionary: </span>{vi.w.join('; ')}</p>
+      ) : null}
+      {hasVi && vi?.m && !compact && (
+        <p className="text-xs text-muted" title="Nghĩa tiếng Việt được dịch từ nghĩa tiếng Anh của JMdict, chưa có người duyệt lại.">
+          Nghĩa tiếng Việt: dịch máy từ tiếng Anh, có thể chưa sát nghĩa.
+        </p>
+      )}
       {!compact && others.length > 0 && (
         <p className="text-sm text-muted">Cách viết/đọc khác: <span className="jp text-text">{others.join('、')}</span></p>
       )}
