@@ -8,6 +8,7 @@ import { APP } from '@/app/strings'
 import { S as SEARCH } from '@/modules/search/strings'
 import { SET } from './strings'
 import { AccentPicker } from './AccentPicker'
+import { ReminderSettingsLink } from '@/modules/reminders/SettingsLink'
 
 /** Các bảng chữ dùng chung, để tính "đã dịch bao nhiêu %". */
 const SHARED_TABLES = [SET, APP, SEARCH]
@@ -74,6 +75,7 @@ export default function SettingsPage() {
         <Row label={t('sound')}><Toggle label={t('sound')} on={s.sound} onChange={(sound) => s.set({ sound })} /></Row>
         <Row label={t('haptics')}><Toggle label={t('haptics')} on={s.haptics} onChange={(haptics) => s.set({ haptics })} /></Row>
       </Card>
+      <ReminderSettingsLink />
       <DataPanel />
       <p className="jp mt-6 text-center text-muted">
         {t('preview')} <ruby>日本語<rt>にほんご</rt></ruby>を<ruby>毎日<rt>まいにち</rt></ruby><ruby>勉強<rt>べんきょう</rt></ruby>します。

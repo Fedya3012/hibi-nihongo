@@ -3,6 +3,8 @@
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        // Thông báo của Windows (module Nhắc học: src/modules/reminders)
+        .plugin(tauri_plugin_notification::init())
         .run(tauri::generate_context!())
         .expect("Không mở được Hibi Nihongo");
 }
