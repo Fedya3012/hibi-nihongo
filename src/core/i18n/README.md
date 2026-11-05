@@ -34,7 +34,7 @@ function Page() {
 ```
 
 - Ngoài React: `translate(S, currentLang(), 'title')`.
-- Tên và mô tả module trên thanh điều hướng: `useModuleText()` trong `modules.ts` (tiếng Việt lấy từ `registry.ts`).
+- Tên và mô tả module trên thanh điều hướng: `useModuleText()` trong `modules.ts` (chữ lấy từ `module.ts` của từng module).
 - Chữ tiếng Nhật học (từ vựng, câu ví dụ) **không** dịch: chỉ dịch chữ của giao diện.
 - Thẻ `<html lang>` tự đổi theo ngôn ngữ (giúp trình đọc màn hình đọc đúng).
 

@@ -1,7 +1,7 @@
 /**
  * CÁC NGUỒN TÌM KIẾM CÓ SẴN
  * Mỗi nguồn chỉ đọc dữ liệu qua API công khai của module đó (hoặc bảng trong @/core/db),
- * không sửa gì. Nguồn của module mới thêm ở registry.ts.
+ * không sửa gì. Nguồn của module mới: file search.ts trong thư mục module (tự được tìm thấy).
  */
 import { getAll, listItems } from '@/core/db'
 import { translate, type Lang } from '@/core/i18n'

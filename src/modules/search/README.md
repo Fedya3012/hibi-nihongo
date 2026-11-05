@@ -36,7 +36,7 @@ Không phân biệt hoa/thường, dấu tiếng Việt, hiragana/katakana. Phí
    }
    export default source
    ```
-2. Thêm một dòng vào `MODULE_SOURCES` trong `api.ts`. File chỉ tải khi mở ô tìm kiếm.
+2. Xong, không cần sửa file nào khác: `api.ts` tự tìm mọi `src/modules/*/search.ts`. File chỉ tải khi mở ô tìm kiếm.
 
 Mỗi nguồn chạy riêng: nguồn nào lỗi thì bị bỏ qua (có dòng báo nhỏ), các nguồn khác vẫn hiện.
 
