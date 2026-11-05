@@ -6,6 +6,8 @@
  *
  * Câu được tách từ; mỗi từ bấm được (máy tính: di chuột cũng được, chỉnh trong Từ điển → Tùy chọn).
  * Popup tra từ dài nhất bắt đầu ở chỗ bấm, tự chia động từ ngược (食べさせられた → 食べる).
+ * Từ được gạch chân theo Kho từ của tôi (module vocab): gạch liền = từ mới, gạch chấm = đang học.
+ * Tắt riêng cho một chỗ bằng highlight={false}; người dùng tắt chung trong trang Kho từ.
  */
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Segment, WordResult } from '../types'
@@ -13,6 +15,7 @@ import { tokenize } from '../tokenizer'
 import { lookupAt, preferBase, searchWords } from '../lib/search'
 import { hasJapanese } from '../lib/kana'
 import { useDictPrefs } from '../prefs'
+import { isStudyWord, segmentStatus, statusUnderline, useKnowledge, useVocabPrefs } from '@/modules/vocab/api'
 import { Furigana } from './Furigana'
 import { WordPopup } from './WordPopup'
 
@@ -23,6 +26,8 @@ export interface JapaneseTextProps {
   className?: string
   /** Gọi khi người dùng tra một từ (ví dụ để đếm từ đã tra). */
   onLookup?: (segment: Segment, results: WordResult[]) => void
+  /** Gạch chân từ mới / đang học theo Kho từ. Mặc định: có (theo tùy chọn của người dùng). */
+  highlight?: boolean
 }
 
 /** Khi bộ tách từ chưa sẵn sàng: mỗi ký tự là một "từ", vẫn tra được. */
@@ -37,12 +42,14 @@ const charSegments = (text: string): Segment[] => {
 
 interface Open { seg: Segment; rect: DOMRect; pinned: boolean; results: WordResult[] | null; length: number }
 
-export function JapaneseText({ text, furigana = false, className = '', onLookup }: JapaneseTextProps) {
+export function JapaneseText({ text, furigana = false, className = '', onLookup, highlight = true }: JapaneseTextProps) {
   const [segments, setSegments] = useState<Segment[] | null>(null)
   const [open, setOpen] = useState<Open | null>(null)
   const hover = useDictPrefs((s) => s.hover)
   const timer = useRef<number | undefined>(undefined)
   const reqId = useRef(0)
+  const knowledge = useKnowledge()
+  const hlMode = useVocabPrefs((s) => s.highlight)
 
   useEffect(() => {
     let alive = true
@@ -76,13 +83,16 @@ export function JapaneseText({ text, furigana = false, className = '', onLookup 
       {segs.map((seg) => {
         if (!hasJapanese(seg.surface)) return <span key={seg.start}>{seg.surface}</span>
         const active = seg.start < hiEnd && seg.end > hiStart
+        // Chỉ tô khi đã tách từ thật (không tô từng ký tự lúc bộ tách từ chưa sẵn sàng)
+        const mark = highlight && segments && knowledge && isStudyWord(seg)
+          ? statusUnderline(segmentStatus(knowledge, seg), hlMode) : ''
         return (
           <span
             key={seg.start}
             role="button"
             tabIndex={0}
             data-jp-seg=""
-            className={`cursor-pointer rounded-sm transition-colors ${active ? 'bg-primary-soft' : 'hover:bg-surface-2'}`}
+            className={`cursor-pointer rounded-sm transition-colors ${active ? 'bg-primary-soft' : 'hover:bg-surface-2'} ${mark}`}
             onClick={(e) => { cancelTimer(); show(seg, e.currentTarget, true) }}
             onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); show(seg, e.currentTarget, true) } }}
             onPointerEnter={(e) => {

@@ -14,7 +14,8 @@ import type { SrsCard } from '@/modules/review/api'
 import { addWords, moveWord, removeWord, updateWord } from '../store'
 import { parseList } from '../lib/parse'
 import { matchWord } from '../lib/match'
-import { sourceKey, wordState, type WordState } from '../lib/progress'
+import { sharedStatus, sourceKey, wordState, type WordState } from '../lib/progress'
+import { setWordStatus, useKnowledge } from '@/modules/vocab/api'
 import { classLabel, inputCls, Pill, useTx, WORD_CLASSES } from '../ui'
 import type { Lesson, LessonWord, Textbook, WordClass } from '../types'
 
@@ -26,7 +27,10 @@ export function VocabSection({ book, lesson, cards }: { book: Textbook; lesson: 
   const [filter, setFilter] = useState<Filter>('all')
   const [cls, setCls] = useState<WordClass | ''>('')
 
-  const rows = useMemo(() => lesson.words.map((w) => ({ w, state: wordState(w, cards.get(sourceKey(lesson, w))) })), [lesson, cards])
+  const knowledge = useKnowledge()
+  const rows = useMemo(() => lesson.words.map((w) => ({
+    w, state: wordState(w, cards.get(sourceKey(lesson, w)), sharedStatus(w, knowledge)),
+  })), [lesson, cards, knowledge])
   const shown = rows.filter((r) => (filter === 'all' || r.state === filter) && (!cls || r.w.wordClass === cls))
   const classes = WORD_CLASSES.filter((c) => lesson.words.some((w) => w.wordClass === c))
 
@@ -100,7 +104,12 @@ function WordRow({ lesson, w, state, first, last }: { lesson: Lesson; w: LessonW
   }
 
   // Bấm đánh dấu: theo Ôn tập → đã thuộc → chưa thuộc → theo Ôn tập
-  const cycleKnown = () => updateWord(b, n, { ...w, known: w.known === undefined ? true : w.known ? false : undefined })
+  const cycleKnown = async () => {
+    const known = w.known === undefined ? true : w.known ? false : undefined
+    await updateWord(b, n, { ...w, known })
+    // Ghi luôn vào Kho từ dùng chung → từ này cũng đổi màu khi đọc manga, xem anime...
+    await setWordStatus({ w: w.word, r: w.reading, id: w.jmId }, known === true ? 'known' : known === false ? 'learning' : null, 'textbook')
+  }
   const stateTone = state === 'known' ? 'good' : state === 'learning' ? 'primary' : 'muted'
 
   return (

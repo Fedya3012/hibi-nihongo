@@ -28,7 +28,7 @@ export function BookView({ bookId, onBack, onOpen, onRead }: {
     const { byLesson } = await bookProgress([book], lessons)
     const locked = lockedSet(book, lessons, byLesson)
     return { book, lessons, byLesson, locked, next: nextLesson(book, lessons, locked) }
-  }, [bookId], ['textbooks', 'textbookLessons', 'srsCards', 'kv'])
+  }, [bookId], ['textbooks', 'textbookLessons', 'srsCards', 'kv', 'knownWords'])
 
   if (loading && !data) return null
   if (!data) {

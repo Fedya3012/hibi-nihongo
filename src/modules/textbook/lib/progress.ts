@@ -2,13 +2,14 @@
  * TIẾN ĐỘ GIÁO TRÌNH: từ nào đã thuộc, % mỗi bài, bài nào bị khóa (học tuần tự).
  *
  * Một từ "đã thuộc" khi:
- *   - bạn tự đánh dấu đã thuộc, hoặc
+ *   - bạn tự đánh dấu đã thuộc (trong bài, hoặc "Đã biết"/"Bỏ qua" ở Kho từ của tôi, vd từ popup tra từ), hoặc
  *   - thẻ Ôn tập của nó đã qua giai đoạn học và nhớ được ít nhất 7 ngày (độ bền FSRS ≥ 7).
  * Bạn tự đánh dấu "chưa thuộc" thì luôn tính là chưa thuộc.
  * Một mẫu ngữ pháp "đã học" khi bạn bấm "Đã hiểu" hoặc mẫu đã có trong Ôn tập (giống trang Ngữ pháp).
  * % của bài = (từ đã thuộc + mẫu đã học) / (số từ + số mẫu).
  */
 import { getReviewCardsBySource, type SrsCard } from '@/modules/review/api'
+import { loadKnowledge, manualStatus, type Knowledge, type ManualStatus } from '@/modules/vocab/api'
 import { getGrammarProgress, grammarInReview, type GrammarProgress } from '@/modules/grammar/api'
 import type { Lesson, LessonWord, Textbook } from '../types'
 import { lessonGrammarIds, loadAllGrammar } from './grammar'
@@ -23,10 +24,17 @@ export function sourceKey(l: Lesson, w: LessonWord): string {
   return w.jmId ? `dictionary:${w.jmId}` : `textbook:${l.id}:${w.word}:${w.reading ?? ''}`
 }
 
-export function wordState(w: LessonWord, card: SrsCard | undefined): WordState {
+/** Trạng thái tự đánh dấu của từ trong Kho từ dùng chung (khớp theo mã Từ điển nếu có). */
+export function sharedStatus(w: LessonWord, k: Knowledge | undefined): ManualStatus | undefined {
+  return k ? manualStatus(k, { w: w.word, id: w.jmId, alt: w.reading ? [w.reading] : undefined }) : undefined
+}
+
+export function wordState(w: LessonWord, card: SrsCard | undefined, shared?: ManualStatus): WordState {
   if (w.known === true) return 'known'
   if (w.known === false) return card ? 'learning' : 'unseen'
-  if (!card) return 'unseen'
+  // Đánh dấu ở Kho từ (popup tra từ, anime...) cũng tính
+  if (shared === 'known' || shared === 'ignored') return 'known'
+  if (!card) return shared === 'learning' ? 'learning' : 'unseen'
   return card.state === REVIEW_STATE && card.stability >= KNOWN_STABILITY ? 'known' : 'learning'
 }
 
@@ -46,12 +54,12 @@ export interface LessonProgress {
 
 export interface GrammarInfo { ids: string[]; progress: GrammarProgress; inReview: Set<string> }
 
-export function lessonProgress(l: Lesson, cards: Map<string, SrsCard>, g?: GrammarInfo): LessonProgress {
+export function lessonProgress(l: Lesson, cards: Map<string, SrsCard>, g?: GrammarInfo, k?: Knowledge): LessonProgress {
   let known = 0, learning = 0, inReview = 0, lapses = 0
   for (const w of l.words) {
     const c = cards.get(sourceKey(l, w))
     if (c) { inReview++; lapses += c.lapses }
-    const s = wordState(w, c)
+    const s = wordState(w, c, sharedStatus(w, k))
     if (s === 'known') known++
     else if (s === 'learning') learning++
   }
@@ -87,8 +95,9 @@ export function lockedSet(b: Textbook, lessons: Lesson[], prog: Map<string, Less
 export async function bookProgress(books: Textbook[], lessons: Lesson[]): Promise<{
   cards: Map<string, SrsCard>; byLesson: Map<string, LessonProgress>; grammarIds: Map<string, string[]>
 }> {
-  const [cards, all, progress, inReview] = await Promise.all([
+  const [cards, all, progress, inReview, knowledge] = await Promise.all([
     getReviewCardsBySource(), loadAllGrammar().catch(() => []), getGrammarProgress(), grammarInReview(),
+    loadKnowledge().catch(() => undefined),
   ])
   const bookById = new Map(books.map((b) => [b.id, b]))
   const grammarIds = new Map<string, string[]>()
@@ -97,7 +106,7 @@ export async function bookProgress(books: Textbook[], lessons: Lesson[]): Promis
     const b = bookById.get(l.bookId)
     const ids = b ? lessonGrammarIds(b, l, all) : []
     grammarIds.set(l.id, ids)
-    byLesson.set(l.id, lessonProgress(l, cards, { ids, progress, inReview }))
+    byLesson.set(l.id, lessonProgress(l, cards, { ids, progress, inReview }, knowledge))
   }
   return { cards, byLesson, grammarIds }
 }

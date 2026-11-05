@@ -20,6 +20,7 @@ import { JapaneseText } from './components/JapaneseText'
 import { SentenceBreakdown } from './components/SentenceBreakdown'
 import { Furigana } from './components/Furigana'
 import { openLookup } from './api'
+import { HighlightSetting } from '@/modules/vocab/api'
 
 type Tab = 'search' | 'sentence' | 'data'
 
@@ -181,6 +182,8 @@ function DataTab() {
             options={['2', '3', '5', '99'].map((v) => ({ value: v, label: v === '99' ? 'Tất cả' : v }))}
           />
         </div>
+        {/* Tô màu từ mới / đang học (tùy chọn chung của Kho từ, module vocab) */}
+        <HighlightSetting />
         <p className="text-sm text-muted">
           Thử ngay: <span className="text-lg"><JapaneseText text="日本語を勉強しています" /></span>
         </p>

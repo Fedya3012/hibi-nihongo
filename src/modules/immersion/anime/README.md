@@ -73,7 +73,7 @@ Lần đầu phân tích cần tải bộ tách từ (~17 MB), sau đó chạy o
 | `animeSubs` | Phụ đề đã đọc (chữ + thời gian) và kết quả phân tích từ vựng | Có |
 | `animeMedia` | Vị trí file video trên máy, hoặc bản chép video | **Không** |
 
-Kv: `anime:prefs` (cài đặt trình xem), `anime:known` (từ đánh dấu "Đã biết").
+Kv: `anime:prefs` (cài đặt trình xem). Từ đánh dấu "Đã biết" nằm trong Kho từ dùng chung (`src/modules/vocab`); danh sách cũ `anime:known` được tự chuyển sang.
 Khôi phục sao lưu ở máy mới: danh sách tập, phụ đề, tiến độ còn nguyên; khi xem, chọn lại file video.
 
 ## Các file
