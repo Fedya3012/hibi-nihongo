@@ -1,10 +1,11 @@
 /**
  * TRANG TỪ ĐIỂN (/dictionary)
  * - Tra từ: gõ Kanji, kana, romaji (taberu), tiếng Anh (eat) hoặc dạng đã chia (食べました)
+ *   Không biết đọc chữ Kanji: nút "部 Bộ thủ / vẽ tay" mở bảng tra chữ của module Kanji
  * - Phân tích câu: dán một câu tiếng Nhật, xem từng từ, bấm để tra
  * - Dữ liệu: tải/cập nhật từ điển offline, tùy chọn popup, ghi công nguồn dữ liệu
  */
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Card } from '@/design/components/Card'
 import { Segmented } from '@/design/components/Segmented'
@@ -24,6 +25,9 @@ import { openLookup } from './api'
 import { HighlightSetting } from '@/modules/vocab/api'
 
 type Tab = 'search' | 'sentence' | 'data'
+
+// Bảng tra Kanji theo bộ thủ / vẽ tay (module Kanji), chỉ tải khi bấm mở
+const KanjiLookup = lazy(() => import('@/modules/kanji/KanjiLookup').then((m) => ({ default: m.KanjiLookup })))
 
 export default function DictionaryPage() {
   const [params, setParams] = useSearchParams()
@@ -53,6 +57,7 @@ function SearchTab() {
   const [q, setQ] = useState(params.get('q') ?? '')
   const [results, setResults] = useState<WordResult[] | null>(null)
   const [selected, setSelected] = useState<string | null>(null)
+  const [lookup, setLookup] = useState(false)
 
   // Tìm sau khi ngừng gõ 200ms, và ghi từ khóa lên đường dẫn để quay lại được
   useEffect(() => {
@@ -69,11 +74,25 @@ function SearchTab() {
   const current = results?.find((r) => r.id === selected)
   return (
     <div className="space-y-4">
-      <input
-        type="search" autoFocus value={q} onChange={(e) => setQ(e.target.value)}
-        placeholder="食べる, たべる, taberu, eat, 食べました…" aria-label="Tra từ"
-        className="jp min-h-12 w-full rounded-xl border border-border bg-surface px-4 text-lg outline-none focus:border-primary"
-      />
+      <div className="flex gap-2">
+        <input
+          type="search" autoFocus value={q} onChange={(e) => setQ(e.target.value)}
+          placeholder="食べる, たべる, taberu, eat, 食べました…" aria-label="Tra từ"
+          className="jp min-h-12 min-w-0 flex-1 rounded-xl border border-border bg-surface px-4 text-lg outline-none focus:border-primary"
+        />
+        <button onClick={() => setLookup(!lookup)} aria-expanded={lookup}
+          title="Tra chữ Kanji không biết cách đọc: theo bộ thủ hoặc vẽ tay"
+          className={`min-h-12 shrink-0 rounded-xl border px-3 text-sm transition ${lookup ? 'border-primary bg-primary-soft' : 'border-border bg-surface hover:border-primary'}`}>
+          <span className="jp mr-1">部</span>Bộ thủ / vẽ tay
+        </button>
+      </div>
+      {lookup && (
+        <Card>
+          <Suspense fallback={<p className="text-sm text-muted">Đang mở…</p>}>
+            <KanjiLookup pickHint="Bấm chữ để thêm vào ô tra" onPick={(c) => setQ((v) => v + c)} />
+          </Suspense>
+        </Card>
+      )}
       {results && results.length === 0 && <p className="text-muted">Không tìm thấy từ nào.</p>}
       {results && results.length > 0 && (
         <div className="grid gap-4 md:grid-cols-[14rem_1fr]">

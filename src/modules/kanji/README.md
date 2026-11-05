@@ -8,9 +8,10 @@ Học Kanji theo **cấp JLPT** và theo **bộ thủ**, chạy hoàn toàn offl
 | **JLPT** | Chọn N5 → N1 (hoặc "Khác" = Jōyō ngoài JLPT). Mỗi ô: chữ, âm Hán Việt, nghĩa. Nút **+10 chữ tiếp theo vào Ôn tập** để học dần từng nhóm nhỏ. Chấm ● = đã có trong Ôn tập, viền xanh = đã viết đạt ≥ 75 điểm. |
 | **Bộ thủ** | 214 bộ Khang Hy (tên Hán Việt + nghĩa), xếp theo "hay gặp" hoặc số thứ tự. Bấm một bộ → mọi chữ thuộc bộ đó, chữ dễ (N5) trước. |
 | **Luyện viết** | Viết từng nét bằng chuột/bút/ngón tay. Mỗi nét được chấm 0–100 điểm; app báo **sai thứ tự**, **ngược chiều**, **sai vị trí**; sai 3 lần thì tự điền nét đó. Cuối cùng có điểm cả chữ và dải điểm từng nét. |
+| **Tra chữ** | Tra chữ chưa biết cách đọc. **Theo bộ thủ**: bấm các bộ phận nhìn thấy trong chữ (ví dụ 亻 + 木 → 休, 体), bộ nào chọn thêm mà không còn chữ thì bị làm mờ, lọc kết quả theo số nét. **Vẽ tay**: vẽ chữ bằng chuột/bút/ngón tay, sau mỗi nét hiện 18 chữ giống nhất. Bấm chữ để xem chi tiết. Trang **Từ điển** cũng có nút **部 Bộ thủ / vẽ tay** cạnh ô tra (bấm chữ là thêm vào ô tra). |
 | **Trang chi tiết** (bấm một chữ) | Hoạt ảnh thứ tự nét (xem **từng nét**, **tô màu bộ thủ**), âm On/Kun, bộ thủ và thành phần (bấm để đi tiếp), câu chuyện ghi nhớ + ô **tự viết câu chuyện của bạn**, từ có chữ đó (bấm để tra từ điển), câu ví dụ có furigana và nghe đọc, nút **+ Ôn tập**. Phím ← → chuyển chữ. |
 
-Mở thẳng: `?lv=4` (danh sách N4), `?k=食` (chi tiết), `?tab=radicals&r=9` (bộ Nhân), `?tab=write&k=食`.
+Mở thẳng: `?lv=4` (danh sách N4), `?k=食` (chi tiết), `?tab=radicals&r=9` (bộ Nhân), `?tab=write&k=食`, `?tab=lookup` (tra chữ).
 
 ## Dữ liệu
 | Nguồn | Ở đâu | Giấy phép |
@@ -19,6 +20,7 @@ Mở thẳng: `?lv=4` (danh sách N4), `?k=食` (chi tiết), `?tab=radicals&r=9
 | Nét viết, thành phần, từ ví dụ, danh sách JLPT/bộ thủ | gói `kanji-study` (`public/content/kanji-study.v1.pack`, ~2,9 MB) | KanjiVG © Ulrich Apel CC BY-SA 3.0; JMdict © EDRDG CC BY-SA 4.0 |
 | Câu chuyện ghi nhớ (N5 + N4, 245 chữ), câu ví dụ tiếng Việt (N5) | `data/stories.ts` | Hibi Nihongo tự soạn |
 | Tên 214 bộ thủ | `data/radicals.ts` | tự soạn |
+| Bộ phận của từng chữ (tra theo bộ thủ, 253 bộ, 6.355 chữ) | `data/radk.json` (~70 KB khi nén, chỉ tải khi mở Tra chữ) | RADKFILE © EDRDG, CC BY-SA 3.0 |
 
 Lần đầu mở module sẽ có nút **Tải dữ liệu Kanji** (cài cả 2 gói, ~3,4 MB). Nếu đã tải từ điển thì chỉ tải thêm gói nét viết.
 
@@ -27,6 +29,13 @@ Tạo lại gói `kanji-study` (ví dụ khi KanjiVG hoặc từ điển có b�
 node src/modules/kanji/tools/build-pack.mjs --kanjivg <thư mục KanjiVG có thư mục con kanji/>
 ```
 Script tự tăng phiên bản, tạo bản vá và cập nhật `public/content/manifest.json` (chỉ sửa mục `kanji-study`).
+
+Tạo lại `data/radk.json` (RADKFILE lấy ở edrdg.org hoặc trong gói PyPI `jamdict`, file `jamdict/data/radkfile.gz`):
+```
+node src/modules/kanji/tools/build-radk.mjs --radkfile <radkfile hoặc radkfile.gz>
+```
+
+**Vẽ tay chạy thế nào:** không cần mạng hay mô hình AI. Nét mẫu KanjiVG trong gói `kanji-study` được đọc một lần (~0,3 giây), mỗi nét rút thành 10 điểm. Nét người dùng vẽ cũng vậy, cả chữ được đưa về cùng khung rồi so từng nét (vị trí + hướng viết) với các chữ có số nét chênh tối đa 2. Thử với chữ N5–N4 vẽ lệch, run tay: đúng ngay chữ đầu ~98%, sai thứ tự 2 nét ~95%, thiếu 1 nét vẫn có trong 5 gợi ý đầu ~80%.
 
 ## Tiến độ và Ôn tập
 - kv `kanji:progress`: điểm viết cao nhất, số lần viết, đã vào Ôn tập chưa. kv `kanji:notes`: câu chuyện bạn tự viết. Cả hai có trong file sao lưu.
@@ -40,7 +49,9 @@ Script tự tăng phiên bản, tạo bản vá và cập nhật `public/content
 | `KanjiBrowser.tsx` | Danh sách JLPT và bộ thủ |
 | `KanjiDetail.tsx` | Trang chi tiết một chữ |
 | `WriteTab.tsx`, `components/WritingPad.tsx` | Luyện viết, chấm từng nét |
+| `KanjiLookup.tsx`, `lib/lookup.ts` | Tra chữ theo bộ thủ / vẽ tay (dùng chung cho trang Từ điển) |
 | `components/StrokeOrder.tsx` | Hoạt ảnh / từng nét / tô bộ thủ |
 | `lib/data.ts` | Đọc gói, cài dữ liệu, tiện ích hiển thị |
 | `lib/progress.ts` | Tiến độ, ghi chú, đưa vào Ôn tập |
 | `tools/build-pack.mjs` | Tạo gói `kanji-study` (chạy trên máy tính) |
+| `tools/build-radk.mjs` | Tạo `data/radk.json` từ RADKFILE (chạy trên máy tính) |
