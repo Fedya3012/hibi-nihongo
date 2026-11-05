@@ -16,7 +16,7 @@ export function loadGrammar() {
 /** Các cấp đã có nội dung, và các cấp sẽ có. */
 export const LEVELS: { level: JlptLevel; ready: boolean }[] = [
   { level: 5, ready: true }, { level: 4, ready: true },
-  { level: 3, ready: false }, { level: 2, ready: false }, { level: 1, ready: false },
+  { level: 3, ready: true }, { level: 2, ready: true }, { level: 1, ready: true },
 ]
 
 export const CAT_ORDER = ['particle', 'verb', 'adjective', 'connect', 'ending', 'compare', 'demonstrative', 'expression'] as const
