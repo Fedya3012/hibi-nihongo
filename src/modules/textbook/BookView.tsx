@@ -15,16 +15,17 @@ import { lessonTag } from './lib/learn'
 import { Pill, ProgressBar, statusLabel, useTx } from './ui'
 import { BookFiles } from './BookFiles'
 import { BookChart, UnitTest, WeakPoints } from './BookReview'
+import { BookNotes } from './BookNotes'
 
-type Tab = 'lessons' | 'weak' | 'test'
+export type BookTab = 'lessons' | 'weak' | 'test' | 'notes'
 
-export function BookView({ bookId, onBack, onOpen, onRead }: {
+export function BookView({ bookId, tab = 'lessons', onTab, onBack, onOpen, onRead }: {
+  tab?: BookTab; onTab: (t: BookTab) => void
   bookId: string; onBack: () => void; onOpen: (n: number, section?: string) => void; onRead: (fileId: string, page?: number) => void
 }) {
   const t = useTx()
   const navigate = useNavigate()
   const [confirmDel, setConfirmDel] = useState(false)
-  const [tab, setTab] = useState<Tab>('lessons')
   const { data, loading } = useDbQuery(async () => {
     const [book, lessons] = await Promise.all([getBook(bookId), listLessons(bookId)])
     if (!book) return null
@@ -63,12 +64,13 @@ export function BookView({ bookId, onBack, onOpen, onRead }: {
       <BookChart book={book} lessons={lessons} byLesson={byLesson} locked={locked} onOpen={onOpen} />
 
       <div className="mb-4">
-        <Segmented<Tab> label={t('bookTabs')} value={tab} onChange={setTab}
-          options={[{ value: 'lessons', label: t('tabLessons') }, { value: 'weak', label: t('tabWeak') }, { value: 'test', label: t('tabTest') }]} />
+        <Segmented<BookTab> label={t('bookTabs')} value={tab} onChange={onTab}
+          options={[{ value: 'lessons', label: t('tabLessons') }, { value: 'weak', label: t('tabWeak') }, { value: 'test', label: t('tabTest') }, { value: 'notes', label: t('tabNotes') }]} />
       </div>
 
       {tab === 'weak' && <WeakPoints book={book} lessons={lessons} cards={cards} grammarIds={grammarIds} onOpen={onOpen} />}
       {tab === 'test' && <UnitTest book={book} lessons={lessons} />}
+      {tab === 'notes' && <BookNotes book={book} lessons={lessons} onOpen={onOpen} onRead={onRead} />}
 
       {tab === 'lessons' && <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         {lessons.map((l) => {

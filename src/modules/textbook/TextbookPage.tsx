@@ -2,7 +2,7 @@
  * TRANG GIÁO TRÌNH (module textbook) — đường dẫn /learn/textbook
  * Ba màn hình: Kệ sách → Một cuốn sách (lưới bài) → Một bài (7 mục).
  * Đường dẫn mở thẳng:
- *   /learn/textbook?b=minna-1            cuốn Minna I
+ *   /learn/textbook?b=minna-1            cuốn Minna I (&v=weak | test | notes: tab Điểm yếu / Kiểm tra / Ghi chú)
  *   /learn/textbook?b=minna-1&l=5        bài 5
  *   /learn/textbook?b=minna-1&l=5&s=kanji  mục Kanji của bài 5
  *   /learn/textbook?b=minna-1&read=<mã file>&p=12  đọc file sách gốc ở trang 13 (p đếm từ 0)
@@ -11,7 +11,7 @@
 import { useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Shelf } from './Shelf'
-import { BookView } from './BookView'
+import { BookView, type BookTab } from './BookView'
 import { LessonView } from './LessonView'
 import { BookReader } from './reader/BookReader'
 import { SECTIONS, type Section } from './types'
@@ -23,6 +23,8 @@ export default function TextbookPage() {
   const sParam = params.get('s') as Section | null
   const read = params.get('read') ?? undefined
   const page = params.has('p') ? Number(params.get('p')) : undefined
+  const vParam = params.get('v') as BookTab | null
+  const view: BookTab | undefined = vParam && ['weak', 'test', 'notes'].includes(vParam) ? vParam : undefined
   const section: Section = sParam && SECTIONS.includes(sParam) ? sParam : 'vocab'
 
   const go = useCallback((patch: Record<string, string | number | undefined>, push = true) => {
@@ -45,7 +47,8 @@ export default function TextbookPage() {
       ) : !bookId ? (
         <Shelf onOpen={(b, l) => go({ b, l })} />
       ) : lesson == null || Number.isNaN(lesson) ? (
-        <BookView bookId={bookId} onBack={() => go({ b: undefined })} onOpen={(n, s) => go({ l: n, s })}
+        <BookView bookId={bookId} tab={view} onTab={(v) => go({ v: v === 'lessons' ? undefined : v }, false)}
+          onBack={() => go({ b: undefined, v: undefined })} onOpen={(n, s) => go({ l: n, s, v: undefined })}
           onRead={(fileId, p) => go({ read: fileId, p })} />
       ) : (
         <LessonView key={`${bookId}:${lesson}`} bookId={bookId} number={lesson} section={section}
