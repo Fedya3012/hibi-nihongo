@@ -1,5 +1,5 @@
 # TỰ ĐỘNG BUILD BẢN WINDOWS (.exe) VÀ WEBSITE
-# Khi bạn tạo một "tag" bắt đầu bằng v (ví dụ v0.1.0), máy chủ GitHub sẽ:
+# Mỗi khi code mới được đưa vào nhánh main (hoặc khi bạn bấm "Run workflow"), máy chủ GitHub sẽ:
 #   1. Build file cài đặt .exe cho Windows và đăng lên mục Releases
 #   2. Build website và đăng lên GitHub Pages
 # Bạn không cần cài gì trên máy mình.
@@ -7,6 +7,7 @@ name: Release
 
 on:
   push:
+    branches: [main]
     tags: ['v*']
   workflow_dispatch:
 
@@ -14,6 +15,9 @@ permissions:
   contents: write
   pages: write
   id-token: write
+
+# Nếu có lần build mới khi lần cũ chưa xong, chỉ giữ lần mới nhất
+concurrency: { group: release, cancel-in-progress: true }
 
 jobs:
   windows:
