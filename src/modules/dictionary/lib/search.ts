@@ -5,7 +5,7 @@
  *   getKanji('食')              → thông tin Kanji
  */
 import { findByKey, findByKeyPrefix, getItem, type PackItem } from '@/core/db'
-import { KANJI_PACK, WORD_PACK, type KanjiData, type WordData, type WordResult } from '../types'
+import { KANJI_PACK, VI_PACK, WORD_PACK, type KanjiData, type ViData, type WordData, type WordResult } from '../types'
 import { deinflect, posMatches, T } from './deinflect'
 import { hasJapanese, hiraToKata, isKanji, kataToHira, romajiToHiragana } from './kana'
 
@@ -137,7 +137,40 @@ export async function searchWords(query: string, limit = 40): Promise<WordResult
       push(pre.sort(byScore).map((it) => ({ id: it.id, data: it.data, matched: q, length: q.length, reasons: [] })))
     }
   }
+  // 4. Tiếng Việt (gói jmdict-vi): "ăn" khớp đúng dấu; gõ không dấu "an" thì khớp mọi nghĩa có cùng chữ khi bỏ dấu
+  if (!hasJapanese(q) && out.length < limit && /\p{L}/u.test(q)) {
+    const v = viKey(q)
+    const key = v === unaccent(v) ? 'va:' + v : 'vi:' + v
+    const norm = key.startsWith('va:') ? (g: string) => unaccent(viKey(g)) : viKey
+    // Nghĩa khớp nằm ở nghĩa thứ mấy của từ: "ăn" là nghĩa 1 của 食べる nhưng là nghĩa 7 của 取る
+    const senseRank = (vi: ViData) => {
+      const i = (vi.s ?? []).findIndex((gs) => gs.some((g) => norm(g) === v))
+      return i < 0 ? 99 : i
+    }
+    const toResults = async (items: PackItem<ViData>[]) => {
+      const words = await Promise.all(items.map((it) => getItem<WordData>(WORD_PACK, it.id)))
+      return items
+        .flatMap((it, i) => {
+          const w = words[i]
+          return w ? [{ r: { id: w.id, data: w.data, matched: q, length: q.length, reasons: [] }, rank: senseRank(it.data) }] : []
+        })
+        .sort((a, b) => Math.min(a.rank, 3) - Math.min(b.rank, 3) || byScore(a.r, b.r))
+        .map((x) => x.r)
+    }
+    push(await toResults(await findByKey<ViData>(key, { pack: VI_PACK, limit: 60 })))
+    // Cụm bắt đầu bằng đúng từ đó: "nghe" → "nghe nói" (không lấy "nghệ thuật" khi gõ không dấu)
+    if (out.length < 10) push(await toResults(await findByKeyPrefix<ViData>(key + ' ', { pack: VI_PACK, limit: 40 })))
+  }
   return out.slice(0, limit)
+}
+
+/** Chuẩn hóa nghĩa tiếng Việt thành khóa tra cứu (phải giống tools/build-vi-pack.mjs). */
+export function viKey(s: string): string {
+  return s.normalize('NFC').toLowerCase().replace(/\([^)]*\)/g, ' ').replace(/[“”"'.,;:!?…]/g, ' ').replace(/\s+/g, ' ').trim()
+}
+/** Bỏ dấu tiếng Việt: "ăn" → "an", "đẹp" → "dep". */
+export function unaccent(s: string): string {
+  return s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').normalize('NFC')
 }
 
 /** Đọc một từ theo id (ví dụ id lưu trong thẻ ôn tập). */

@@ -11,6 +11,7 @@ import { Segmented } from '@/design/components/Segmented'
 import type { WordResult } from './types'
 import { searchWords } from './lib/search'
 import { useDictPacks } from './lib/packs'
+import { useVi, viSense } from './lib/vi'
 import { headword } from './actions'
 import { useDictPrefs } from './prefs'
 import { warmUpTokenizer, useTokenizerStatus } from './tokenizer'
@@ -87,7 +88,7 @@ function SearchTab() {
                   >
                     <span className="jp block text-lg leading-tight">{word}</span>
                     <span className="block max-w-56 truncate text-xs text-muted">
-                      {word !== reading && <span className="jp">{reading} · </span>}{r.data.s[0]?.g[0]}
+                      {word !== reading && <span className="jp">{reading} · </span>}<FirstMeaning r={r} />
                     </span>
                   </button>
                 </li>
@@ -109,7 +110,7 @@ function Tips() {
       <ul className="list-disc space-y-1 pl-5">
         <li>Gõ romaji nếu chưa cài bàn phím tiếng Nhật: <b>taberu</b> → <span className="jp">たべる</span></li>
         <li>Dán thẳng dạng đã chia: <span className="jp">食べさせられた</span> → <span className="jp">食べる</span> (sai khiến ← bị động ← quá khứ)</li>
-        <li>Tìm bằng tiếng Anh cho từ thông dụng: <b>eat</b>, <b>beautiful</b></li>
+        <li>Tìm bằng tiếng Việt hoặc tiếng Anh: <b>ăn</b>, <b>xinh đẹp</b>, <b>eat</b></li>
         <li>Mỗi chữ Kanji có kèm <b>âm Hán Việt</b>, ví dụ <span className="jp">食</span> = THỰC</li>
       </ul>
     </Card>
@@ -161,6 +162,14 @@ function SentenceTab() {
   )
 }
 
+/** Nghĩa đầu tiên của từ trong danh sách kết quả (tiếng Việt nếu có và đang bật). */
+function FirstMeaning({ r }: { r: WordResult }) {
+  const lang = useDictPrefs((s) => s.lang)
+  const vi = useVi(r.id)
+  const v = lang !== 'en' ? viSense(vi, 0)[0] : undefined
+  return <>{v ?? r.data.s[0]?.g[0]}</>
+}
+
 function DataTab() {
   const prefs = useDictPrefs()
   return (
@@ -173,6 +182,13 @@ function DataTab() {
           <Segmented<'on' | 'off'>
             label="Di chuột để tra" value={prefs.hover ? 'on' : 'off'} onChange={(v) => prefs.set({ hover: v === 'on' })}
             options={[{ value: 'on', label: 'Bật' }, { value: 'off', label: 'Chỉ khi bấm' }]}
+          />
+        </div>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-sm">Ngôn ngữ của nghĩa (từ chưa có tiếng Việt luôn hiện tiếng Anh)</p>
+          <Segmented<'both' | 'vi' | 'en'>
+            label="Ngôn ngữ nghĩa" value={prefs.lang} onChange={(v) => prefs.set({ lang: v })}
+            options={[{ value: 'both', label: 'Việt + Anh' }, { value: 'vi', label: 'Tiếng Việt' }, { value: 'en', label: 'Tiếng Anh' }]}
           />
         </div>
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -200,6 +216,7 @@ function DataTab() {
           <li><b>JMdict</b> và <b>KANJIDIC2</b> © Electronic Dictionary Research and Development Group (EDRDG), giấy phép CC BY-SA 4.0.</li>
           <li>Pitch accent và tần suất từ: dự án <b>Kanjium</b> của Uros O., CC BY-SA 4.0.</li>
           <li>Cấp JLPT: danh sách của <b>Jonathan Waller</b> (tanos.co.uk), CC BY; Kanji qua dự án kanji-data (MIT).</li>
+          <li>Nghĩa tiếng Việt: dịch từ nghĩa tiếng Anh của JMdict (bản phái sinh, cùng giấy phép CC BY-SA 4.0); thêm nghĩa từ <b>Wiktionary tiếng Việt</b> (CC BY-SA 4.0) khi có.</li>
           <li>Tách từ: <b>Kuromoji</b> (Apache-2.0) với từ điển <b>IPADIC</b>.</li>
           <li>
             Câu ví dụ: <a href="https://tatoeba.org" target="_blank" rel="noreferrer" className="font-semibold text-primary hover:underline">Tatoeba</a>{' '}
@@ -207,7 +224,10 @@ function DataTab() {
             Furigana của câu được tạo tự động bằng Kuromoji nên đôi khi có thể sai.
           </li>
         </ul>
-        <p>Nghĩa hiện là tiếng Anh vì chưa có từ điển Nhật–Việt nào giấy phép mở đủ lớn. Âm Hán Việt của Kanji lấy từ KANJIDIC2.</p>
+        <p>
+          Chưa có từ điển Nhật–Việt nào vừa lớn vừa có giấy phép mở, nên nghĩa tiếng Việt hiện là <b>dịch máy</b> từ tiếng Anh
+          (bắt đầu với các từ JLPT), có thể chưa sát nghĩa; nghĩa tiếng Anh gốc luôn được giữ. Âm Hán Việt của Kanji lấy từ KANJIDIC2.
+        </p>
         <p className="flex flex-wrap items-center gap-1">Ví dụ furigana: <Furigana text="日本語" reading="にほんご" className="text-base text-text" /></p>
       </Card>
     </div>

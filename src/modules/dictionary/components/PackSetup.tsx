@@ -4,9 +4,9 @@ import { formatBytes } from '@/core/db'
 import { Card } from '@/design/components/Card'
 import { Button } from '@/design/components/Button'
 import { useDictInstaller, useDictPacks } from '../lib/packs'
-import { EXAMPLE_PACK, KANJI_PACK, WORD_PACK } from '../types'
+import { EXAMPLE_PACK, KANJI_PACK, VI_PACK, WORD_PACK } from '../types'
 
-const PART: Record<string, string> = { [WORD_PACK]: 'từ vựng', [KANJI_PACK]: 'Kanji', [EXAMPLE_PACK]: 'câu ví dụ' }
+const PART: Record<string, string> = { [WORD_PACK]: 'từ vựng', [KANJI_PACK]: 'Kanji', [EXAMPLE_PACK]: 'câu ví dụ', [VI_PACK]: 'nghĩa tiếng Việt' }
 
 export function PackSetup({ compact = false }: { compact?: boolean }) {
   const packs = useDictPacks()
@@ -30,7 +30,7 @@ export function PackSetup({ compact = false }: { compact?: boolean }) {
           <h2 className="font-semibold">Tải dữ liệu từ điển về máy</h2>
           <p className="text-sm text-muted">
             Từ điển chạy hoàn toàn offline. Cần tải một lần{size ? ` khoảng ${formatBytes(size)}` : ''}: hơn 190.000 từ
-            (JMdict, nghĩa tiếng Anh), 13.000 Kanji kèm âm Hán Việt, pitch accent, cấp JLPT và gần 50.000 câu ví dụ có bản dịch. Cài xong mất khoảng 1 phút.
+            (JMdict, nghĩa tiếng Anh, kèm nghĩa tiếng Việt cho các từ JLPT), 13.000 Kanji kèm âm Hán Việt, pitch accent, cấp JLPT và gần 50.000 câu ví dụ có bản dịch. Cài xong mất khoảng 1 phút.
           </p>
         </>
       ) : pending.length > 0 ? (

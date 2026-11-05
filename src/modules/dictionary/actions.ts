@@ -5,6 +5,7 @@
 import { addReviewCards } from '@/modules/review/api'
 import type { Example, KanjiData, WordData } from './types'
 import { exampleCloze } from './lib/examples'
+import { shortMeaning } from './lib/vi'
 
 /** Chữ viết chính và cách đọc chính của một từ (ưu tiên dạng thông dụng). */
 export function headword(d: WordData): { word: string; reading: string } {
@@ -20,7 +21,7 @@ export function headword(d: WordData): { word: string; reading: string } {
  */
 export async function addWordToReview(id: string, d: WordData, example?: Example): Promise<boolean> {
   const { word, reading } = headword(d)
-  const meaning = d.s.slice(0, 3).map((s) => s.g.slice(0, 3).join(', ')).join('; ')
+  const meaning = await shortMeaning(id, d) // tiếng Việt nếu có, không thì tiếng Anh
   const n = await addReviewCards([{
     deck: 'Từ vựng của tôi', kind: 'vocab', front: word, reading: word === reading ? undefined : reading,
     meaning, tags: d.j ? [`N${d.j}`] : undefined, source: { module: 'dictionary', ref: id },

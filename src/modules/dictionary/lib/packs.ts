@@ -7,14 +7,15 @@ import {
   fetchManifest, installPackFile, listPacks, planUpdates, runUpdates, useDbQuery,
   type InstalledPack, type Progress, type UpdatePlanItem,
 } from '@/core/db'
-import { EXAMPLE_PACK, KANJI_PACK, WORD_PACK } from '../types'
+import { EXAMPLE_PACK, KANJI_PACK, VI_PACK, WORD_PACK } from '../types'
 import { clearSearchCache } from './search'
 import { clearExampleCache } from './examples'
+import { clearViCache } from './vi'
 
-/** Các gói được cài cùng nút "Tải từ điển". Gói câu ví dụ là phần thêm: chưa có thì từ điển vẫn chạy. */
-export const DICT_PACKS = [WORD_PACK, KANJI_PACK, EXAMPLE_PACK]
+/** Các gói được cài cùng nút "Tải từ điển". Gói câu ví dụ và nghĩa tiếng Việt là phần thêm: chưa có thì từ điển vẫn chạy. */
+export const DICT_PACKS = [WORD_PACK, KANJI_PACK, EXAMPLE_PACK, VI_PACK]
 
-const clearCaches = () => { clearSearchCache(); clearExampleCache() }
+const clearCaches = () => { clearSearchCache(); clearExampleCache(); clearViCache() }
 
 export interface DictPackState {
   loading: boolean
