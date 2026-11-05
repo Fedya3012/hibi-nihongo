@@ -47,6 +47,8 @@ export const STORES = {
   textbookLessons: { backup: true },
   /** File audio bạn nhập cho từng bài. Nặng và nhập lại được nên không sao lưu (module textbook). */
   textbookMedia: { backup: false },
+  /** Tô sáng, ghi chú, đánh dấu trang trên file sách gốc (module textbook). Có sao lưu. */
+  textbookNotes: { backup: true },
 } as const satisfies Record<string, { backup: boolean }>
 
 export type StoreName = keyof typeof STORES
@@ -113,6 +115,12 @@ export const migrations: Migration[] = [
     lessons.createIndex('by_book', 'bookId')
     const media = db.createObjectStore('textbookMedia', { keyPath: 'id' })
     media.createIndex('by_lesson', 'lessonId')
+  },
+  // Phiên bản tiếp theo (module Giáo trình — ghi chú trên file sách gốc)
+  (db) => {
+    const notes = db.createObjectStore('textbookNotes', { keyPath: 'id' })
+    notes.createIndex('by_file', 'fileId')
+    notes.createIndex('by_book', 'bookId')
   },
 ]
 

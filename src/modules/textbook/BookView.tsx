@@ -11,11 +11,14 @@ import { deleteBook, getBook, listLessons, updateBook } from './store'
 import { bookProgress, lockedSet, nextLesson, unlockRatio, type LessonProgress } from './lib/progress'
 import { lessonTag } from './lib/learn'
 import { Pill, ProgressBar, statusLabel, useTx } from './ui'
+import { BookFiles } from './BookFiles'
 
 /** Bài "yếu": quên nhiều lần so với số từ (cảnh báo nên ôn lại). */
 export const isWeak = (p?: LessonProgress) => !!p && p.inReview > 0 && p.lapses >= Math.max(3, p.inReview * 0.3)
 
-export function BookView({ bookId, onBack, onOpen }: { bookId: string; onBack: () => void; onOpen: (n: number) => void }) {
+export function BookView({ bookId, onBack, onOpen, onRead }: {
+  bookId: string; onBack: () => void; onOpen: (n: number) => void; onRead: (fileId: string, page?: number) => void
+}) {
   const t = useTx()
   const navigate = useNavigate()
   const [confirmDel, setConfirmDel] = useState(false)
@@ -81,6 +84,8 @@ export function BookView({ bookId, onBack, onOpen }: { bookId: string; onBack: (
           )
         })}
       </div>
+
+      <BookFiles bookId={book.id} onRead={onRead} />
 
       <Card className="mt-6 space-y-3">
         <label className="flex items-start gap-3">

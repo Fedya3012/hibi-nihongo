@@ -27,6 +27,8 @@ export interface Textbook {
   /** Bài mở gần nhất (để "Tiếp tục bài…"). */
   lastLesson?: number
   lastOpenedAt?: number
+  /** Bài N bắt đầu ở trang nào của file sách (bạn tự gắn trong trình đọc). Trang đếm từ 0. */
+  lessonPages?: Record<number, { fileId: string; page: number }>
 }
 
 export type LessonStatus = 'new' | 'learning' | 'done'
@@ -90,4 +92,51 @@ export interface BookTemplate {
   tagPrefix: string
   firstLesson: number
   lessonCount: number
+}
+
+/**
+ * File sách gốc của bạn (PDF hoặc ảnh scan), để đọc ngay trong app. Bảng `textbookMedia`
+ * (không sao lưu vì nặng; ghi chú trên sách thì có sao lưu, xem BookNote).
+ */
+export interface BookFile {
+  id: string
+  bookId: string
+  /** Luôn là `${bookId}:book` (chỉ mục by_lesson của bảng textbookMedia dùng chung với audio của bài). */
+  lessonId: string
+  kind: 'pdf' | 'images'
+  name: string
+  size: number
+  pageCount: number
+  /** File PDF. */
+  blob?: Blob
+  /** Ảnh scan, mỗi ảnh một trang, theo thứ tự tên file. */
+  images?: Blob[]
+  createdAt: number
+  lastPage?: number
+}
+
+/** Vùng trên trang, tính theo tỉ lệ 0–1 của chiều rộng / cao trang (không phụ thuộc mức phóng to). */
+export interface Rect { x: number; y: number; w: number; h: number }
+
+export type NoteColor = 'yellow' | 'green' | 'red' | 'gray'
+
+/**
+ * Tô sáng / ghi chú / đánh dấu trang trên file sách. Bảng `textbookNotes` (có sao lưu).
+ * - highlight: tô một vùng (kéo chuột) hoặc đoạn chữ đã chọn (nhiều ô `rects`), có thể kèm ghi chú
+ * - note: ghim ghi chú tại một điểm
+ * - bookmark: đánh dấu cả trang
+ */
+export interface BookNote {
+  id: string
+  bookId: string
+  fileId: string
+  page: number
+  kind: 'highlight' | 'note' | 'bookmark'
+  rects?: Rect[]
+  color?: NoteColor
+  /** Chữ đã chọn trên trang (PDF có chữ). */
+  quote?: string
+  text?: string
+  createdAt: number
+  updatedAt: number
 }

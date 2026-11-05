@@ -25,6 +25,14 @@ Hibi Nihongo không liên quan tới nhà xuất bản các sách này.
 **Kanji:** tự rút từ từ vựng của bài (+ chữ thêm tay): Hán Việt, nghĩa, On/Kun, từ trong bài có chữ đó, bấm chữ để xem
 nét viết, nút **Luyện viết**, **Đưa Kanji của bài vào Ôn tập**.
 
+**Sách gốc (file PDF / ảnh scan):** ở trang của cuốn sách, mục *Sách gốc của bạn* → **+ Thêm file sách** (hoặc kéo thả).
+Mỗi PDF là một file; nhiều ảnh chọn cùng lúc gộp thành một file (mỗi ảnh một trang, xếp theo tên). Trình đọc:
+lật trang (nút, phím ← →), phóng to, nhớ trang đang đọc; **Chọn chữ** (PDF có chữ) → *Tra từ / Tô sáng / Ghi chú / Sao chép*;
+**Tô sáng** (kéo một vùng, dùng được với ảnh scan); **Ghim ghi chú**; 4 màu; **Đánh dấu trang**; **Trang này là đầu bài…**
+để nút **📕 Mở sách** trong màn hình bài mở đúng trang. Danh sách ghi chú: lọc cả sách / trang này, tìm kiếm,
+**Tải ghi chú (.md)** (Markdown, nhóm theo bài). File không vào file sao lưu (nặng); ghi chú thì có. Xóa file rồi nhập lại
+đúng file đó (cùng tên) thì ghi chú cũ hiện lại.
+
 **Ngữ pháp:** các mẫu của bài lấy từ module Ngữ pháp (Minna/Genki: tự gợi ý theo số bài; sách tự tạo: bạn chọn).
 **Sửa danh sách** để thêm / bỏ mẫu, **Về danh sách gợi ý** để quay lại. Mỗi mẫu: cấu trúc, giải thích, lưu ý, ví dụ bổ sung
 (bấm từ để tra, nút nghe), **ví dụ bạn chép từ sách** (mỗi dòng `câu | nghĩa`), ghi chú riêng, **Đánh dấu đã hiểu**, **+ Ôn tập**
@@ -44,7 +52,7 @@ Các mục Hội thoại, Luyện nghe, Bài tập, Đọc hiểu hiện "Sẽ c
 ## Đường dẫn mở thẳng
 
 `?b=minna-1` (một sách) · `?b=minna-1&l=5` (bài 5) · `?b=minna-1&l=5&s=kanji` (mục Kanji: `vocab`, `grammar`, `dialogue`,
-`listening`, `exercise`, `kanji`, `reading`).
+`listening`, `exercise`, `kanji`, `reading`) · `?b=minna-1&read=<mã file>&p=12` (đọc file sách ở trang 13).
 
 ## Dữ liệu
 
@@ -52,7 +60,8 @@ Các mục Hội thoại, Luyện nghe, Bài tập, Đọc hiểu hiện "Sẽ c
 | --- | --- | --- |
 | `textbooks` | Sách: tên, khung gốc, tiền tố nhãn, học tuần tự, bài mở gần nhất | Có |
 | `textbookLessons` | Bài (khóa `<sách>:<số bài>`): từ vựng, ghi chú, trạng thái, Kanji thêm tay, mã mẫu ngữ pháp (`grammarIds`, khi bạn sửa danh sách), ví dụ + ghi chú riêng cho từng mẫu (`grammarExtra`) | Có |
-| `textbookMedia` | File audio của bài (dùng từ bước 3) | Không (nặng, nhập lại được) |
+| `textbookMedia` | File sách gốc (PDF / ảnh, khóa `by_lesson` = `<sách>:book`), file audio của bài (bước 3) | Không (nặng, nhập lại được) |
+| `textbookNotes` | Tô sáng, ghi chú, đánh dấu trang trên file sách | Có |
 
 ## File
 
@@ -69,4 +78,7 @@ Các mục Hội thoại, Luyện nghe, Bài tập, Đọc hiểu hiện "Sẽ c
 | `lib/progress.ts` | Đã thuộc, % mỗi bài (từ + ngữ pháp), khóa bài, bài tiếp theo |
 | `lib/grammar.ts` | Mẫu ngữ pháp của bài (gợi ý theo số bài hoặc danh sách bạn sửa) |
 | `sections/GrammarSection.tsx` | Mục Ngữ pháp của bài |
+| `BookFiles.tsx` | Thêm / xóa file sách gốc |
+| `reader/BookReader.tsx` | Trình đọc file sách: trang, chọn chữ, tô sáng, ghi chú, danh sách ghi chú |
+| `lib/files.ts`, `lib/pdf.ts` | Lưu file + ghi chú, xuất Markdown; vẽ trang PDF và lớp chữ (pdf.js) |
 | `strings.ts`, `ui.tsx` | Chữ giao diện (Việt/Anh/Nhật), mảnh giao diện dùng chung |
