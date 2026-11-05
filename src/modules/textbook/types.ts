@@ -83,6 +83,10 @@ export interface Lesson {
   tracks?: Track[]
   /** Bài viết của bạn (mục Đọc hiểu · Viết). */
   writing?: string
+  /** Bài tập bạn chép từ sách (mục Bài tập). */
+  exercises?: ExerciseSet[]
+  /** Kết quả làm bài tập theo từng câu: đúng / sai bao nhiêu lần, câu trả lời sai gần nhất. */
+  exStats?: Record<string, ExStat>
   updatedAt: number
 }
 
@@ -179,3 +183,27 @@ export interface LessonAudio {
   blob: Blob
   createdAt: number
 }
+
+/** Dạng câu bài tập: chọn đáp án · điền (một hoặc nhiều đáp án đúng) · sắp xếp các mảnh thành câu. */
+export type ExKind = 'choice' | 'fill' | 'order'
+
+export interface ExItem {
+  id: string
+  kind: ExKind
+  /** Đề (câu có chỗ trống ＿＿ / （　）, hoặc câu hỏi). Dạng sắp xếp: có thể để trống. */
+  q: string
+  /** Dạng chọn: các lựa chọn. */
+  options?: string[]
+  /** choice: [lựa chọn đúng] · fill: các đáp án được chấp nhận · order: các mảnh theo đúng thứ tự. */
+  answer: string[]
+  explain?: string
+}
+
+export interface ExerciseSet {
+  id: string
+  title?: string
+  items: ExItem[]
+  createdAt: number
+}
+
+export interface ExStat { right: number; wrong: number; last: number; lastWrong?: string }
