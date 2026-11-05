@@ -37,6 +37,8 @@ Tab **Thẻ → Anki**.
 ## Ảnh và âm thanh
 - Thẻ có thể kèm **ảnh** (vd panel manga): chọn file hoặc dán ảnh (Ctrl+V) khi thêm/sửa thẻ. Ảnh được nén JPEG ≤ 900px,
   lưu ngay trong thẻ nên đi kèm file sao lưu. Ảnh hiện ở mặt đáp án.
+- Thẻ có thể kèm **tiếng nói gốc** (vd giọng nhân vật cắt từ anime, phím C trong trình xem anime). Lật thẻ là tự phát,
+  nút "▶ Nghe câu gốc" hoặc phím R để nghe lại. Tiếng lưu dạng data URL trong thẻ (có trong sao lưu).
 - Nút 🔊 đọc từ / câu ví dụ bằng giọng tiếng Nhật có sẵn của máy.
 
 ## Dạng câu hỏi
@@ -74,5 +76,6 @@ await addReviewCards([{ deck: 'Từ vựng của tôi', kind: 'vocab', front: '�
 const ov = useReviewOverview() // ov?.dueNow, ov?.newAvailable, ov?.reviewedToday
 ```
 Thẻ có cùng `source` (hoặc cùng bộ + cùng chữ + cùng loại) không bị thêm trùng.
-`image` nhận Blob/File (vd kết quả `cropPanel`) hoặc data URL.
+`image` nhận Blob/File (vd kết quả `cropPanel`) hoặc data URL. `audio` nhận Blob (vd đoạn thoại ghi bằng MediaRecorder) hoặc data URL.
+Gắn ảnh/tiếng vào thẻ đã có: `attachReviewMedia({ module: 'dictionary', ref: '1358280' }, { image, audio })`.
 Mở thẳng ôn nhanh 5 phút: `/review?quick=1`. Mở tab Thẻ và tìm sẵn: `/review?tab=cards&q=<chữ>`.
