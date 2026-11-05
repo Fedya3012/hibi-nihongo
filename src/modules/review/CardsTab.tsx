@@ -14,6 +14,7 @@ import {
 } from './store'
 import { kindLabel } from './CardFace'
 import { CardState, type CardKind, type SrsCard } from './types'
+import { AnkiPanel } from './anki/AnkiPanel'
 
 const inputCls = 'min-h-10 w-full rounded-xl border border-border bg-surface px-3 outline-none focus:border-primary'
 
@@ -26,7 +27,7 @@ interface UndoItem { label: string; snap: CardSnapshot }
 
 export function CardsTab({ initialQuery = '' }: { initialQuery?: string }) {
   const { data: cards } = useDbQuery(allCards, [], ['srsCards'])
-  const [mode, setMode] = useState<'list' | 'add' | 'import'>('list')
+  const [mode, setMode] = useState<'list' | 'add' | 'import' | 'anki'>('list')
   const [editing, setEditing] = useState<SrsCard | null>(null)
   const [undoStack, setUndoStack] = useState<UndoItem[]>([])
   const decks = useMemo(() => [...new Set((cards ?? []).map((c) => c.deck))].sort(), [cards])
@@ -79,9 +80,10 @@ export function CardsTab({ initialQuery = '' }: { initialQuery?: string }) {
   return (
     <div className="grid gap-4">
       <Segmented label="Chế độ" value={mode} onChange={setMode}
-        options={[{ value: 'list', label: 'Danh sách' }, { value: 'add', label: '+ Thêm thẻ' }, { value: 'import', label: 'Dán danh sách' }]} />
+        options={[{ value: 'list', label: 'Danh sách' }, { value: 'add', label: '+ Thêm thẻ' }, { value: 'import', label: 'Dán danh sách' }, { value: 'anki', label: 'Anki' }]} />
       {mode === 'add' && <AddCard decks={decks} />}
       {mode === 'import' && <ImportCards decks={decks} onDone={() => setMode('list')} />}
+      {mode === 'anki' && <AnkiPanel decks={decks} />}
       {mode === 'list' && <CardList cards={cards ?? []} decks={decks} onEdit={setEditing} track={track} initialQuery={initialQuery} />}
       {undoBar}
     </div>
