@@ -29,6 +29,8 @@ export interface Textbook {
   lastOpenedAt?: number
   /** Bài N bắt đầu ở trang nào của file sách (bạn tự gắn trong trình đọc). Trang đếm từ 0. */
   lessonPages?: Record<number, { fileId: string; page: number }>
+  /** Kết quả các lần kiểm tra tổng hợp (mới nhất ở cuối, giữ 30 lần). */
+  tests?: UnitTestResult[]
 }
 
 export type LessonStatus = 'new' | 'learning' | 'done'
@@ -206,4 +208,14 @@ export interface ExerciseSet {
   createdAt: number
 }
 
-export interface ExStat { right: number; wrong: number; last: number; lastWrong?: string }
+export interface ExStat {
+  right: number
+  wrong: number
+  last: number
+  lastWrong?: string
+  /** Lần làm gần nhất đúng hay sai. */
+  lastOk?: boolean
+}
+
+/** Một lần làm bài kiểm tra tổng hợp (bài from → to). */
+export interface UnitTestResult { at: number; from: number; to: number; right: number; total: number }

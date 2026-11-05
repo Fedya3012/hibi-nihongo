@@ -60,7 +60,17 @@ hiragana/katakana, dấu cách, dấu câu), hiện đáp án đúng và giải 
 - Từ đã có thẻ (thêm từ manga, từ điển…) **không bị tạo thẻ trùng**: thẻ cũ chỉ được gắn thêm nhãn của bài.
 - Ôn một hoặc nhiều bài: `/review?tags=minna-5,minna-6` (module Ôn tập có thêm lọc theo nhãn).
 - **Đã thuộc** = bạn tự đánh dấu, hoặc thẻ Ôn tập đã nhớ được ít nhất 7 ngày (độ bền FSRS ≥ 7).
-- **% của bài** = (từ đã thuộc + mẫu ngữ pháp đã hiểu hoặc đã vào Ôn tập) / (số từ + số mẫu).
+- **% của bài** = (từ đã thuộc + mẫu ngữ pháp đã hiểu hoặc đã vào Ôn tập + câu bài tập lần gần nhất làm đúng)
+  / (số từ + số mẫu + số câu bài tập). Học tuần tự: bài sau mở khi bài trước đạt ngưỡng (mặc định 80%) hoặc đánh dấu Xong.
+- **Bài nên ôn lại**: quên từ nhiều lần (≥ 3 và ≥ 30% số từ đang ôn), hoặc nhiều câu hay làm sai.
+
+## Tổng quan cả cuốn (bước 5)
+
+- **Tiến độ cả cuốn**: biểu đồ % từng bài (bấm cột để mở bài), vạch ngưỡng mở khóa, hộp cảnh báo các bài nên ôn lại và lý do.
+- **Điểm yếu**: từ hay quên (thẻ quên ≥ 2 lần, hoặc đã quên và đang học lại), mẫu ngữ pháp hay quên, câu bài tập hay sai,
+  kèm nút **Luyện từ hay quên** / **Luyện câu hay sai** (làm ngay, tự chấm).
+- **Kiểm tra tổng hợp**: chọn nhóm bài (mặc định nhóm 5 bài chứa bài đang học) và số câu; đề trộn bài tập đã nhập và câu từ vựng
+  tự tạo. Điểm lưu trong sách (`tests`, 30 lần gần nhất), câu sai vào "Câu hay sai" của từng bài.
 
 ## Đường dẫn mở thẳng
 
@@ -92,7 +102,8 @@ hiragana/katakana, dấu cách, dấu câu), hiện đáp án đúng và giải 
 | `lib/grammar.ts` | Mẫu ngữ pháp của bài (gợi ý theo số bài hoặc danh sách bạn sửa) |
 | `sections/GrammarSection.tsx` | Mục Ngữ pháp của bài |
 | `sections/TrackSection.tsx`, `lib/tracks.ts` | Hội thoại / Luyện nghe / Đọc hiểu: nhập đoạn, audio, trình phát, đồng bộ câu |
-| `sections/ExerciseSection.tsx`, `lib/exercises.ts` | Bài tập: nhập, tự chấm, làm lại câu sai, lịch sử câu sai, bài từ vựng tự tạo, xuất PDF |
+| `BookReview.tsx` | Tổng quan cả cuốn: biểu đồ, cảnh báo bài yếu, Điểm yếu, Kiểm tra tổng hợp |
+| `sections/ExerciseSection.tsx`, `lib/exercises.ts`, `lib/exstat.ts` | Bài tập: nhập, tự chấm, làm lại câu sai, lịch sử câu sai, bài từ vựng tự tạo, xuất PDF |
 | `BookFiles.tsx` | Thêm / xóa file sách gốc |
 | `reader/BookReader.tsx` | Trình đọc file sách: trang, chọn chữ, tô sáng, ghi chú, danh sách ghi chú |
 | `lib/files.ts`, `lib/pdf.ts` | Lưu file + ghi chú, xuất Markdown; vẽ trang PDF và lớp chữ (pdf.js) |
