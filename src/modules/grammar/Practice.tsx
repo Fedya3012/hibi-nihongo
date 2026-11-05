@@ -19,7 +19,8 @@ type Scope = 'all' | 'learned' | 'weak'
 
 export function Practice({ points, state, ids, level: initLevel, onOpen, onClearIds }: {
   points: GrammarPoint[]; state: GrammarState | undefined; ids?: string[]; level: JlptLevel
-  onOpen: (id: string) => void; onClearIds: () => void
+  /** Không truyền onClearIds (vd khi nhúng trong bài Giáo trình) thì ẩn nút "Tất cả" bên cạnh danh sách mẫu. */
+  onOpen: (id: string) => void; onClearIds?: () => void
 }) {
   const t = useT(S)
   const [level, setLevel] = useState<JlptLevel>(initLevel)
@@ -98,7 +99,7 @@ export function Practice({ points, state, ids, level: initLevel, onOpen, onClear
       {ids?.length ? (
         <div className="flex flex-wrap items-center gap-2">
           {pool.map((p) => <span key={p.id} className="jp rounded-lg bg-primary-soft px-2 py-1">{p.pattern}</span>)}
-          <Button variant="ghost" onClick={onClearIds}>{t('pAll')}</Button>
+          {onClearIds && <Button variant="ghost" onClick={onClearIds}>{t('pAll')}</Button>}
         </div>
       ) : (
         <>

@@ -22,10 +22,10 @@ export function BookView({ bookId, onBack, onOpen }: { bookId: string; onBack: (
   const { data, loading } = useDbQuery(async () => {
     const [book, lessons] = await Promise.all([getBook(bookId), listLessons(bookId)])
     if (!book) return null
-    const { byLesson } = await bookProgress(lessons)
+    const { byLesson } = await bookProgress([book], lessons)
     const locked = lockedSet(book, lessons, byLesson)
     return { book, lessons, byLesson, locked, next: nextLesson(book, lessons, locked) }
-  }, [bookId], ['textbooks', 'textbookLessons', 'srsCards'])
+  }, [bookId], ['textbooks', 'textbookLessons', 'srsCards', 'kv'])
 
   if (loading && !data) return null
   if (!data) {

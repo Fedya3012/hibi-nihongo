@@ -14,7 +14,7 @@ Hibi Nihongo không liên quan tới nhà xuất bản các sách này.
 | Màn hình | Làm gì |
 | --- | --- |
 | **Kệ sách** | Thêm sách: chọn khung có sẵn (Minna I/II bản 2, Genki I/II bản 3) hoặc tạo "Giáo trình khác" (tên, bài đầu, số bài). Mỗi sách có thanh tiến độ và nút **Học tiếp bài N**. |
-| **Một cuốn sách** | Lưới các bài: trạng thái, số từ đã thuộc, 🔒 bài đang khóa, "Nên ôn lại" khi quên nhiều. Bật **Học tuần tự** để khóa bài sau tới khi bài trước xong hoặc thuộc ≥ 80% từ (kéo để đổi). **Ôn các bài đã học** mở Ôn tập chỉ với thẻ của các bài đó. |
+| **Một cuốn sách** | Lưới các bài: trạng thái, số từ đã thuộc, 🔒 bài đang khóa, "Nên ôn lại" khi quên nhiều. Bật **Học tuần tự** để khóa bài sau tới khi bài trước xong hoặc đạt ≥ 80% (kéo để đổi). **Ôn các bài đã học** mở Ôn tập chỉ với thẻ của các bài đó. |
 | **Một bài** | Tên bài, trạng thái Chưa học / Đang học / Xong, tiến độ, **Học bài này** (đưa từ vào Ôn tập), **Ôn riêng bài này**, **Học tiếp bài sau**, ghi chú của bài, và 7 mục: Từ vựng · Ngữ pháp · Hội thoại · Luyện nghe · Bài tập · Kanji · Đọc hiểu/Viết. |
 
 **Từ vựng:** bấm *Thêm từ*, dán danh sách (mỗi dòng một từ). Nhận được `食べます たべます ăn`, `先生（せんせい）- giáo viên`,
@@ -25,7 +25,13 @@ Hibi Nihongo không liên quan tới nhà xuất bản các sách này.
 **Kanji:** tự rút từ từ vựng của bài (+ chữ thêm tay): Hán Việt, nghĩa, On/Kun, từ trong bài có chữ đó, bấm chữ để xem
 nét viết, nút **Luyện viết**, **Đưa Kanji của bài vào Ôn tập**.
 
-Các mục Ngữ pháp, Hội thoại, Luyện nghe, Bài tập, Đọc hiểu hiện "Sẽ có ở bước N" cho tới khi làm xong.
+**Ngữ pháp:** các mẫu của bài lấy từ module Ngữ pháp (Minna/Genki: tự gợi ý theo số bài; sách tự tạo: bạn chọn).
+**Sửa danh sách** để thêm / bỏ mẫu, **Về danh sách gợi ý** để quay lại. Mỗi mẫu: cấu trúc, giải thích, lưu ý, ví dụ bổ sung
+(bấm từ để tra, nút nghe), **ví dụ bạn chép từ sách** (mỗi dòng `câu | nghĩa`), ghi chú riêng, **Đánh dấu đã hiểu**, **+ Ôn tập**
+(thẻ ngữ pháp có nhãn của bài). Cuối mục là **bài luyện** (điền chỗ trống, sắp xếp câu, chọn nghĩa) chỉ với các mẫu của bài;
+kết quả ghi chung với trang Ngữ pháp. **Học bài này** cũng đưa luôn ngữ pháp của bài vào Ôn tập.
+
+Các mục Hội thoại, Luyện nghe, Bài tập, Đọc hiểu hiện "Sẽ có ở bước N" cho tới khi làm xong.
 
 ## Ôn tập theo bài
 
@@ -33,6 +39,7 @@ Các mục Ngữ pháp, Hội thoại, Luyện nghe, Bài tập, Đọc hiểu h
 - Từ đã có thẻ (thêm từ manga, từ điển…) **không bị tạo thẻ trùng**: thẻ cũ chỉ được gắn thêm nhãn của bài.
 - Ôn một hoặc nhiều bài: `/review?tags=minna-5,minna-6` (module Ôn tập có thêm lọc theo nhãn).
 - **Đã thuộc** = bạn tự đánh dấu, hoặc thẻ Ôn tập đã nhớ được ít nhất 7 ngày (độ bền FSRS ≥ 7).
+- **% của bài** = (từ đã thuộc + mẫu ngữ pháp đã hiểu hoặc đã vào Ôn tập) / (số từ + số mẫu).
 
 ## Đường dẫn mở thẳng
 
@@ -44,7 +51,7 @@ Các mục Ngữ pháp, Hội thoại, Luyện nghe, Bài tập, Đọc hiểu h
 | Bảng | Nội dung | Sao lưu |
 | --- | --- | --- |
 | `textbooks` | Sách: tên, khung gốc, tiền tố nhãn, học tuần tự, bài mở gần nhất | Có |
-| `textbookLessons` | Bài (khóa `<sách>:<số bài>`): từ vựng, ghi chú, trạng thái, Kanji thêm tay, mã mẫu ngữ pháp | Có |
+| `textbookLessons` | Bài (khóa `<sách>:<số bài>`): từ vựng, ghi chú, trạng thái, Kanji thêm tay, mã mẫu ngữ pháp (`grammarIds`, khi bạn sửa danh sách), ví dụ + ghi chú riêng cho từng mẫu (`grammarExtra`) | Có |
 | `textbookMedia` | File audio của bài (dùng từ bước 3) | Không (nặng, nhập lại được) |
 
 ## File
@@ -59,5 +66,7 @@ Các mục Ngữ pháp, Hội thoại, Luyện nghe, Bài tập, Đọc hiểu h
 | `lib/parse.ts` | Đọc danh sách từ được dán vào |
 | `lib/match.ts` | Tra Từ điển: cách đọc, loại từ, mã từ |
 | `lib/learn.ts` | Đưa bài vào Ôn tập (nhãn, bộ thẻ, không trùng) |
-| `lib/progress.ts` | Đã thuộc, % mỗi bài, khóa bài, bài tiếp theo |
+| `lib/progress.ts` | Đã thuộc, % mỗi bài (từ + ngữ pháp), khóa bài, bài tiếp theo |
+| `lib/grammar.ts` | Mẫu ngữ pháp của bài (gợi ý theo số bài hoặc danh sách bạn sửa) |
+| `sections/GrammarSection.tsx` | Mục Ngữ pháp của bài |
 | `strings.ts`, `ui.tsx` | Chữ giao diện (Việt/Anh/Nhật), mảnh giao diện dùng chung |

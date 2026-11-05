@@ -49,3 +49,8 @@ export async function grammarForLesson(book: string, lesson: number): Promise<Gr
   const { list } = await loadGrammar()
   return list.filter((p) => p.lessons?.[book] === lesson)
 }
+
+// Dùng để nhúng Ngữ pháp vào trang bài của Giáo trình (ví dụ, bài luyện, đánh dấu đã hiểu)
+export { ExampleRow, ExampleText } from './components/Example'
+export { Practice as GrammarPractice } from './Practice'
+export { setLearned as setGrammarLearned, grammarInReview } from './lib/progress'

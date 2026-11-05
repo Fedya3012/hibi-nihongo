@@ -14,6 +14,7 @@ import { bookProgress, lockedSet, unlockRatio } from './lib/progress'
 import { learnLesson, lessonTag, type LearnResult } from './lib/learn'
 import { VocabSection } from './sections/VocabSection'
 import { KanjiSection } from './sections/KanjiSection'
+import { GrammarSection } from './sections/GrammarSection'
 import { SoonSection } from './sections/SoonSection'
 import { inputCls, ProgressBar, useTx, type Key } from './ui'
 import { SECTIONS, type LessonStatus, type Section } from './types'
@@ -40,12 +41,13 @@ export function LessonView({ bookId, number, section, onSection, onLesson, onBac
   const { data } = useDbQuery(async () => {
     const [book, lessons] = await Promise.all([getBook(bookId), listLessons(bookId)])
     if (!book) return null
-    const { cards, byLesson } = await bookProgress(lessons)
+    const { cards, byLesson, grammarIds } = await bookProgress([book], lessons)
     const lesson = lessons.find((l) => l.number === number)
     const locked = lockedSet(book, lessons, byLesson)
     const i = lessons.findIndex((l) => l.number === number)
-    return { book, lesson, cards, prog: lesson ? byLesson.get(lesson.id) : undefined, locked, nextNo: lessons[i + 1]?.number }
-  }, [bookId, number], ['textbooks', 'textbookLessons', 'srsCards'])
+    return { book, lesson, cards, prog: lesson ? byLesson.get(lesson.id) : undefined, locked, nextNo: lessons[i + 1]?.number,
+      gIds: lesson ? grammarIds.get(lesson.id) ?? [] : [] }
+  }, [bookId, number], ['textbooks', 'textbookLessons', 'srsCards', 'kv'])
 
   const isLocked = !!data?.locked.has(number)
   // Ghi nhớ bài đang học (cho "Học tiếp", màn Hôm nay) khi bài mở được
@@ -54,14 +56,14 @@ export function LessonView({ bookId, number, section, onSection, onLesson, onBac
   }, [bookId, number, !!data?.lesson, isLocked, forceOpen])
 
   if (!data) return null
-  const { book, lesson, cards, prog, nextNo } = data
+  const { book, lesson, cards, prog, nextNo, gIds } = data
   if (!lesson) {
     return <Card><Button variant="soft" onClick={onBack}>{t('backBook', { book: book.short })}</Button></Card>
   }
 
   const learn = async () => {
     setBusy(true)
-    try { setLearnMsg(await learnLesson(book, lesson)) } finally { setBusy(false) }
+    try { setLearnMsg(await learnLesson(book, lesson, gIds)) } finally { setBusy(false) }
   }
 
   const header = (
@@ -99,11 +101,14 @@ export function LessonView({ bookId, number, section, onSection, onLesson, onBac
           onBlur={(e) => { if (e.target.value !== (lesson.title ?? '')) void setLessonTitle(bookId, number, e.target.value) }} />
         <div className="flex items-center gap-3">
           <ProgressBar value={prog?.ratio ?? 0} className="flex-1" />
-          <span className="text-sm text-muted">{t('progress', { known: prog?.known ?? 0, total: prog?.total ?? 0 })}</span>
+          <span className="text-sm text-muted">
+            {t('progress', { known: prog?.known ?? 0, total: prog?.total ?? 0 })}
+            {gIds.length > 0 && <> · {t('grammarProgress', { done: prog?.grammarLearned ?? 0, total: gIds.length })}</>}
+          </span>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button disabled={busy || !lesson.words.length} onClick={() => void learn()}>{t('learnLesson')}</Button>
-          <Button variant="soft" disabled={!prog?.inReview} onClick={() => navigate(`/review?tags=${lessonTag(book, number)}`)}>
+          <Button disabled={busy || (!lesson.words.length && !gIds.length)} onClick={() => void learn()}>{t('learnLesson')}</Button>
+          <Button variant="soft" disabled={!prog?.inReview && !prog?.grammarLearned} onClick={() => navigate(`/review?tags=${lessonTag(book, number)}`)}>
             {t('reviewLesson')}
           </Button>
           {nextNo != null && (
@@ -112,7 +117,8 @@ export function LessonView({ bookId, number, section, onSection, onLesson, onBac
         </div>
         {learnMsg && (
           <p className="text-sm text-muted" role="status">
-            {t('learnDone', { added: learnMsg.added, tagged: learnMsg.tagged })}
+            {lesson.words.length > 0 && t('learnDone', { added: learnMsg.added, tagged: learnMsg.tagged })}
+            {learnMsg.grammar > 0 && <> {t('learnGrammar', { n: learnMsg.grammar })}</>}
             {learnMsg.skipped.length > 0 && <> {t('learnSkipped', { n: learnMsg.skipped.length, list: learnMsg.skipped.join('、') })}</>}
           </p>
         )}
@@ -133,7 +139,7 @@ export function LessonView({ bookId, number, section, onSection, onLesson, onBac
 
       {section === 'vocab' && <VocabSection book={book} lesson={lesson} cards={cards} />}
       {section === 'kanji' && <KanjiSection book={book} lesson={lesson} />}
-      {section === 'grammar' && <SoonSection step={2} text={t('soonGrammar')} />}
+      {section === 'grammar' && <GrammarSection book={book} lesson={lesson} ids={gIds} />}
       {section === 'dialogue' && <SoonSection step={3} text={t('soonDialogue')} />}
       {section === 'listening' && <SoonSection step={3} text={t('soonListening')} />}
       {section === 'exercise' && <SoonSection step={4} text={t('soonExercise')} />}
