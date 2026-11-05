@@ -46,7 +46,13 @@ app dừng một lúc để bạn nói lại. Có audio: **Đồng bộ câu** (
 nghe đúng từng câu. Chưa có audio: dùng giọng đọc tiếng Nhật của máy. Luyện nghe mặc định ẩn chữ. Đọc hiểu có thêm ô
 **Bài viết của bạn** (作文). Audio chỉ nằm trên máy (dùng được khi không có mạng), không có trong file sao lưu.
 
-Mục Bài tập hiện "Sẽ có ở bước 4".
+**Bài tập:** bấm *+ Thêm bộ bài tập*, chép bài tập trong sách, mỗi dòng một câu. App tự nhận dạng:
+`câu（　） [*đúng | sai | sai]` là chọn đáp án, `câu = đáp án; đáp án khác` là điền, `{mảnh / mảnh / mảnh}` (đúng thứ tự)
+là sắp xếp câu; thêm `// giải thích` ở cuối, dòng `# tên` là tên bộ. Bấm **Kiểm tra**: app tự chấm (điền thì không phân biệt
+hiragana/katakana, dấu cách, dấu câu), hiện đáp án đúng và giải thích; **Làm lại** hoặc **Chỉ làm câu sai**. Mỗi lần chấm
+được lưu: khung **Câu hay sai** liệt kê câu từng sai (lần sai gần nhất bạn trả lời gì), có nút luyện lại các câu ⚠.
+**Luyện từ vựng của bài** tự tạo 10 câu chọn nghĩa / chọn từ từ mục Từ vựng (cần ≥ 4 từ có nghĩa).
+**Xuất PDF** mở hộp thoại In với đề (có chỗ viết) và trang đáp án; chọn "Lưu thành PDF".
 
 ## Ôn tập theo bài
 
@@ -86,6 +92,7 @@ Mục Bài tập hiện "Sẽ có ở bước 4".
 | `lib/grammar.ts` | Mẫu ngữ pháp của bài (gợi ý theo số bài hoặc danh sách bạn sửa) |
 | `sections/GrammarSection.tsx` | Mục Ngữ pháp của bài |
 | `sections/TrackSection.tsx`, `lib/tracks.ts` | Hội thoại / Luyện nghe / Đọc hiểu: nhập đoạn, audio, trình phát, đồng bộ câu |
+| `sections/ExerciseSection.tsx`, `lib/exercises.ts` | Bài tập: nhập, tự chấm, làm lại câu sai, lịch sử câu sai, bài từ vựng tự tạo, xuất PDF |
 | `BookFiles.tsx` | Thêm / xóa file sách gốc |
 | `reader/BookReader.tsx` | Trình đọc file sách: trang, chọn chữ, tô sáng, ghi chú, danh sách ghi chú |
 | `lib/files.ts`, `lib/pdf.ts` | Lưu file + ghi chú, xuất Markdown; vẽ trang PDF và lớp chữ (pdf.js) |
