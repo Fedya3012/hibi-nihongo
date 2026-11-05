@@ -5,6 +5,7 @@
  * - Lời thoại bên cạnh: bấm dòng để nhảy tới, dòng đang nói được tô sáng.
  * - Shadowing: lặp câu, lặp đoạn A-B, tự dừng sau mỗi câu, giảm tốc độ.
  * - Nhớ chỗ đang xem (Smart Resume), chỉnh lệch phụ đề, sang tập tiếp theo.
+ * - Tạo thẻ ôn tập từ câu đang nói, kèm ảnh cảnh phim + tiếng nhân vật (phím C, xem MineDialog).
  */
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { Button } from '@/design/components/Button'
@@ -21,6 +22,7 @@ import {
 import { activeCues, formatClock, lastStartedIndex, looksJapanese, readSubtitleFile } from './subtitles'
 import { DEFAULT_PLAYER_PREFS, type AnimeEpisode, type AnimeSeries, type Cue, type PlayerPrefs, type SubMode } from './types'
 import { VocabPanel } from './VocabPanel'
+import { MineDialog, type MineTarget } from './MineDialog'
 
 type MediaState =
   | { state: 'loading' }
@@ -69,10 +71,12 @@ export function Player({ episodeId, onClose, onOpenEpisode }: {
   const [panel, setPanel] = useState<'lines' | 'vocab'>('lines')
   const [toast, setToast] = useState<string>()
   const [videoError, setVideoError] = useState<string>()
+  const [mining, setMining] = useState<MineTarget | null>(null)
 
   // Giá trị mới nhất cho vòng lặp requestAnimationFrame (không gây vẽ lại)
-  const live = useRef({ jp, tr, offset, loop, prefs, pauseAt: null as number | null, activeKey: '', trKey: '' })
+  const live = useRef({ jp, tr, offset, loop, prefs, pauseAt: null as number | null, activeKey: '', trKey: '', mining: false })
   live.current.jp = jp; live.current.tr = tr; live.current.offset = offset; live.current.loop = loop; live.current.prefs = prefs
+  live.current.mining = !!mining
 
   // ---------- Tải dữ liệu tập ----------
   useEffect(() => {
@@ -156,7 +160,8 @@ export function Player({ episodeId, onClose, onOpenEpisode }: {
         const actTr = activeCues(L.tr, ms)
         const trKey = actTr.join(',')
         if (trKey !== L.trKey) { L.trKey = trKey; setActiveTr(actTr) }
-        if (!v.paused) {
+        // Đang ghi câu cho thẻ: không lặp / tự dừng, để ghi trọn câu
+        if (!v.paused && !L.mining) {
           const now = v.currentTime * 1000
           if (L.loop && v.currentTime >= L.loop.b) v.currentTime = L.loop.a
           else if (L.prefs.autoPause && !L.loop && L.pauseAt != null && now >= L.pauseAt) {
@@ -215,6 +220,16 @@ export function Player({ episodeId, onClose, onOpenEpisode }: {
     flash(`Lặp ${formatClock(aPoint)} → ${formatClock(t)}`)
   }
 
+  /** Mở hộp tạo thẻ cho dòng i (mặc định: dòng hiện tại). */
+  const openMine = (i = currentLine()) => {
+    if (i < 0 || i >= jp.length || !v()) { flash('Chưa có câu thoại nào để tạo thẻ'); return }
+    const c = jp[i]
+    const mid = (c.s + c.e) / 2
+    const translation = activeCues(tr, mid).map((j) => tr[j].t).join(' ').replace(/\n/g, ' ').trim() || undefined
+    v()?.pause()
+    setMining({ index: i, cue: c, translation })
+  }
+
   const changeOffset = (d: number) => {
     setOffset((o) => {
       const n = Math.round((o + d) / 50) * 50
@@ -252,6 +267,7 @@ export function Player({ episodeId, onClose, onOpenEpisode }: {
   keys.current = (e: KeyboardEvent) => {
     const t = e.target as HTMLElement
     if (t.closest('input, select, textarea, [contenteditable="true"]') || e.ctrlKey || e.metaKey || e.altKey) return
+    if (live.current.mining) return // hộp tạo thẻ đang mở
     const k = e.key.length === 1 ? e.key.toLowerCase() : e.key
     const actions: Record<string, () => void> = {
       ' ': togglePlay, k: togglePlay,
@@ -264,6 +280,7 @@ export function Player({ episodeId, onClose, onOpenEpisode }: {
       z: () => changeOffset(-100), x: () => changeOffset(100),
       '[': () => changeRate(-1), ']': () => changeRate(1),
       f: toggleFullscreen,
+      c: () => openMine(),
     }
     const fn = actions[k]
     if (fn) { e.preventDefault(); fn() }
@@ -385,6 +402,7 @@ export function Player({ episodeId, onClose, onOpenEpisode }: {
         <IconBtn label="Lặp đoạn A-B (B)" onClick={cycleAB} active={!!loop && !loop.line || aPoint != null}>
           {aPoint != null ? 'A…' : 'A-B'}
         </IconBtn>
+        <IconBtn label="Tạo thẻ từ câu này, kèm ảnh và tiếng (C)" onClick={() => openMine()}>📸</IconBtn>
         <IconBtn label="Shadowing: tự dừng sau mỗi câu (P)" onClick={() => setPrefs({ autoPause: !prefs.autoPause })} active={prefs.autoPause}>
           <span className="text-xs">Tự dừng</span>
         </IconBtn>
@@ -462,17 +480,24 @@ export function Player({ episodeId, onClose, onOpenEpisode }: {
     </div>
   )
 
+  const mineDialog = mining && videoRef.current && ep && (
+    <MineDialog video={videoRef.current} target={mining} offset={offset} episodeId={ep.id}
+      seriesTitle={series?.title ?? ''} episodeName={episodeLabel(ep)} onClose={() => setMining(null)} />
+  )
+
   if (theater) {
     return (
       <div className="fixed inset-0 z-40 flex flex-col bg-black">
         {videoBox}
         {controls}
+        {mineDialog}
       </div>
     )
   }
 
   return (
     <div className="grid gap-4">
+      {mineDialog}
       <div className="flex flex-wrap items-center gap-2">
         <Button variant="ghost" onClick={onClose}>← Danh sách tập</Button>
         <h1 className="min-w-0 flex-1 truncate text-lg font-semibold">{title}</h1>
@@ -511,6 +536,8 @@ export function Player({ episodeId, onClose, onOpenEpisode }: {
                     <button className="jp shrink-0 self-start rounded-md px-1 text-muted opacity-60 hover:bg-surface hover:text-primary group-hover:opacity-100"
                       onClick={(e) => { v()?.pause(); openLookup(c.t.replace(/\n/g, ' '), { x: e.clientX, y: e.clientY }) }}
                       title="Tra từ trong câu" aria-label="Tra từ trong câu">辞</button>
+                    <button className="shrink-0 self-start rounded-md px-1 text-muted opacity-60 hover:bg-surface hover:text-primary group-hover:opacity-100"
+                      onClick={() => openMine(i)} title="Tạo thẻ từ câu này (ảnh + tiếng)" aria-label="Tạo thẻ từ câu này">📸</button>
                   </div>
                 ))}
               </div>
@@ -537,7 +564,8 @@ export function Player({ episodeId, onClose, onOpenEpisode }: {
         <p className="mt-2 leading-relaxed">
           Space: phát/dừng · ← →: tua 5 giây · A / D: câu trước / sau · S: nghe lại câu · L: lặp câu · B: lặp đoạn A-B ·
           P: tự dừng sau mỗi câu (shadowing) · H: hiện / mờ / ẩn phụ đề · R: furigana · T: phụ đề dịch ·
-          Z / X: phụ đề sớm / muộn 0,1 giây · [ ]: chậm / nhanh · F: toàn màn hình
+          Z / X: phụ đề sớm / muộn 0,1 giây · [ ]: chậm / nhanh · F: toàn màn hình ·
+          C: tạo thẻ ôn tập từ câu đang nói (kèm ảnh cảnh phim và tiếng nhân vật)
         </p>
       </details>
     </div>
