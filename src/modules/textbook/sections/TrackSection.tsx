@@ -13,6 +13,8 @@ import { Card } from '@/design/components/Card'
 import { Button } from '@/design/components/Button'
 import { JapaneseText } from '@/modules/dictionary'
 import { updateLesson } from '../store'
+import { lessonDeck } from '../lib/learn'
+import { PreStudyButton } from '@/modules/vocab/api'
 import {
   addAudio, deleteTrack, formatTime, getAudio, isSynced, lineAt, lineRange, newTrack, parseTrackText, removeAudio,
   saveTrack, trackToText, tracksOf,
@@ -43,7 +45,17 @@ export function TrackSection({ book, lesson, section }: { book: Textbook; lesson
       {editing && !tracks.some((x) => x.id === editing.id) && (
         <TrackEditor book={book} lesson={lesson} track={editing} onDone={() => setEditing(null)} />
       )}
-      {!editing && <Button variant="soft" onClick={() => setEditing(newTrack(section))}>{t(ADD_KEY[section])}</Button>}
+      {!editing && (
+        <div className="flex flex-wrap gap-2">
+          <Button variant="soft" onClick={() => setEditing(newTrack(section))}>{t(ADD_KEY[section])}</Button>
+          {/* Học trước từ của mọi đoạn trong mục này (từ mới gặp nhiều nhất trước) */}
+          {tracks.some((tr) => tr.lines.length > 0) && (
+            <PreStudyButton variant="ghost" name={`${book.short} · ${lesson.number}`}
+              lines={tracks.flatMap((tr) => tr.lines.map((l) => l.jp))}
+              deck={lessonDeck(book, lesson.number)} tags={['textbook']} src="textbook" />
+          )}
+        </div>
+      )}
       {section === 'reading' && <Writing book={book} lesson={lesson} />}
     </div>
   )

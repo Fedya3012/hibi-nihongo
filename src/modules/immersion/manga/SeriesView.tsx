@@ -1,5 +1,5 @@
 /** TRANG MỘT SERIES: thông tin, cài đặt đọc riêng, danh sách chương. */
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Card } from '@/design/components/Card'
 import { Button } from '@/design/components/Button'
 import { Segmented } from '@/design/components/Segmented'
@@ -10,7 +10,9 @@ import {
 import { chapterLabel } from './naming'
 import { ImportDialog } from './ImportDialog'
 import { Cover, Modal, ProgressBar, inputClass } from './ui'
-import type { MangaChapter, ReadDirection } from './types'
+import { listChapterNotes, readingOrder } from './notes'
+import { PreStudyButton } from '@/modules/vocab/api'
+import type { MangaBubble, MangaChapter, ReadDirection } from './types'
 
 export function SeriesView({ seriesId, back, openReader }: {
   seriesId: string
@@ -128,7 +130,7 @@ export function SeriesView({ seriesId, back, openReader }: {
       )}
 
       {editChapter && (
-        <EditChapter chapter={editChapter} onClose={() => setEditChapter(undefined)} onRead={(p) => openReader(editChapter.id, p)} />
+        <EditChapter chapter={editChapter} seriesTitle={s.title} rtl={direction === 'rtl'} onClose={() => setEditChapter(undefined)} onRead={(p) => openReader(editChapter.id, p)} />
       )}
     </div>
   )
@@ -160,7 +162,26 @@ function EditSeries({ title: t0, titleJp: j0, onSave, onDelete, onClose }: {
   )
 }
 
-function EditChapter({ chapter: c, onClose, onRead }: { chapter: MangaChapter; onClose: () => void; onRead: (page: number) => void }) {
+/** Chữ của các bong bóng thoại đã gõ / OCR trong chương, theo thứ tự trang và thứ tự đọc. */
+function useChapterLines(chapterId: string, rtl: boolean): string[] | undefined {
+  const [lines, setLines] = useState<string[]>()
+  useEffect(() => {
+    let alive = true
+    listChapterNotes(chapterId).then((notes) => {
+      const bubbles = notes.filter((n): n is MangaBubble => n.kind === 'bubble' && !!n.text.trim())
+      const pages = [...new Set(bubbles.map((b) => b.page))].sort((a, b) => a - b)
+      const out = pages.flatMap((p) => readingOrder(bubbles.filter((b) => b.page === p), rtl).map((b) => b.text))
+      if (alive) setLines(out)
+    }, () => alive && setLines([]))
+    return () => { alive = false }
+  }, [chapterId, rtl])
+  return lines
+}
+
+function EditChapter({ chapter: c, seriesTitle, rtl, onClose, onRead }: {
+  chapter: MangaChapter; seriesTitle: string; rtl: boolean; onClose: () => void; onRead: (page: number) => void
+}) {
+  const lines = useChapterLines(c.id, rtl)
   const [title, setTitle] = useState(c.title)
   const [num, setNum] = useState(c.number?.toString() ?? '')
   const [vol, setVol] = useState(c.volume?.toString() ?? '')
@@ -184,6 +205,15 @@ function EditChapter({ chapter: c, onClose, onRead }: { chapter: MangaChapter; o
             {c.finishedAt ? 'Đánh dấu chưa đọc' : 'Đánh dấu đã đọc'}
           </Button>
         </div>
+        {/* Học trước từ: dựa trên chữ trong các bong bóng thoại đã lưu của chương */}
+        {lines && (lines.length > 0 ? (
+          <div className="flex flex-wrap items-center gap-2">
+            <PreStudyButton name={chapterLabel(c)} lines={lines} deck={`Manga · ${seriesTitle}`.slice(0, 60)} tags={['manga']} src="manga" />
+            <span className="text-xs text-muted">Theo {lines.length} bong bóng thoại đã có chữ</span>
+          </div>
+        ) : (
+          <p className="text-xs text-muted">Học trước từ: chương này chưa có chữ. Ở chế độ Học sâu, thêm bong bóng thoại (gõ, dán hoặc OCR) để app đếm từ của chương.</p>
+        ))}
         <div className="mt-2 flex justify-between gap-2">
           <Button variant="ghost" className={confirm ? 'text-bad' : ''}
             onClick={async () => { if (confirm) { await deleteChapter(c.id); onClose() } else setConfirm(true) }}>
