@@ -10,3 +10,5 @@ jobs:
         with: { node-version: 22, cache: npm }
       - run: npm ci
       - run: npm run build
+      # Build thêm đúng kiểu bản website (GitHub Pages) để lỗi lộ ra trước khi gộp vào main
+      - run: npm run build -- --base=./

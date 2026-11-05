@@ -1,0 +1,15 @@
+# Thống nhất ký tự xuống dòng (LF) cho mọi file chữ, để máy Windows và Mac không làm cả file "khác nhau"
+* text=auto eol=lf
+
+# File tự sinh: GitHub thu gọn trong phần xem thay đổi. Nếu conflict thì KHÔNG sửa tay,
+# lấy bản của main rồi chạy lại `npm install` (xem docs/LAM-VIEC-SONG-SONG.md)
+package-lock.json linguist-generated=true
+src-tauri/Cargo.lock linguist-generated=true
+
+# File nhị phân: không bao giờ trộn từng dòng
+*.png binary
+*.jpg binary
+*.ico binary
+*.icns binary
+*.pack binary
+*.zip binary

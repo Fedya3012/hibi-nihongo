@@ -19,7 +19,7 @@ Màn hình chính của app (**Hôm nay**, đường dẫn `/`) và trang **Tôi
 - Heatmap cả năm, **Tóm tắt** ngày/tuần/tháng (**Sao chép Markdown**, **Tải file .md**), **Lịch sử từng ngày** (bấm để xem từng phiên học).
 
 ## Giờ học được đếm thế nào?
-`lib/tracker.ts` chạy ngầm trong cả app (nạp từ `src/modules/registry.ts`). Cứ 5 giây, nếu bạn đang ở **trang học**
+`lib/tracker.ts` chạy ngầm trong cả app (nạp từ `src/modules/today/module.ts`). Cứ 5 giây, nếu bạn đang ở **trang học**
 (Ôn tập, Manga, Anime, Kana, Kanji, Ngữ pháp, Từ điển, Giáo trình…), cửa sổ đang hiện, và bạn vừa thao tác trong 90 giây
 qua **hoặc** video đang phát, thì 5 giây đó được tính. Trang Hôm nay, Tôi, Cài đặt không tính.
 Ghi xuống kho mỗi 30 giây, khi đổi trang và khi đóng/ẩn app.

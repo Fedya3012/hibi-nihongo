@@ -6,7 +6,7 @@ cấu hình PWA và Windows) đã có sẵn. Mỗi module chỉ thêm code vào 
 ## Quy ước cho mọi module
 
 1. Code nằm trong `src/modules/<id>/`. Trang chính export default một component React.
-2. Đăng ký trong `src/modules/registry.ts`: sửa dòng có sẵn, đổi `page` từ placeholder sang trang thật, `status` → `'building'`/`'ready'`.
+2. Đăng ký bằng file `src/modules/<id>/module.ts` của chính module (xem `src/modules/define.ts`): đổi `page` từ placeholder sang trang thật, `status` → `'building'`/`'ready'`, tên tiếng Anh/Nhật để trong `text`. **Không sửa `src/modules/registry.ts`**, file đó tự gom mọi `module.ts`. Nguồn tìm kiếm Ctrl+K: tạo `src/modules/<id>/search.ts`, cũng tự được tìm thấy.
 3. **Chỉ dùng màu từ token** (class `bg-surface`, `text-primary`, `text-muted`, `border-border`...). Không viết mã màu trực tiếp, để Dark Mode và đổi màu luôn đúng.
 4. Dùng component chung trong `src/design/components/` (Card, Button, Segmented). Cần component mới dùng chung được thì thêm vào đó.
 5. Chữ tiếng Nhật đặt trong class `jp`; furigana dùng `<ruby>漢字<rt>かんじ</rt></ruby>` (tự ẩn/hiện theo Cài đặt).
@@ -14,6 +14,7 @@ cấu hình PWA và Windows) đã có sẵn. Mỗi module chỉ thêm code vào 
 7. Chữ trên giao diện đặt trong bảng `defineStrings` (xem `src/core/i18n/README.md`) để dịch được sang Anh/Nhật; thiếu bản dịch thì tự hiện tiếng Việt.
 8. Ghi chú code bằng tiếng Việt, dễ hiểu. Chạy `npm run build` không lỗi trước khi giao.
 9. Chỉ làm cho **Website và Windows**. Không thêm gì riêng cho Android ở giai đoạn này.
+10. **Tránh conflict khi nhiều thread làm song song:** đọc `docs/LAM-VIEC-SONG-SONG.md` trước khi bắt đầu. Tóm tắt: tạo nhánh từ `main` mới nhất, chỉ sửa trong thư mục của module, **không sửa bảng trạng thái bên dưới trong PR tính năng** (trạng thái thật nằm ở `status` trong `module.ts`), và cập nhật nhánh theo `main` trước khi báo xong.
 
 ## Thứ tự đề xuất
 

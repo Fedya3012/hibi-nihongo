@@ -8,7 +8,7 @@
  *      (xem anime không cần chạm chuột vẫn được tính).
  * Thời gian được ghi xuống bảng studyDays mỗi 30 giây và khi bạn đóng/ẩn app.
  *
- * File này được nạp một lần từ src/modules/registry.ts (dòng `import './today/lib/tracker'`).
+ * File này được nạp một lần từ src/modules/today/module.ts (dòng `import './lib/tracker'`).
  */
 import { categoryOfPath, type Category } from './categories'
 import { dayKey, getDayStartHour } from './days'

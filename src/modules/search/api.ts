@@ -6,9 +6,8 @@
  *   openSearch('食べる')     // mở và điền sẵn chữ
  *
  * THÊM NGUỒN TÌM KIẾM CHO MODULE MỚI (ví dụ Ngữ pháp, Giáo trình):
- *   1. Trong module của bạn, tạo file `search.ts` export default một SearchSource (xem types.ts).
- *   2. Thêm MỘT dòng vào MODULE_SOURCES bên dưới:
- *        { id: 'grammar-points', load: () => import('@/modules/grammar/search') },
+ *   Trong thư mục module, tạo file `search.ts` (ngay dưới src/modules/<id>/) export default một
+ *   SearchSource (xem types.ts). Xong: MODULE_SOURCES bên dưới tự tìm thấy, không sửa file này.
  *   File chỉ được tải khi người dùng mở ô tìm kiếm, nên không làm app khởi động chậm.
  */
 import { create } from 'zustand'
@@ -16,10 +15,10 @@ import type { SearchSource } from './types'
 
 export type { SearchSource, SearchHit, SearchQuery } from './types'
 
-/** Nguồn tìm kiếm của các module khác (tải khi mở ô tìm kiếm). */
-export const MODULE_SOURCES: { id: string; load: () => Promise<{ default: SearchSource }> }[] = [
-  { id: 'grammar-points', load: () => import('@/modules/grammar/search') },
-]
+/** Nguồn tìm kiếm của các module khác: mọi file src/modules/<id>/search.ts (tải khi mở ô tìm kiếm). */
+const found = import.meta.glob<{ default: SearchSource }>('../*/search.ts')
+export const MODULE_SOURCES: { id: string; load: () => Promise<{ default: SearchSource }> }[] =
+  Object.entries(found).map(([file, load]) => ({ id: file, load }))
 
 /** Nguồn đăng ký lúc chạy (ít dùng; ưu tiên MODULE_SOURCES ở trên). */
 export const runtimeSources = new Map<string, SearchSource>()

@@ -1,0 +1,48 @@
+# Mỗi khi main thay đổi (ví dụ vừa merge một PR), tự cập nhật mọi PR đang mở cho theo kịp main.
+# - Cập nhật được: GitHub gộp main vào nhánh của PR (giống bấm nút "Update branch").
+# - Bị conflict: để lại MỘT bình luận trên PR để thread làm PR đó biết và tự sửa sớm,
+#   thay vì đến lúc bấm merge mới phát hiện.
+name: Keep PRs updated
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: keep-prs-updated
+  cancel-in-progress: true
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo
+            const MARK = '<!-- keep-prs-updated:conflict -->'
+            const prs = await github.paginate(github.rest.pulls.list, { owner, repo, state: 'open', per_page: 100 })
+            for (const pr of prs) {
+              // Chỉ PR có nhánh nằm trong repo này (không phải fork) và nhắm vào main
+              if (pr.base.ref !== 'main' || pr.head.repo?.full_name !== `${owner}/${repo}`) continue
+              try {
+                await github.rest.pulls.updateBranch({ owner, repo, pull_number: pr.number, expected_head_sha: pr.head.sha })
+                core.info(`#${pr.number}: đã cập nhật theo main (hoặc đã mới sẵn)`)
+              } catch (e) {
+                const msg = String(e.message || e)
+                // 422 = có conflict (hoặc nhánh vừa đổi). Các lỗi khác chỉ ghi log.
+                if (e.status !== 422 || !/conflict/i.test(msg)) { core.warning(`#${pr.number}: ${msg}`); continue }
+                const comments = await github.paginate(github.rest.issues.listComments, { owner, repo, issue_number: pr.number, per_page: 100 })
+                const already = comments.some((c) => c.body?.includes(MARK) && c.body?.includes(context.sha.slice(0, 7)))
+                if (already) continue
+                await github.rest.issues.createComment({ owner, repo, issue_number: pr.number, body:
+                  `${MARK}\n⚠️ **PR này bị conflict với \`main\`** (main vừa đổi ở ${context.sha.slice(0, 7)}).\n\n` +
+                  `Cần gộp \`origin/main\` mới nhất vào nhánh \`${pr.head.ref}\`, sửa conflict, chạy \`npm run build\`, rồi push. ` +
+                  `Quy tắc: docs/LAM-VIEC-SONG-SONG.md` })
+                core.warning(`#${pr.number}: conflict, đã bình luận`)
+              }
+            }
