@@ -51,3 +51,22 @@ jobs:
         with: { path: dist }
       - id: deploy
         uses: actions/deploy-pages@v4
+
+  # Nếu bước đăng website lỗi, ghi hướng dẫn sửa bằng tiếng Việt vào trang kết quả của lần chạy
+  web-help:
+    needs: web
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'MD'
+          ## Website chưa đăng được
+
+          Nguyên nhân hay gặp nhất là cài đặt GitHub Pages:
+
+          1. **Settings → Pages → Source** phải là **GitHub Actions**.
+          2. **Settings → Environments → github-pages → Deployment branches and tags**:
+             phải có nhánh **main** (hoặc chọn *No restriction*).
+
+          Sửa xong, mở lại lần chạy này và bấm **Re-run failed jobs**.
+          MD
