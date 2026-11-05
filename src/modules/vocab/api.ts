@@ -85,3 +85,7 @@ export function worstStatus(list: (WordStatus | undefined)[] | undefined, from =
   }
   return worst
 }
+
+// Học trước từ của một chương / bài đọc ("học 30 từ này để hiểu 90%"). Xem prestudy.ts
+export { analyzeLines, planPreStudy, type StudyWord, type TextAnalysis, type PreStudyPlan } from './prestudy'
+export { PreStudyButton, PreStudyPanel, type PreStudyProps } from './components/PreStudy'
