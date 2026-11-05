@@ -12,6 +12,19 @@ Trong lúc ôn: **Space** lật thẻ, **1–4** chấm Quên/Khó/Được/Dễ
 **S** tạm ẩn, **R** nghe đọc, **Esc** thoát.
 Trên màn cảm ứng: chạm để lật, vuốt ← Quên · → Được · ↑ Dễ · ↓ Khó, **nhấn giữ** thẻ để Chôn / Tạm ẩn.
 
+## Thống kê
+Tab **Thống kê** (hoặc mở thẳng `/review?tab=stats`). Chọn một bộ thẻ hoặc xem tất cả.
+- **Dự báo số thẻ đến hạn** 7 ngày / 30 ngày / 3 tháng tới (biểu đồ cột, chia thẻ đã thuộc và thẻ đang học),
+  tổng, trung bình mỗi ngày, ngày nặng nhất, thời gian ôn dự kiến mỗi ngày (theo tốc độ ôn 30 ngày qua).
+  Thẻ quá hạn tính vào hôm nay; chưa tính thẻ mới sẽ học thêm. Có nút đi tới chỗ đổi số thẻ mới mỗi ngày.
+- **Tỉ lệ nhớ thật**: trong các lần ôn thẻ đã thuộc, bao nhiêu phần trăm không bấm Quên. Chia thẻ non
+  (khoảng cách < 21 ngày) và thẻ chắc (≥ 21 ngày), theo hôm nay / 7 ngày / 30 ngày / 1 năm, so với tỉ lệ nhớ mong muốn
+  trong Cài đặt, kèm nhận xét nên giảm hay có thể tăng thẻ mới.
+- **Các nút đã bấm** (30 ngày) và **độ thuộc** của các thẻ (chưa học, đang học, còn non, thuộc chắc, tạm ẩn).
+- **10 thẻ khó nhất** (quên nhiều nhất, rồi đến độ khó FSRS). Bấm một thẻ để mở tab Thẻ và sửa nó.
+
+Tính toán nằm trong `stats.ts` (hàm thuần, chỉ đọc), giao diện trong `StatsTab.tsx`.
+
 ## Nhập / xuất Anki (.apkg)
 Tab **Thẻ → Anki**.
 - **Nhập**: chọn file `.apkg` (xuất từ Anki máy tính, AnkiDroid, hoặc tải trên AnkiWeb). Đọc được cả kiểu mới nhất
@@ -60,7 +73,8 @@ Chế độ "Trộn" (mặc định): thẻ mới hỏi kiểu dễ nhất, th�
 | `queue.ts` | Xếp hàng đợi buổi ôn, chọn dạng câu hỏi |
 | `kana.ts` | Romaji → hiragana, so cách đọc |
 | `Session.tsx` | Màn hình ôn (nút, phím tắt, vuốt, hoàn tác, đồng hồ 5 phút) |
-| `ReviewPage.tsx`, `CardsTab.tsx`, `SettingsTab.tsx`, `CardFace.tsx` | Giao diện |
+| `stats.ts` | Tính thống kê: dự báo, tỉ lệ nhớ thật, thẻ khó nhất |
+| `ReviewPage.tsx`, `CardsTab.tsx`, `StatsTab.tsx`, `SettingsTab.tsx`, `CardFace.tsx` | Giao diện |
 | `starter.ts` | Bộ thẻ mẫu N5 |
 | `api.ts` | **API cho module khác** |
 
@@ -78,4 +92,4 @@ const ov = useReviewOverview() // ov?.dueNow, ov?.newAvailable, ov?.reviewedToda
 Thẻ có cùng `source` (hoặc cùng bộ + cùng chữ + cùng loại) không bị thêm trùng.
 `image` nhận Blob/File (vd kết quả `cropPanel`) hoặc data URL. `audio` nhận Blob (vd đoạn thoại ghi bằng MediaRecorder) hoặc data URL.
 Gắn ảnh/tiếng vào thẻ đã có: `attachReviewMedia({ module: 'dictionary', ref: '1358280' }, { image, audio })`.
-Mở thẳng ôn nhanh 5 phút: `/review?quick=1`. Mở tab Thẻ và tìm sẵn: `/review?tab=cards&q=<chữ>`.
+Mở thẳng ôn nhanh 5 phút: `/review?quick=1`. Mở tab Thẻ và tìm sẵn: `/review?tab=cards&q=<chữ>`. Mở tab Thống kê: `/review?tab=stats`.
