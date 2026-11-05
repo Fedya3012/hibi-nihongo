@@ -10,7 +10,8 @@ tìm cùng lúc trong mọi dữ liệu trên máy, không cần mạng.
 | Trang & bài học | tên tính năng ở cả 3 ngôn ngữ ("settings" ra "Cài đặt"), "Kanji N3", "ôn nhanh" | mở trang |
 | Từ vựng | 食べる, たべる, taberu, eat, dạng đã chia 食べました | mở popup tra từ ngay tại chỗ (dòng cuối: mở Từ điển) |
 | Kanji | chữ Kanji, **âm Hán Việt** có hoặc không dấu (thực / thuc), nghĩa tiếng Anh | mở trang chi tiết chữ |
-| Ngữ pháp | thẻ ngữ pháp trong Ôn tập (sau này: bài ngữ pháp của module Ngữ pháp) | mở thẻ trong Ôn tập |
+| Bài ngữ pháp | mẫu (cả romaji `temoii`), nghĩa tiếng Việt, chữ trong câu ví dụ | mở bài ngữ pháp |
+| Ngữ pháp | thẻ ngữ pháp trong Ôn tập | mở thẻ trong Ôn tập |
 | Thẻ ôn tập | mặt trước, cách đọc, nghĩa, tag, câu ví dụ, ghi chú, tên bộ thẻ | mở tab Thẻ, ô tìm điền sẵn |
 | Manga & anime | tên series (cả tên tiếng Nhật), tên chương, tên tập, tên file | mở series / mở thẳng chương, tập |
 | Ghi chú & đánh dấu | bong bóng thoại, bản dịch của bạn, ghi chú, tên nhân vật, ghi chú đánh dấu trang | mở trình đọc **đúng trang** |

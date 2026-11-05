@@ -40,5 +40,5 @@ function Page() {
 
 ## Đã dịch
 
-Khung app (thanh bên, thanh dưới), trang Học, Immersion, trang tạm, Cài đặt, ô tìm kiếm.
+Khung app (thanh bên, thanh dưới), trang Học, Immersion, trang tạm, Cài đặt, ô tìm kiếm, giao diện Ngữ pháp (nội dung bài vẫn tiếng Việt).
 Các module khác chuyển dần trong thread của từng module.
