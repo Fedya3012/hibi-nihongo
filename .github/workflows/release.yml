@@ -39,7 +39,7 @@ jobs:
 
   web:
     runs-on: ubuntu-latest
-    environment: { name: github-pages, url: '${{ steps.deploy.outputs.page_url }}' }
+    environment: { name: github-pages, url: '${{ steps.deploy.outputs.page_url || steps.deploy-retry.outputs.page_url }}' }
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
@@ -47,10 +47,21 @@ jobs:
       - run: npm ci
       - run: npm run build -- --base=./
       - uses: actions/configure-pages@v6
+      # Tên gói có số lần chạy: bấm "Re-run" sẽ không bị lỗi "Multiple artifacts named github-pages"
       - uses: actions/upload-pages-artifact@v5
-        with: { path: dist }
+        with: { path: dist, name: 'github-pages-${{ github.run_attempt }}' }
+      # Máy chủ GitHub Pages thỉnh thoảng lỗi tạm thời (ví dụ "status: 502").
+      # Khi đó đợi 1 phút rồi tự thử đăng lại, không cần bạn bấm gì.
       - id: deploy
         uses: actions/deploy-pages@v5
+        continue-on-error: true
+        with: { artifact_name: 'github-pages-${{ github.run_attempt }}' }
+      - if: steps.deploy.outcome == 'failure'
+        run: sleep 60
+      - id: deploy-retry
+        if: steps.deploy.outcome == 'failure'
+        uses: actions/deploy-pages@v5
+        with: { artifact_name: 'github-pages-${{ github.run_attempt }}' }
 
   # Nếu bước đăng website lỗi, ghi hướng dẫn sửa bằng tiếng Việt vào trang kết quả của lần chạy
   web-help:
@@ -62,7 +73,10 @@ jobs:
           cat >> "$GITHUB_STEP_SUMMARY" <<'MD'
           ## Website chưa đăng được
 
-          Nguyên nhân hay gặp nhất là cài đặt GitHub Pages:
+          Nếu trong log có **status: 500/502/503** hoặc chữ *Server error*: đó là lỗi tạm thời
+          của máy chủ GitHub, không phải lỗi code. Đợi vài phút rồi bấm **Re-run failed jobs**.
+
+          Nếu không, nguyên nhân hay gặp nhất là cài đặt GitHub Pages:
 
           1. **Settings → Pages → Source** phải là **GitHub Actions**.
           2. **Settings → Environments → github-pages → Deployment branches and tags**:
