@@ -12,6 +12,22 @@ Trong lúc ôn: **Space** lật thẻ, **1–4** chấm Quên/Khó/Được/Dễ
 **S** tạm ẩn, **R** nghe đọc, **Esc** thoát.
 Trên màn cảm ứng: chạm để lật, vuốt ← Quên · → Được · ↑ Dễ · ↓ Khó, **nhấn giữ** thẻ để Chôn / Tạm ẩn.
 
+## Nhập / xuất Anki (.apkg)
+Tab **Thẻ → Anki**.
+- **Nhập**: chọn file `.apkg` (xuất từ Anki máy tính, AnkiDroid, hoặc tải trên AnkiWeb). Đọc được cả kiểu mới nhất
+  (Anki 2.1.50+, `collection.anki21b`), kiểu 2.1 và kiểu cũ 2.0. Với mỗi loại ghi chú, app tự đoán trường nào là
+  chữ Nhật / cách đọc / nghĩa / câu ví dụ…, hiện bản xem trước, và cho chọn lại nếu đoán sai.
+  - Giữ tiến độ: hạn ôn, độ thuộc (nếu Anki bật FSRS thì lấy đúng số của FSRS), số lần quên, thẻ tạm ẩn.
+  - Furigana kiểu `日本[にほん]` tách thành chữ + cách đọc. Từ tô đậm trong câu ví dụ thành chỗ trống `{{ }}`.
+    Thẻ cloze `{{c1::…}}` thành câu điền chỗ trống.
+  - Ảnh được nhập kèm (nén lại). Âm thanh chưa nhập (app đọc bằng giọng máy).
+  - Ghi chú có nhiều thẻ (vd Nhận diện + Viết lại) thành một thẻ (app tự đổi dạng câu hỏi), lấy lịch của thẻ ôn nhiều nhất.
+  - Nhập lại cùng file không tạo trùng (theo mã ghi chú của Anki, hoặc cùng bộ + cùng chữ).
+- **Xuất**: tạo `.apkg` (kiểu 2.0, mọi bản Anki đều mở được), loại ghi chú "Hibi Nihongo", kèm tiến độ, lịch sử ôn,
+  ảnh nếu chọn. Nhập ngược file này vào app thì khớp đủ mọi ô.
+- Code: `anki/read.ts` (đọc gói), `anki/convert.ts` (đoán trường, làm sạch HTML, đổi lịch), `anki/import.ts`,
+  `anki/export.ts`, `anki/AnkiPanel.tsx`. Đọc SQLite bằng `sql.js`, giải nén zstd bằng `fzstd`; phần này chỉ tải khi dùng.
+
 ## Trạng thái thẻ
 - **Tạm ẩn (suspend)**: không xuất hiện khi ôn cho tới khi bỏ ẩn.
 - **Chôn (bury)**: cất tới đầu ngày học kế tiếp rồi tự quay lại.
