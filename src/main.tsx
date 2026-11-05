@@ -8,6 +8,9 @@ import '@fontsource/noto-sans-jp/700.css'
 import '@fontsource/noto-serif-jp/400.css'
 import './index.css'
 import { App } from './app/App'
+import { installStaleChunkReload } from './app/staleChunk'
+
+installStaleChunkReload()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
