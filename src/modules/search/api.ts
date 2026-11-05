@@ -18,7 +18,7 @@ export type { SearchSource, SearchHit, SearchQuery } from './types'
 
 /** Nguồn tìm kiếm của các module khác (tải khi mở ô tìm kiếm). */
 export const MODULE_SOURCES: { id: string; load: () => Promise<{ default: SearchSource }> }[] = [
-  // { id: 'grammar-points', load: () => import('@/modules/grammar/search') },
+  { id: 'grammar-points', load: () => import('@/modules/grammar/search') },
 ]
 
 /** Nguồn đăng ký lúc chạy (ít dùng; ưu tiên MODULE_SOURCES ở trên). */
