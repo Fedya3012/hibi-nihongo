@@ -56,14 +56,14 @@
     {
       "id": "jmdict-vi",
       "title": "Nghĩa tiếng Việt (dịch từ JMdict)",
-      "description": "Nghĩa tiếng Việt cho 1.138 từ (ưu tiên từ JLPT), dịch máy từ nghĩa tiếng Anh, chưa có người duyệt",
+      "description": "Nghĩa tiếng Việt cho 7.083 từ (ưu tiên từ JLPT), dịch máy từ nghĩa tiếng Anh, chưa có người duyệt",
       "license": "Dịch từ JMdict © EDRDG, CC BY-SA 4.0 (bản phái sinh, cùng giấy phép) · Wiktionary tiếng Việt, CC BY-SA 4.0",
-      "version": 1,
-      "contentHash": "f6512492ea1babb92504cbbbd7b7a5f834568bdd96b4fc22797508111f586849",
+      "version": 2,
+      "contentHash": "7ee9efc42d3de10f77c68e5d985066db82710387c384a59a58c75dce9245df9c",
       "full": {
-        "url": "jmdict-vi.v1.pack",
-        "size": 78200,
-        "sha256": "f74b840f1916c6f297d990bd57e014aee4345b52456f9b17cc7580832c1c8f9d"
+        "url": "jmdict-vi.v2.pack",
+        "size": 325103,
+        "sha256": "0537493400c4900fcb78caa25986b2377063906c88c5744cafbb56edf68b4cc7"
       }
     }
   ]
