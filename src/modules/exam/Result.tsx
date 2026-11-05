@@ -13,7 +13,7 @@ import { openLookup } from '@/modules/dictionary/api'
 import { addGrammarCards, getGrammarPoints, grammarPath } from '@/modules/grammar/api'
 import { PART_VI, S } from './strings'
 import type { ExamQuestion, ExamResult, PartId } from './types'
-import { Stem } from './Runner'
+import { Passage, Stem, Transcript } from './Runner'
 
 export function ResultView({ result: r, onBack }: { result: ExamResult; onBack: () => void }) {
   const t = useT(S)
@@ -142,7 +142,19 @@ function ReviewItem({ q, chosen, ok }: { q: ExamQuestion; chosen: number | null;
   return (
     <li className={`grid gap-2 rounded-xl border p-3 text-sm ${ok ? 'border-good/50' : 'border-bad/50'}`}>
       <p className="text-xs text-muted">{ok ? '✓' : '✗'} {tp(q.part)}</p>
+      {q.passage && (
+        <details>
+          <summary className="cursor-pointer text-muted">{t('showPassage')}</summary>
+          <div className="mt-2"><Passage text={q.passage} /></div>
+        </details>
+      )}
       {q.audio && <p lang="ja" className="jp text-base">🔊 {q.audio}</p>}
+      {q.dialogue && (
+        <details>
+          <summary className="cursor-pointer text-muted">🔊 {t('showTranscript')}</summary>
+          <div className="mt-2 rounded-xl bg-surface-2 p-3"><Transcript q={q} /></div>
+        </details>
+      )}
       {q.stem && <Stem q={q} className="!text-left !text-lg" />}
       <p className={ok ? 'text-good' : 'text-bad'}>{t('yourAnswer')}: <span lang={q.optionsJp ? 'ja' : undefined} className={jp}>{chosen === null ? t('noAnswer') : q.options[chosen]}</span></p>
       {!ok && <p className="text-good">{t('correct')}: <span lang={q.optionsJp ? 'ja' : undefined} className={jp}>{q.options[q.answer]}</span></p>}

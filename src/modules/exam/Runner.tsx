@@ -7,7 +7,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { Button } from '@/design/components/Button'
 import { Card } from '@/design/components/Card'
 import { useT } from '@/core/i18n'
-import { speak, useJapaneseVoice } from '@/modules/kana/speech'
+import { useJapaneseVoice } from '@/modules/kana/speech'
+import { playScript, stopAudio } from './lib/audio'
 import { PART_JP } from './data/format'
 import { saveCurrent } from './lib/store'
 import { PART_VI, S } from './strings'
@@ -197,12 +198,14 @@ export function QuestionCard({ q, mondai, index, count, chosen, flagged, onChoos
   const canSpeak = voice.supported && voice.ready
   const [plays, setPlays] = useState(0)
 
-  // Bài nghe tự phát một lần khi mở câu (giống đề thật)
+  // Bài nghe: tình huống + câu hỏi → hội thoại → nhắc lại câu hỏi (giống đề thật); nghe từ/câu thì đọc một lần
+  const script = scriptOf(q)
+  const play = () => { playScript(script); setPlays((n) => n + 1) }
   useEffect(() => {
-    if (!q.audio || !canSpeak) return
-    const id = window.setTimeout(() => { speak(q.audio!, { force: true, rate: 0.9 }); setPlays(1) }, 300)
-    return () => window.clearTimeout(id)
-  }, [q.audio, canSpeak])
+    if (!script.length || !canSpeak) return
+    const id = window.setTimeout(play, 300)
+    return () => { window.clearTimeout(id); stopAudio() }
+  }, [q.id, canSpeak]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <Card className="grid gap-5">
@@ -219,16 +222,16 @@ export function QuestionCard({ q, mondai, index, count, chosen, flagged, onChoos
         </div>
       </div>
 
-      {q.audio && (
+      {q.passage && <Passage text={q.passage} />}
+
+      {script.length > 0 && (
         <div className="flex flex-wrap items-center gap-3">
           {canSpeak ? (
-            <Button variant="soft" onClick={() => { speak(q.audio!, { force: true, rate: 0.9 }); setPlays((n) => n + 1) }}>
-              {plays ? t('replay') : t('play')}
-            </Button>
+            <Button variant="soft" onClick={play}>{plays ? t('replay') : t('play')}</Button>
           ) : (
             <>
               <p className="w-full text-sm text-warn">{t('noVoice')}</p>
-              <p lang="ja" className="jp text-2xl">{q.audio}</p>
+              <Transcript q={q} />
             </>
           )}
         </div>
@@ -263,4 +266,40 @@ export function Stem({ q, className = '' }: { q: ExamQuestion; className?: strin
       {q.stem.slice(b)}
     </p>
   )
+}
+
+/** Các câu cần đọc to của một câu hỏi nghe ('N' = người dẫn). */
+function scriptOf(q: ExamQuestion): { who: 'M' | 'F' | 'N'; text: string }[] {
+  if (q.dialogue) {
+    return [
+      { who: 'N', text: q.dialogue.intro }, { who: 'N', text: q.stem },
+      ...q.dialogue.lines.map(([who, text]) => ({ who, text })),
+      { who: 'N', text: q.stem },
+    ]
+  }
+  return q.audio ? [{ who: 'N', text: q.audio }] : []
+}
+
+/** Đoạn văn của bài đọc dài (giữ xuống dòng như bản gốc). */
+export function Passage({ text }: { text: string }) {
+  return (
+    <div lang="ja" className="jp max-h-80 overflow-y-auto whitespace-pre-line rounded-xl border border-border bg-surface-2 p-4 text-lg leading-loose">
+      {text}
+    </div>
+  )
+}
+
+/** Lời bài nghe dạng chữ (khi máy không có giọng Nhật, và khi xem lại). */
+export function Transcript({ q }: { q: ExamQuestion }) {
+  if (q.dialogue) {
+    return (
+      <div lang="ja" className="jp grid w-full gap-1 text-base">
+        <p className="text-muted">{q.dialogue.intro}</p>
+        {q.dialogue.lines.map(([who, text], i) => (
+          <p key={i}><span className="mr-2 text-muted">{who === 'M' ? '男' : '女'}：</span>{text}</p>
+        ))}
+      </div>
+    )
+  }
+  return <p lang="ja" className="jp text-2xl">{q.audio}</p>
 }

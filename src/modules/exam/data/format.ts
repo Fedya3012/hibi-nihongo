@@ -2,8 +2,8 @@
  * CẤU TRÚC ĐỀ THI THEO TỪNG CẤP (thời gian, số câu, cách tính điểm), mô phỏng theo đề JLPT từ 2020.
  *
  * Thời gian các buổi thi và thang điểm / điểm đỗ / điểm liệt là của kỳ thi JLPT thật
- * (jlpt.jp). Số câu từng dạng là gần đúng: app không có bài đọc dài và bài nghe hội thoại,
- * nên đọc hiểu và nghe được thay bằng câu ngắn (xem README.md).
+ * (jlpt.jp). Số câu từng dạng là gần đúng. Đọc hiểu gồm câu ngắn + bài đọc dài (data/passages.ts);
+ * nghe gồm từ, câu ngắn + hội thoại (data/dialogues.ts). Xem README.md.
  *
  * Muốn đổi số câu một dạng: sửa số `n` bên dưới. Đổi giờ: sửa `minutes`.
  */
@@ -28,8 +28,8 @@ export interface LevelFormat {
 }
 
 const LANG: PartId[] = ['kanji', 'writing', 'context', 'meaning', 'grammar', 'order']
-const READ: PartId[] = ['reading']
-const LISTEN: PartId[] = ['listenWord', 'listenSentence']
+const READ: PartId[] = ['reading', 'passage']
+const LISTEN: PartId[] = ['listenWord', 'listenSentence', 'dialogue']
 
 /** N5, N4: "Kiến thức ngôn ngữ + Đọc hiểu" gộp một nhóm 0–120, Nghe 0–60. */
 const groupsLow: GroupFormat[] = [
@@ -48,24 +48,24 @@ export const FORMATS: Record<Level, LevelFormat> = {
     level: 5, pass: 80, groups: groupsLow,
     sections: [
       { id: 'vocab', title: '言語知識（文字・語彙）', minutes: 20, parts: [{ part: 'kanji', n: 7 }, { part: 'writing', n: 5 }, { part: 'context', n: 6 }, { part: 'meaning', n: 3 }] },
-      { id: 'grammar', title: '言語知識（文法）・読解', minutes: 40, parts: [{ part: 'grammar', n: 9 }, { part: 'order', n: 4 }, { part: 'reading', n: 6 }] },
-      { id: 'listen', title: '聴解', minutes: 30, parts: [{ part: 'listenWord', n: 8 }, { part: 'listenSentence', n: 8 }] },
+      { id: 'grammar', title: '言語知識（文法）・読解', minutes: 40, parts: [{ part: 'grammar', n: 9 }, { part: 'order', n: 4 }, { part: 'reading', n: 3 }, { part: 'passage', n: 4 }] },
+      { id: 'listen', title: '聴解', minutes: 30, parts: [{ part: 'listenWord', n: 6 }, { part: 'listenSentence', n: 6 }, { part: 'dialogue', n: 4 }] },
     ],
   },
   4: {
     level: 4, pass: 90, groups: groupsLow,
     sections: [
       { id: 'vocab', title: '言語知識（文字・語彙）', minutes: 25, parts: [{ part: 'kanji', n: 7 }, { part: 'writing', n: 5 }, { part: 'context', n: 8 }, { part: 'meaning', n: 4 }] },
-      { id: 'grammar', title: '言語知識（文法）・読解', minutes: 55, parts: [{ part: 'grammar', n: 13 }, { part: 'order', n: 4 }, { part: 'reading', n: 8 }] },
-      { id: 'listen', title: '聴解', minutes: 35, parts: [{ part: 'listenWord', n: 10 }, { part: 'listenSentence', n: 10 }] },
+      { id: 'grammar', title: '言語知識（文法）・読解', minutes: 55, parts: [{ part: 'grammar', n: 13 }, { part: 'order', n: 4 }, { part: 'reading', n: 4 }, { part: 'passage', n: 4 }] },
+      { id: 'listen', title: '聴解', minutes: 35, parts: [{ part: 'listenWord', n: 8 }, { part: 'listenSentence', n: 8 }, { part: 'dialogue', n: 4 }] },
     ],
   },
   3: {
     level: 3, pass: 95, groups: groupsHigh,
     sections: [
       { id: 'vocab', title: '言語知識（文字・語彙）', minutes: 30, parts: [{ part: 'kanji', n: 8 }, { part: 'writing', n: 6 }, { part: 'context', n: 11 }, { part: 'meaning', n: 5 }] },
-      { id: 'grammar', title: '言語知識（文法）・読解', minutes: 70, parts: [{ part: 'grammar', n: 13 }, { part: 'order', n: 5 }, { part: 'reading', n: 10 }] },
-      { id: 'listen', title: '聴解', minutes: 40, parts: [{ part: 'listenWord', n: 10 }, { part: 'listenSentence', n: 10 }] },
+      { id: 'grammar', title: '言語知識（文法）・読解', minutes: 70, parts: [{ part: 'grammar', n: 13 }, { part: 'order', n: 5 }, { part: 'reading', n: 6 }, { part: 'passage', n: 4 }] },
+      { id: 'listen', title: '聴解', minutes: 40, parts: [{ part: 'listenWord', n: 8 }, { part: 'listenSentence', n: 8 }, { part: 'dialogue', n: 4 }] },
     ],
   },
   2: {
@@ -73,9 +73,9 @@ export const FORMATS: Record<Level, LevelFormat> = {
     sections: [
       { id: 'lang', title: '言語知識（文字・語彙・文法）・読解', minutes: 105, parts: [
         { part: 'kanji', n: 5 }, { part: 'writing', n: 5 }, { part: 'context', n: 7 }, { part: 'meaning', n: 5 },
-        { part: 'grammar', n: 12 }, { part: 'order', n: 5 }, { part: 'reading', n: 12 },
+        { part: 'grammar', n: 12 }, { part: 'order', n: 5 }, { part: 'reading', n: 8 }, { part: 'passage', n: 4 },
       ] },
-      { id: 'listen', title: '聴解', minutes: 50, parts: [{ part: 'listenWord', n: 12 }, { part: 'listenSentence', n: 12 }] },
+      { id: 'listen', title: '聴解', minutes: 50, parts: [{ part: 'listenWord', n: 10 }, { part: 'listenSentence', n: 10 }, { part: 'dialogue', n: 4 }] },
     ],
   },
   1: {
@@ -84,9 +84,9 @@ export const FORMATS: Record<Level, LevelFormat> = {
       // N1 thật không có dạng 表記 (viết Kanji)
       { id: 'lang', title: '言語知識（文字・語彙・文法）・読解', minutes: 110, parts: [
         { part: 'kanji', n: 6 }, { part: 'context', n: 7 }, { part: 'meaning', n: 6 },
-        { part: 'grammar', n: 10 }, { part: 'order', n: 5 }, { part: 'reading', n: 12 },
+        { part: 'grammar', n: 10 }, { part: 'order', n: 5 }, { part: 'reading', n: 8 }, { part: 'passage', n: 4 },
       ] },
-      { id: 'listen', title: '聴解', minutes: 55, parts: [{ part: 'listenWord', n: 12 }, { part: 'listenSentence', n: 12 }] },
+      { id: 'listen', title: '聴解', minutes: 55, parts: [{ part: 'listenWord', n: 10 }, { part: 'listenSentence', n: 10 }, { part: 'dialogue', n: 4 }] },
     ],
   },
 }
@@ -115,4 +115,6 @@ export const PART_JP: Record<PartId, string> = {
   reading: 'つぎの 文を 読んで、いみに いちばん ちかいものを えらんで ください。',
   listenWord: 'ことばを きいて、ただしい かきかたを えらんで ください。',
   listenSentence: '文を きいて、いちばん いいものを えらんで ください。',
+  passage: 'つぎの 文章を 読んで、しつもんに こたえて ください。',
+  dialogue: 'はなしを きいて、しつもんに こたえて ください。',
 }

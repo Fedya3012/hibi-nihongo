@@ -20,8 +20,10 @@ export type PartId =
   | 'grammar' // 文法形式の判断: chọn mẫu ngữ pháp điền vào chỗ trống
   | 'order' // 文の組み立て: sắp xếp, chọn cụm ở vị trí ★
   | 'reading' // đọc hiểu câu: chọn nghĩa đúng
+  | 'passage' // 読解: đọc một đoạn văn, trả lời câu hỏi
   | 'listenWord' // nghe một từ, chọn cách viết đúng
   | 'listenSentence' // nghe một câu, chọn nghĩa (hoặc câu) đúng
+  | 'dialogue' // 聴解: nghe hội thoại, trả lời câu hỏi
 
 /** Nhóm tính điểm (giống bảng điểm JLPT). */
 export type GroupId = 'langRead' | 'lang' | 'read' | 'listen'
@@ -40,6 +42,10 @@ export interface ExamQuestion {
   mark?: [number, number]
   /** Câu/từ được đọc to (bài nghe), bằng giọng tiếng Nhật có sẵn trong máy. */
   audio?: string
+  /** Đoạn văn của bài đọc dài (nhiều câu hỏi dùng chung một đoạn). */
+  passage?: string
+  /** Bài nghe hội thoại: tình huống + các lượt nói ('M' nam, 'F' nữ). */
+  dialogue?: { intro: string; lines: ['M' | 'F', string][] }
   options: string[]
   /** Đáp án là chữ tiếng Nhật (hiện bằng font Nhật) hay tiếng Việt. */
   optionsJp: boolean

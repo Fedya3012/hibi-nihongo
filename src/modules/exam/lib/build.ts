@@ -5,8 +5,11 @@
 import { buildQuiz, plainText } from '@/modules/grammar/lib/quiz'
 import { clozeText } from '@/modules/grammar/lib/parse'
 import { QUESTIONS as PLACEMENT } from '@/modules/roadmap/data/placement'
-import type { ExamMode, ExamQuestion, ExamSection, ExamSession, PartId } from '../types'
+import type { ExamMode, ExamQuestion, ExamSection, ExamSession, Level, PartId } from '../types'
 import { sectionsFor } from '../data/format'
+import { PASSAGES } from '../data/passages'
+import { DIALOGUES } from '../data/dialogues'
+import { ORDER_BANK } from '../data/order'
 import { readingVariants, writingVariants } from './distract'
 import type { Pool, PoolSentence, PoolWord } from './pool'
 import { byClosestLength, shuffle, withAnswer } from './random'
@@ -165,6 +168,15 @@ function orderQs(pool: Pool, n: number): ExamQuestion[] {
       ref: { kind: 'grammar', id: q.point.id, pattern: q.point.pattern },
     })
   }
+  // Thiếu thì lấy thêm câu soạn sẵn (data/order.ts)
+  for (const it of shuffle(ORDER_BANK.filter((x) => x.level === pool.level)).slice(0, n - out.length)) {
+    const options = shuffle(it.chunks)
+    out.push({
+      id: qid('order'), part: 'order', stem: [it.before, '＿＿', '＿＿', '★', '＿＿', it.after].join(' '),
+      options, answer: options.indexOf(it.chunks[2]), optionsJp: true,
+      explain: `${it.before}${it.chunks.join('')}${it.after}\n${it.note}`,
+    })
+  }
   return out
 }
 
@@ -189,6 +201,36 @@ function translatedQ(part: 'reading' | 'listenSentence', s: PoolSentence, all: P
   const o = withAnswer(s.jp, byClosestLength(others, len(s.jp), (x) => len(x.jp)).slice(0, 6).map((x) => x.jp))
   if (!o) return null
   return { id: qid(part), part, stem: '', audio: s.jp, ...o, optionsJp: true, explain: s.jp }
+}
+
+// ---------------------------------------------------------------------------
+// Bài đọc dài, nghe hội thoại (nội dung tự soạn trong data/)
+// ---------------------------------------------------------------------------
+
+/** Lấy nguyên bài (cả 2 câu hỏi của một đoạn văn) cho tới khi đủ `n` câu. */
+function passageQs(level: Level, n: number): ExamQuestion[] {
+  const out: ExamQuestion[] = []
+  for (const p of shuffle(PASSAGES.filter((x) => x.level === level))) {
+    if (out.length >= n) break
+    for (const pq of p.questions.slice(0, n - out.length)) {
+      const options = shuffle(pq.choices)
+      out.push({
+        id: qid('passage'), part: 'passage', stem: pq.q, passage: p.text, options, answer: options.indexOf(pq.choices[0]),
+        optionsJp: true, explain: pq.note,
+      })
+    }
+  }
+  return out
+}
+
+function dialogueQs(level: Level, n: number): ExamQuestion[] {
+  return shuffle(DIALOGUES.filter((x) => x.level === level)).slice(0, n).map((d) => {
+    const options = shuffle(d.choices)
+    return {
+      id: qid('dialogue'), part: 'dialogue' as const, stem: d.q, dialogue: { intro: d.intro, lines: d.lines },
+      options, answer: options.indexOf(d.choices[0]), optionsJp: true, explain: d.note,
+    }
+  })
 }
 
 // ---------------------------------------------------------------------------
@@ -222,6 +264,8 @@ export function buildExam(pool: Pool, mode: ExamMode): ExamSession {
         }
       } else if (part === 'grammar') got = grammarQs(pool, n)
       else if (part === 'order') got = orderQs(pool, n)
+      else if (part === 'passage') got = passageQs(pool.level, n)
+      else if (part === 'dialogue') got = dialogueQs(pool.level, n)
       else if (part === 'reading' || part === 'listenSentence') {
         const src = [...vi, ...en, ...none]
         for (const s of src) {

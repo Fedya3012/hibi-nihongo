@@ -36,12 +36,17 @@ Thời gian từng buổi, thang điểm, điểm đỗ và điểm liệt lấy
 | Nghĩa của từ | thay cho 言い換え | Nghĩa tiếng Việt (gói `jmdict-vi`), thiếu thì tiếng Anh |
 | Ngữ pháp điền chỗ trống | 文法形式の判断 | Câu ví dụ module Ngữ pháp (dùng lại `buildQuiz`), thêm câu ngữ pháp của bài xếp lớp (Lộ trình) |
 | Sắp xếp câu ★ | 文の組み立て | Câu ví dụ Ngữ pháp; bỏ những ô có thể xếp nhiều cách (弟に野菜を = 野菜を弟に) |
-| Đọc hiểu câu | (rút gọn) 読解 | Câu ví dụ Ngữ pháp có bản dịch, câu Tatoeba có bản dịch |
-| Nghe từ / Nghe câu | (rút gọn) 聴解 | Giọng tiếng Nhật có sẵn trong máy (như module Kana). Máy không có giọng Nhật thì hiện chữ |
+| Sắp xếp câu ★ (thêm) | 文の組み立て | Câu soạn sẵn `data/order.ts` (N5, N4), dùng khi câu ví dụ không đủ dài |
+| Đọc hiểu câu | 読解 (câu ngắn) | Câu ví dụ Ngữ pháp có bản dịch, câu Tatoeba có bản dịch (thiếu tiếng Việt thì dùng tiếng Anh) |
+| Đọc hiểu đoạn văn | 読解 (内容理解・情報検索) | Bài tự soạn `data/passages.ts`: 3 bài × 2 câu hỏi mỗi cấp (thư, nhật ký, thông báo, bài luận) |
+| Nghe từ / Nghe câu | 聴解 (ngắn) | Giọng tiếng Nhật có sẵn trong máy. Máy không có giọng Nhật thì hiện chữ |
+| Nghe hội thoại | 聴解 (課題理解・ポイント理解) | Bài tự soạn `data/dialogues.ts`: 5 bài mỗi cấp. Đọc theo trình tự đề thật (tình huống, câu hỏi → hội thoại → nhắc lại câu hỏi), nam/nữ khác giọng (`lib/audio.ts`) |
 
-**Chưa có:** bài đọc dài và bài nghe hội thoại (app chưa có dữ liệu). Dạng nào thiếu nội dung thì đề có ít câu hơn và
-app ghi rõ "Đề này ít câu hơn đề chuẩn ở dạng…". Hiện N3–N1 thiếu ngữ pháp, sắp xếp câu và đọc hiểu tiếng Việt;
-khi module Ngữ pháp có N3–N1, đề các cấp này **tự đủ** (không cần sửa module này).
+**Thêm bài:** bài đọc, hội thoại, câu ★ nằm trong `data/`. Mỗi file có hướng dẫn ở đầu (đáp án đúng luôn đặt đầu tiên).
+Ngân hàng bài đọc/hội thoại còn nhỏ, nên làm nhiều đề sẽ gặp lại bài cũ; thêm bài là đề tự đa dạng hơn.
+
+Dạng nào thiếu nội dung thì đề có ít câu hơn, và app ghi rõ "Đề này ít câu hơn đề chuẩn ở dạng…".
+Ngữ pháp N3–N1 lấy từ module Ngữ pháp, nên khi module đó thêm mẫu, đề tự có thêm câu.
 
 ## Lưu trên máy
 

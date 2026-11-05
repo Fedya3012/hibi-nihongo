@@ -19,7 +19,7 @@ export const S = defineStrings({
     // Đang thi
     section: 'Buổi {i}/{n}', qNum: 'Câu {i}/{n}', timeLeft: 'Thời gian còn lại', flag: 'Đánh dấu', flagged: 'Đã đánh dấu',
     prev: '← Câu trước', next: 'Câu sau →', submitSection: 'Nộp bài buổi này', submitConfirm: 'Còn {n} câu chưa làm. Bấm lần nữa để nộp.',
-    play: '▶ Nghe', replay: '↻ Nghe lại', noVoice: 'Máy chưa có giọng đọc tiếng Nhật, nên câu nghe được hiện bằng chữ. Cài giọng Nhật để luyện nghe thật (trên Windows: Settings → Time & language → Speech).',
+    play: '▶ Nghe', replay: '↻ Nghe lại', noVoice: 'Máy chưa có giọng đọc tiếng Nhật, nên bài nghe được hiện bằng chữ. Cài giọng Nhật để luyện nghe thật (trên Windows: Settings → Time & language → Speech).',
     pause: 'Tạm dừng', paused: 'Đang tạm dừng. Đồng hồ đã dừng.', continue: 'Làm tiếp', quit: 'Thoát (lưu bài)',
     breakTitle: 'Hết buổi {name}', breakHint: 'Nghỉ một chút. Buổi tiếp theo: {next} ({min} phút). Đồng hồ chỉ chạy khi bạn bấm bắt đầu.',
     nextSection: 'Bắt đầu buổi tiếp theo', timeUp: 'Hết giờ!',
@@ -33,7 +33,7 @@ export const S = defineStrings({
     reviewTitle: 'Xem lại bài', showWrong: 'Chỉ câu sai', showAll: 'Tất cả',
     yourAnswer: 'Bạn chọn', noAnswer: '(bỏ trống)', correct: 'Đáp án',
     addWords: 'Thêm {n} từ làm sai vào Ôn tập', addGrammar: 'Thêm {n} mẫu ngữ pháp làm sai vào Ôn tập', added: 'Đã thêm {n} thẻ',
-    openGrammar: 'Mở bài ngữ pháp', lookUp: 'Tra từ',
+    openGrammar: 'Mở bài ngữ pháp', lookUp: 'Tra từ', showPassage: 'Xem đoạn văn', showTranscript: 'Xem lời bài nghe',
     again: 'Thi đề mới', back: 'Về trang Thi thử', noDetail: 'Bài làm chi tiết chỉ được giữ cho 5 lần thi gần nhất.',
     scoreNote: 'Điểm quy đổi tuyến tính từ số câu đúng (JLPT thật dùng cách quy đổi riêng), nên chỉ để ước lượng.',
   },
@@ -65,7 +65,7 @@ export const S = defineStrings({
     reviewTitle: 'Review answers', showWrong: 'Mistakes only', showAll: 'All',
     yourAnswer: 'Your answer', noAnswer: '(blank)', correct: 'Answer',
     addWords: 'Add {n} missed words to Review', addGrammar: 'Add {n} missed grammar points to Review', added: 'Added {n} cards',
-    openGrammar: 'Open grammar lesson', lookUp: 'Look up',
+    openGrammar: 'Open grammar lesson', lookUp: 'Look up', showPassage: 'Show passage', showTranscript: 'Show transcript',
     again: 'New test', back: 'Back to mock tests', noDetail: 'Detailed answers are kept for the 5 most recent tests only.',
     scoreNote: 'Scores are scaled linearly from correct answers (the real JLPT uses its own equating), so treat them as estimates.',
   },
@@ -82,18 +82,18 @@ export const S = defineStrings({
 export const PART_VI = defineStrings({
   vi: {
     kanji: 'Đọc chữ Kanji', writing: 'Viết bằng Kanji', context: 'Chọn từ điền vào câu', meaning: 'Nghĩa của từ',
-    grammar: 'Ngữ pháp điền vào chỗ trống', order: 'Sắp xếp câu (ô ★)', reading: 'Đọc hiểu câu',
-    listenWord: 'Nghe từ', listenSentence: 'Nghe câu',
+    grammar: 'Ngữ pháp điền vào chỗ trống', order: 'Sắp xếp câu (ô ★)', reading: 'Đọc hiểu câu', passage: 'Đọc hiểu đoạn văn',
+    listenWord: 'Nghe từ', listenSentence: 'Nghe câu', dialogue: 'Nghe hội thoại',
     langRead: 'Kiến thức ngôn ngữ · Đọc hiểu', lang: 'Kiến thức ngôn ngữ', read: 'Đọc hiểu', listen: 'Nghe hiểu',
   },
   en: {
     kanji: 'Kanji reading', writing: 'Orthography', context: 'Word in context', meaning: 'Word meaning',
-    grammar: 'Grammar form', order: 'Sentence building (★)', reading: 'Reading', listenWord: 'Listening: words', listenSentence: 'Listening: sentences',
+    grammar: 'Grammar form', order: 'Sentence building (★)', reading: 'Reading: sentences', passage: 'Reading: passages', listenWord: 'Listening: words', listenSentence: 'Listening: sentences', dialogue: 'Listening: conversations',
     langRead: 'Language knowledge · Reading', lang: 'Language knowledge', read: 'Reading', listen: 'Listening',
   },
   ja: {
     kanji: '漢字読み', writing: '表記', context: '文脈規定', meaning: '語の意味', grammar: '文法形式の判断', order: '文の組み立て',
-    reading: '読解', listenWord: '聴解（語）', listenSentence: '聴解（文）',
+    reading: '読解（文）', passage: '読解（文章）', listenWord: '聴解（語）', listenSentence: '聴解（文）', dialogue: '聴解（会話）',
     langRead: '言語知識・読解', lang: '言語知識', read: '読解', listen: '聴解',
   },
 })
