@@ -11,8 +11,12 @@ Từ điển **offline** cho Hibi Nihongo: tra từ, tra Kanji (kèm **âm Hán 
   - **Nghĩa tiếng Việt** hiện trên nghĩa tiếng Anh (cho các từ đã dịch, hiện là JLPT N5–N4). Tab *Dữ liệu* có nút
     chọn "Việt + Anh / Tiếng Việt / Tiếng Anh".
   - *Phân tích câu*: dán câu, xem từng từ có furigana, thể từ điển, từ loại tiếng Việt, nghĩa; bấm từ để tra.
+  - *Câu ví dụ* dưới mỗi từ (tối đa 5 câu; popup hiện 2 câu): furigana, từ đang tra được tô đậm, bản dịch,
+    nút **+ Ôn tập với câu này** (tạo thẻ từ vựng kèm câu đó để luyện điền chỗ trống), liên kết về câu gốc trên Tatoeba.
+    Trang Từ điển: bấm vào câu để tra các từ khác trong câu.
   - *Dữ liệu*: tải/cập nhật dữ liệu, bật/tắt "di chuột để tra", số nghĩa trong popup, ghi công nguồn dữ liệu.
-- Lần đầu mở cần bấm **Tải từ điển** (~10 MB, cài khoảng 30 giây). Sau đó chạy không cần mạng.
+- Lần đầu mở cần bấm **Tải từ điển** (~14 MB gồm cả câu ví dụ, cài khoảng 30–60 giây). Máy đã cài từ điển trước đây sẽ thấy
+  "Có bản cập nhật từ điển" để tải thêm gói câu ví dụ (3,7 MB). Sau đó chạy không cần mạng.
 - Bộ tách từ (~17 MB) tự tải ở lần đầu phân tích câu, rồi được lưu lại trên máy.
 
 ## Dùng trong module khác
@@ -46,7 +50,9 @@ Hàm và component khác (đều import từ `@/modules/dictionary`):
 | `useDictPacks()` | Biết từ điển đã được tải về máy chưa |
 | `shortMeaning(id, data)` | Nghĩa ngắn (tiếng Việt nếu có, không thì tiếng Anh), dùng cho thẻ ôn tập, danh sách từ |
 | `getVi(id)`, `useVi(id)` | Nghĩa tiếng Việt theo từng nghĩa của từ (gói `jmdict-vi`) |
-| `addWordToReview`, `addKanjiToReview` | Tạo thẻ Ôn tập (qua `@/modules/review/api`) |
+| `addWordToReview(id, d, ví_dụ?)`, `addKanjiToReview` | Tạo thẻ Ôn tập (qua `@/modules/review/api`); có câu ví dụ thì thẻ có câu điền chỗ trống |
+| `getExamples(idTừ)`, `<ExampleSentences wordId d />` | Câu ví dụ của một từ (id JMdict), câu tốt nhất trước |
+| `exampleParts`, `exampleCloze`, `tatoebaUrl` | Chia câu ví dụ để hiện furigana/tô đậm, tạo câu điền chỗ trống, link câu gốc |
 
 ## Cấu trúc thư mục
 
@@ -61,12 +67,15 @@ Hàm và component khác (đều import từ `@/modules/dictionary`):
 | `lib/deinflect.ts` | Luật chia động từ ngược (tự viết) |
 | `lib/kana.ts` | Kana, romaji, furigana, tách mora |
 | `lib/packs.ts` | Tải/cập nhật gói dữ liệu |
+| `lib/examples.ts` | Tra câu ví dụ (gói `tatoeba-ja`) |
+| `components/ExampleSentences.tsx` | Khối câu ví dụ dưới mỗi từ |
 | `tokenizer/` | Kuromoji chạy trong Web Worker + luật gộp từ |
 | `components/` | Popup, khối hiển thị từ, Kanji, pitch accent... |
 | `lib/vi.ts` | Đọc nghĩa tiếng Việt (gói `jmdict-vi`) |
 | `tools/build-packs.mjs` | Script tạo gói dữ liệu (chạy trên máy tính, không nằm trong app) |
 | `tools/build-vi-pack.mjs` | Script tạo gói nghĩa tiếng Việt từ `tools/vi/*.tsv` |
 | `tools/vi/jlpt-n*.tsv` | Bản dịch nghĩa tiếng Việt (mỗi dòng một nghĩa, kèm nghĩa tiếng Anh gốc) |
+| `tools/build-examples.mjs` | Script tạo gói câu ví dụ từ Tatoeba |
 
 ## Dữ liệu và cập nhật
 
@@ -92,6 +101,7 @@ vì máy dựng không tải được trực tiếp từ EDRDG. Chạy lệnh tr
 | Kanjium (Uros O.) | CC BY-SA 4.0 | Pitch accent, tần suất (Wikipedia) |
 | Jonathan Waller, tanos.co.uk (qua open-anki-jlpt-decks, kanji-data) | CC BY | Cấp JLPT |
 | Kuromoji + IPADIC | Apache-2.0 / giấy phép IPADIC | Tách từ |
+| Tatoeba (tatoeba.org) | CC BY 2.0 FR | Câu ví dụ và bản dịch |
 
 ## Nghĩa tiếng Việt (gói `jmdict-vi`)
 
@@ -115,3 +125,20 @@ node src/modules/dictionary/tools/build-vi-pack.mjs
 
 Script tự tăng phiên bản gói và tạo bản vá. Khi JMdict cập nhật làm nghĩa tiếng Anh thay đổi, dòng dịch cũ tự bị bỏ;
 xuất danh sách cần dịch lại bằng `--export-todo can-dich.tsv --jlpt 1`.
+
+## Câu ví dụ (gói `tatoeba-ja`)
+
+Câu lấy từ [Tatoeba](https://tatoeba.org) (CC BY 2.0 FR: được dùng tự do nhưng phải ghi nguồn). App ghi nguồn ở tab
+*Dữ liệu*, và mỗi câu có liên kết "Tatoeba #id" về câu gốc (trang đó ghi tên người đóng góp).
+
+Cách tạo gói: script tách từng câu bằng Kuromoji, nối mỗi từ với mục JMdict (dựa vào thể từ điển và cách đọc),
+rồi chọn tối đa 5 câu cho mỗi từ: dài khoảng 16 chữ, ít từ hiếm, có bản dịch tiếng Việt thì ưu tiên.
+Furigana của câu được tạo tự động nên thỉnh thoảng sai (ví dụ IPADIC đọc 日本 là にっぽん).
+
+```
+node src/modules/dictionary/tools/build-examples.mjs --download     # tải bản mới nhất từ Tatoeba (cần mạng, lệnh bunzip2)
+```
+
+Bản đi kèm hiện tại được tạo từ file `SENTENCES` trong gói PyPI `jiten` 1.1.0 (bản sao Tatoeba tháng 7/2021, chỉ có
+bản dịch tiếng Anh), vì máy dựng không tải được trực tiếp từ tatoeba.org. Chạy lệnh trên ở máy có mạng để có câu mới
+hơn **và bản dịch tiếng Việt** (Tatoeba có vài nghìn câu Nhật–Việt; câu có tiếng Việt tự được ưu tiên và hiện tiếng Việt).

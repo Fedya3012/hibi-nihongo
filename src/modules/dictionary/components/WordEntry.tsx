@@ -12,11 +12,16 @@ import { Furigana } from './Furigana'
 import { PitchAccent } from './PitchAccent'
 import { WordBadges } from './Badges'
 import { KanjiInfo } from './KanjiInfo'
+import { ExampleSentences } from './ExampleSentences'
 import { useDictPrefs } from '../prefs'
 import { useVi, viSense } from '../lib/vi'
 import { WordStatusPicker } from '@/modules/vocab/api'
 
-export function WordEntry({ r, compact = false, showKanji = true }: { r: WordResult; compact?: boolean; showKanji?: boolean }) {
+export function WordEntry({ r, compact = false, showKanji = true, showExamples = true }: {
+  r: WordResult; compact?: boolean; showKanji?: boolean
+  /** Hiện câu ví dụ (gói tatoeba-ja). Popup chỉ hiện cho kết quả đầu tiên. */
+  showExamples?: boolean
+}) {
   const d = r.data
   const { word, reading } = headword(d)
   const maxSenses = useDictPrefs((s) => s.popupSenses)
@@ -89,6 +94,8 @@ export function WordEntry({ r, compact = false, showKanji = true }: { r: WordRes
       {!compact && others.length > 0 && (
         <p className="text-sm text-muted">Cách viết/đọc khác: <span className="jp text-text">{others.join('、')}</span></p>
       )}
+
+      {showExamples && <ExampleSentences wordId={r.id} d={d} compact={compact} />}
 
       {kanji && kanji.length > 0 && (
         <div className={compact ? 'border-t border-border pt-1' : 'space-y-3 border-t border-border pt-3'}>

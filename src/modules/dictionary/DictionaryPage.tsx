@@ -218,6 +218,11 @@ function DataTab() {
           <li>Cấp JLPT: danh sách của <b>Jonathan Waller</b> (tanos.co.uk), CC BY; Kanji qua dự án kanji-data (MIT).</li>
           <li>Nghĩa tiếng Việt: dịch từ nghĩa tiếng Anh của JMdict (bản phái sinh, cùng giấy phép CC BY-SA 4.0); thêm nghĩa từ <b>Wiktionary tiếng Việt</b> (CC BY-SA 4.0) khi có.</li>
           <li>Tách từ: <b>Kuromoji</b> (Apache-2.0) với từ điển <b>IPADIC</b>.</li>
+          <li>
+            Câu ví dụ: <a href="https://tatoeba.org" target="_blank" rel="noreferrer" className="font-semibold text-primary hover:underline">Tatoeba</a>{' '}
+            (tatoeba.org), giấy phép CC BY 2.0 FR. Mỗi câu có liên kết về câu gốc kèm tên người đóng góp.
+            Furigana của câu được tạo tự động bằng Kuromoji nên đôi khi có thể sai.
+          </li>
         </ul>
         <p>
           Chưa có từ điển Nhật–Việt nào vừa lớn vừa có giấy phép mở, nên nghĩa tiếng Việt hiện là <b>dịch máy</b> từ tiếng Anh

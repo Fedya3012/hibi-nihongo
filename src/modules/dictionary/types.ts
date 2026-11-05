@@ -7,6 +7,7 @@
 /** id các gói nội dung của module này (xem public/content/manifest.json). */
 export const WORD_PACK = 'jmdict-en'
 export const KANJI_PACK = 'kanjidic'
+export const EXAMPLE_PACK = 'tatoeba-ja'
 /** Gói nghĩa tiếng Việt (tùy chọn): cùng id với gói jmdict-en. */
 export const VI_PACK = 'jmdict-vi'
 
@@ -99,4 +100,24 @@ export interface Segment {
   end: number
   /** Các mảnh nhỏ Kuromoji tách ra, ví dụ 食べ + させ + られ + た */
   parts: { surface: string; pos: string; base: string }[]
+}
+
+/**
+ * Một câu ví dụ trong gói tatoeba-ja (Tatoeba, CC BY 2.0 FR). id của mục = id câu trên tatoeba.org.
+ * Mục được tra theo id JMdict của từ: findByKey(wordId, { pack: EXAMPLE_PACK }).
+ */
+export interface ExampleData {
+  t: string // câu tiếng Nhật
+  r?: [number, number, string][] // furigana: [vị trí, số chữ, cách đọc] cho từng cụm Kanji
+  e?: string // bản dịch tiếng Anh
+  v?: string // bản dịch tiếng Việt (nếu Tatoeba có)
+  w: [string, number, number, number][] // [id từ, vị trí, độ dài trong câu, thứ hạng câu cho từ đó (0 = tốt nhất)]
+}
+
+/** Câu ví dụ cho một từ cụ thể (đã biết vị trí của từ trong câu). */
+export interface Example {
+  id: string // id câu trên Tatoeba
+  data: ExampleData
+  start: number // vị trí từ trong câu
+  length: number
 }
