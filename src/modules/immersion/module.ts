@@ -10,7 +10,7 @@ export default defineModule({
   nav: 'main',
   status: 'building',
   phase: 1,
-  order: 30,
+  order: 40,
   description: 'Đọc manga từ file và xem anime kèm phụ đề tra từ',
   text: {
     en: { title: 'Immersion', description: 'Read manga from your files and watch anime with clickable subtitles' },

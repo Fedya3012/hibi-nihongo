@@ -6,7 +6,7 @@ export default defineModule({
   id: 'manga',
   path: '/immersion/manga',
   title: 'Đọc manga',
-  icon: '本',
+  icon: '画',
   nav: 'hidden',
   status: 'ready',
   phase: 1,

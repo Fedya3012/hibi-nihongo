@@ -6,8 +6,11 @@
  */
 import { useEffect, useState, type ComponentType, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
-import { Button } from '@/design/components/Button'
+import { ButtonLink } from '@/design/components/Button'
+import { useDbQuery } from '@/core/db'
 import { useReviewOverview } from '@/modules/review/api'
+import { getGrammarPoint, getGrammarProgress, grammarPath } from '@/modules/grammar/api'
+import { listBooks } from '@/modules/textbook/store'
 import { useMangaResume } from '@/modules/immersion/manga/api'
 import { useAnimeResume } from '@/modules/immersion/anime/api'
 import type { StudyStats } from '../lib/stats'
@@ -42,14 +45,53 @@ const clock = (sec: number) => {
 
 interface ResumeItem { key: string; icon: string; kind: string; title: string; detail: string; progress?: number; path: string; cta: string; at: number }
 
+/** Giáo trình mở gần nhất (đọc thẳng kho của module Giáo trình, chỉ đọc). */
+function useTextbookResume() {
+  return useDbQuery(async () => {
+    const book = (await listBooks()).find((b) => b.lastOpenedAt && b.lastLesson != null)
+    return book ? { id: book.id, title: book.title, lesson: book.lastLesson!, at: book.lastOpenedAt! } : null
+  }, [], ['textbooks']).data
+}
+
+/** Mẫu ngữ pháp vừa học / luyện gần nhất. */
+function useGrammarResume() {
+  return useDbQuery(async () => {
+    const prog = await getGrammarProgress()
+    let best: { id: string; at: number } | null = null
+    for (const [id, st] of Object.entries(prog)) {
+      const at = Math.max(st.last ?? 0, st.learned ?? 0)
+      if (at && (!best || at > best.at)) best = { id, at }
+    }
+    if (!best) return null
+    const p = await getGrammarPoint(best.id)
+    return p ? { id: p.id, pattern: p.pattern, meaning: p.meaning, at: best.at } : null
+  }, [], ['kv']).data
+}
+
 function ResumeWidget() {
   const manga = useMangaResume()
   const anime = useAnimeResume()
+  const book = useTextbookResume()
+  const grammar = useGrammarResume()
   const ov = useReviewOverview()
   const items: ResumeItem[] = []
+  if (book) {
+    items.push({
+      key: 'textbook', icon: '本', kind: 'Giáo trình', title: book.title,
+      detail: `Bài ${book.lesson} · ${ago(book.at)}`,
+      path: `/learn/textbook?b=${encodeURIComponent(book.id)}&l=${book.lesson}`, cta: 'Học tiếp', at: book.at,
+    })
+  }
+  if (grammar) {
+    items.push({
+      key: 'grammar', icon: '文', kind: 'Ngữ pháp', title: grammar.pattern,
+      detail: `${grammar.meaning} · ${ago(grammar.at)}`,
+      path: grammarPath(grammar.id), cta: 'Xem lại', at: grammar.at,
+    })
+  }
   if (manga) {
     items.push({
-      key: 'manga', icon: '本', kind: 'Manga', title: manga.seriesTitle,
+      key: 'manga', icon: '画', kind: 'Manga', title: manga.seriesTitle,
       detail: `${manga.chapterLabel} · trang ${manga.page + 1}/${manga.pageCount} · ${ago(manga.lastReadAt)}`,
       progress: manga.pageCount ? (manga.page + 1) / manga.pageCount : undefined,
       path: manga.path, cta: 'Đọc tiếp', at: manga.lastReadAt,
@@ -64,6 +106,7 @@ function ResumeWidget() {
     })
   }
   items.sort((a, b) => b.at - a.at)
+  items.splice(3) // tối đa 3 việc dở gần nhất, để khối không quá dài
   if (ov && ov.dueNow > 0) {
     // Thẻ đến hạn luôn được nhắc, đứng sau bài đang dở gần nhất
     items.splice(Math.min(1, items.length), 0, {
@@ -80,12 +123,13 @@ function ResumeWidget() {
         <>
           <h2 className="mt-1 text-lg font-semibold">Chưa có bài học dở</h2>
           <p className="mt-1 text-sm text-muted">
-            Khi bạn đọc manga, xem anime hay có thẻ cần ôn, app sẽ đưa bạn về đúng chỗ đó.
+            Khi bạn học giáo trình, ngữ pháp, đọc manga hay xem anime, app sẽ đưa bạn về đúng chỗ đó.
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
-            <Link to="/immersion/manga"><Button variant="soft">Đọc manga</Button></Link>
-            <Link to="/immersion/anime"><Button variant="soft">Xem anime</Button></Link>
-            <Link to="/learn"><Button variant="soft">Học bài mới</Button></Link>
+            <ButtonLink to="/learn/textbook" variant="soft">Học theo giáo trình</ButtonLink>
+            <ButtonLink to="/learn/grammar" variant="soft">Ngữ pháp</ButtonLink>
+            <ButtonLink to="/immersion/manga" variant="soft">Đọc manga</ButtonLink>
+            <ButtonLink to="/immersion/anime" variant="soft">Xem anime</ButtonLink>
           </div>
         </>
       ) : (
@@ -103,9 +147,9 @@ function ResumeWidget() {
                   </div>
                 )}
               </div>
-              <Link to={it.path} className="shrink-0">
-                <Button variant={i === 0 ? 'primary' : 'soft'}>{it.cta}</Button>
-              </Link>
+              <ButtonLink to={it.path} variant={i === 0 ? 'primary' : 'soft'} className="shrink-0" aria-label={`${it.cta}: ${it.title}`}>
+                {it.cta}
+              </ButtonLink>
             </li>
           ))}
         </ul>
@@ -125,9 +169,9 @@ function QuickWidget() {
       <p className="text-sm text-muted">
         {ov ? `${ov.reviewedToday} lượt đã ôn hôm nay · ${ov.newAvailable} thẻ mới` : 'Đang tải…'}
       </p>
-      <Link to="/review?quick=1" className="mt-auto pt-4">
-        <Button className="w-full">Ôn nhanh 5 phút</Button>
-      </Link>
+      <div className="mt-auto pt-4">
+        <ButtonLink to="/review?quick=1" className="w-full">Ôn nhanh 5 phút</ButtonLink>
+      </div>
     </div>
   )
 }
