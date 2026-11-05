@@ -23,7 +23,7 @@ export function Shelf({ onOpen }: { onOpen: (bookId: string, lesson?: number) =>
       const resume = b.lastLesson != null && !locked.has(b.lastLesson) ? b.lastLesson : nextLesson(b, ls, locked)?.number
       return { book: b, done, ratio, resume }
     })
-  }, [], ['textbooks', 'textbookLessons', 'srsCards', 'kv'])
+  }, [], ['textbooks', 'textbookLessons', 'srsCards', 'kv', 'knownWords'])
 
   return (
     <>
