@@ -8,6 +8,8 @@ import { CardState, type QuestionMode, type QuestionType, type SrsCard } from '.
 export interface QueueOptions {
   deck?: string | null // chỉ ôn một bộ; null = tất cả
   quick?: boolean // ôn nhanh 5 phút: ưu tiên thẻ sắp quên nhất
+  /** Chỉ ôn thẻ có ít nhất một nhãn trong danh sách (vd ôn riêng bài giáo trình: ['minna-5', 'minna-6']). */
+  tags?: string[]
 }
 
 /**
@@ -17,7 +19,9 @@ export interface QueueOptions {
  */
 export async function buildQueue(opts: QueueOptions = {}, now = Date.now()): Promise<SrsCard[]> {
   const [cards, overview] = await Promise.all([allCards(), getOverview(now)])
-  const pool = cards.filter((c) => !c.suspended && !isBuried(c, now) && (!opts.deck || c.deck === opts.deck))
+  const tags = opts.tags?.length ? new Set(opts.tags) : null
+  const pool = cards.filter((c) => !c.suspended && !isBuried(c, now) && (!opts.deck || c.deck === opts.deck)
+    && (!tags || !!c.tags?.some((t) => tags.has(t))))
   const recallOf = (c: SrsCard) =>
     c.state === CardState.Review ? retrievability((now - (c.lastReview ?? now)) / DAY, c.stability) : -1
   const due = pool

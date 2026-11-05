@@ -3,6 +3,7 @@
  * 3 tab: Ôn tập (tổng quan + bắt đầu ôn) · Thẻ (thêm, sửa, tìm) · Cài đặt.
  * Mở thẳng chế độ ôn nhanh: đường dẫn /review?quick=1 (nút "Ôn nhanh 5 phút" ở trang Hôm nay dùng được).
  * Mở tab Thẻ và tìm sẵn: /review?tab=cards&q=食べる (dùng cho tìm kiếm toàn cục Ctrl+K).
+ * Ôn riêng các thẻ có nhãn: /review?tags=minna-5,minna-6 (module Giáo trình: ôn một hoặc nhiều bài).
  */
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
@@ -33,8 +34,8 @@ export default function ReviewPage() {
   const [params, setParams] = useSearchParams()
   const [cardQuery, setCardQuery] = useState('')
 
-  const start = async (quick: boolean, deck: string | null = null) => {
-    const [queue, pool, settings] = await Promise.all([buildQueue({ quick, deck }), allCards(), getSettings()])
+  const start = async (quick: boolean, deck: string | null = null, tags?: string[]) => {
+    const [queue, pool, settings] = await Promise.all([buildQueue({ quick, deck, tags }), allCards(), getSettings()])
     setRunning({ queue, pool, settings, quick })
   }
 
@@ -42,9 +43,13 @@ export default function ReviewPage() {
   // /review?tab=cards&q=… → mở tab Thẻ, ô tìm kiếm điền sẵn
   useEffect(() => {
     const t = params.get('tab')
+    const tags = params.get('tags')
     if (params.get('quick')) {
       setParams({}, { replace: true })
       void start(true)
+    } else if (tags) {
+      setParams({}, { replace: true })
+      void start(false, null, tags.split(',').filter(Boolean))
     } else if (t === 'cards' || t === 'settings' || t === 'study') {
       setRunning(null)
       setTab(t)

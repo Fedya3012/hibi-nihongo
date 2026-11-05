@@ -37,7 +37,7 @@ Module có dấu ★ là nền cho các module khác, nên làm trước.
 | # | Module | Nội dung chính |
 | --- | --- | --- |
 | 9 | Ngữ pháp | Giải thích tiếng Việt, drill (điền trợ từ, sắp xếp câu, trắc nghiệm), vào SRS, phân tích câu |
-| 10 | Giáo trình | Khung bài Minna / Genki, ghi chú và audio tự nhập, tiến độ từng bài |
+| 10 | Giáo trình | Khung bài Minna / Genki / sách tự tạo, 7 mục mỗi bài, từ vựng vào Ôn tập theo bài, Kanji của bài, học tuần tự. **Bước 1 đã xong, cách dùng: `src/modules/textbook/README.md`** |
 | 11 | Lộ trình & Onboarding | Bộ câu hỏi đầu tiên, lộ trình N5→N1, theo series, tùy chỉnh (bản chưa có AI) |
 | 12 | Tiện ích chung | Smart Resume, tìm kiếm toàn cục (Ctrl+K, **đã xong**: `src/modules/search/README.md`), ngôn ngữ giao diện Việt/Anh/Nhật (**đã xong**: `src/core/i18n/README.md`), hệ thống phím tắt tùy chỉnh, Pomodoro, clipboard |
 | 13 | Tóm tắt | Tóm tắt ngày/tuần/tháng, sao chép, xuất Markdown |

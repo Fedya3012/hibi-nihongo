@@ -108,6 +108,27 @@ export async function addCards(inputs: NewCardInput[]): Promise<number> {
 }
 
 /**
+ * Gắn thêm nhãn cho các thẻ ĐÃ CÓ theo nguồn (vd giáo trình gắn nhãn "minna-5" cho từ đã thêm từ manga).
+ * Trả về các nguồn đã có thẻ (dù thẻ đã có nhãn đó từ trước), để bên gọi biết không cần tạo thẻ mới.
+ */
+export async function tagCardsBySource(sources: { module: string; ref: string }[], tag: string): Promise<Set<string>> {
+  const want = new Set(sources.map((s) => `${s.module}:${s.ref}`))
+  const found = new Set<string>()
+  if (!want.size) return found
+  const existing = await getAll<SrsCard>('srsCards')
+  const changed: SrsCard[] = []
+  for (const c of existing) {
+    if (!c.source) continue
+    const key = `${c.source.module}:${c.source.ref}`
+    if (!want.has(key)) continue
+    found.add(key)
+    if (!c.tags?.includes(tag)) changed.push({ ...c, tags: [...(c.tags ?? []), tag] })
+  }
+  if (changed.length) await putMany('srsCards', changed)
+  return found
+}
+
+/**
  * Đổi ảnh Blob/File thành data URL JPEG nhỏ gọn (cạnh dài ≤ 900px).
  * Lưu dạng chữ để ảnh đi kèm file sao lưu .json.
  */
