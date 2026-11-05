@@ -47,3 +47,38 @@ html.theme-transition * {
 .jp-vertical { writing-mode: vertical-rl; text-orientation: mixed; }
 ruby rt { font-size: 0.5em; color: var(--text-muted); }
 [data-furigana='off'] ruby rt { display: none; }
+
+/* ---------- Trợ năng dùng chung ---------- */
+
+/* Viền khi dùng bàn phím (Tab) cho mọi thứ bấm được, kể cả khi module quên tự thêm */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+/* Nội dung chính nhận con trỏ khi chuyển trang: không cần viền */
+main:focus { outline: none; }
+
+/* Nút "Bỏ qua, tới nội dung chính": ẩn tới khi bấm Tab lần đầu */
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 60;
+  padding: 0.6rem 1rem;
+  border-radius: 0.75rem;
+  background: var(--primary);
+  color: var(--on-primary);
+  font-weight: 600;
+  transform: translateY(-200%);
+}
+.skip-link:focus { transform: none; }
+
+/* Người dùng chọn "giảm chuyển động" trong hệ điều hành: tắt hiệu ứng trong cả app */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
