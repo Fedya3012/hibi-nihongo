@@ -10,7 +10,7 @@ export default defineModule({
   nav: 'main',
   status: 'building',
   phase: 1,
-  order: 40,
+  order: 30,
   description: 'Cổng vào Kana, Kanji, Ngữ pháp, Giáo trình',
   text: {
     en: { title: 'Learn', description: 'Kana, Kanji, Grammar, Textbooks' },

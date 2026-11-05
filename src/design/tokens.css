@@ -16,12 +16,12 @@
   --border: #e6dfd3;
   --text: #23202a;          /* chữ chính, màu mực */
   --text-muted: #6b6474;    /* chữ phụ */
-  --primary: #a86f0c;       /* vàng hổ phách đậm (đủ tương phản trên nền sáng) */
+  --primary: #8f5e08;       /* vàng hổ phách đậm: chữ màu này đạt tương phản 4.5:1 (WCAG AA) trên mọi nền sáng */
   --primary-soft: #f6e7c8;  /* nền nhạt của màu chủ đạo */
   --on-primary: #ffffff;    /* chữ đặt trên nút màu chủ đạo */
-  --good: #3f8f6b;          /* đúng */
-  --bad: #c8372d;           /* sai */
-  --warn: #c2850f;
+  --good: #2f7a58;          /* đúng */
+  --bad: #b8322a;           /* sai */
+  --warn: #8a6100;
   --shadow: 0 1px 2px rgb(35 32 42 / 0.04), 0 4px 16px rgb(35 32 42 / 0.06);
   color-scheme: light;
 }

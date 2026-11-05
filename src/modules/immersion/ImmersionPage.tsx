@@ -22,7 +22,7 @@ export default function ImmersionPage() {
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         {subs.map((m) => (
-          <Link key={m.id} to={m.path} className="group">
+          <Link key={m.id} to={m.path} className="group block rounded-card outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-bg">
             <Card className="h-full transition group-hover:border-primary">
               <div className="jp text-3xl text-primary">{m.icon}</div>
               <h2 className="mt-2 font-semibold">{mt(m).title}</h2>
