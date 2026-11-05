@@ -6,13 +6,15 @@
  *   - thẻ Ôn tập của nó đã qua giai đoạn học và nhớ được ít nhất 7 ngày (độ bền FSRS ≥ 7).
  * Bạn tự đánh dấu "chưa thuộc" thì luôn tính là chưa thuộc.
  * Một mẫu ngữ pháp "đã học" khi bạn bấm "Đã hiểu" hoặc mẫu đã có trong Ôn tập (giống trang Ngữ pháp).
- * % của bài = (từ đã thuộc + mẫu đã học) / (số từ + số mẫu).
+ * Một câu bài tập "đạt" khi lần làm gần nhất đúng.
+ * % của bài = (từ đã thuộc + mẫu đã học + câu bài tập đạt) / (số từ + số mẫu + số câu bài tập).
  */
 import { getReviewCardsBySource, type SrsCard } from '@/modules/review/api'
 import { loadKnowledge, manualStatus, type Knowledge, type ManualStatus } from '@/modules/vocab/api'
 import { getGrammarProgress, grammarInReview, type GrammarProgress } from '@/modules/grammar/api'
 import type { Lesson, LessonWord, Textbook } from '../types'
 import { lessonGrammarIds, loadAllGrammar } from './grammar'
+import { isWeakItem, lastOk } from './exstat'
 
 /** Độ bền trí nhớ (ngày) tối thiểu để coi một từ là đã thuộc. */
 export const KNOWN_STABILITY = 7
@@ -48,6 +50,11 @@ export interface LessonProgress {
   lapses: number
   grammarTotal: number
   grammarLearned: number
+  /** Câu bài tập của bài: tổng · đã làm · lần gần nhất đúng · hay sai. */
+  exTotal: number
+  exDone: number
+  exRight: number
+  exWeak: number
   /** 0–1. Bài đánh dấu xong = 1. */
   ratio: number
 }
@@ -66,16 +73,35 @@ export function lessonProgress(l: Lesson, cards: Map<string, SrsCard>, g?: Gramm
   const total = l.words.length
   const grammarTotal = g?.ids.length ?? 0
   const grammarLearned = g ? g.ids.filter((id) => g.progress[id]?.learned || g.inReview.has(id)).length : 0
-  const all = total + grammarTotal
-  const ratio = l.status === 'done' ? 1 : all ? (known + grammarLearned) / all : 0
-  return { total, known, learning, inReview, lapses, ratio, grammarTotal, grammarLearned }
+  const items = (l.exercises ?? []).flatMap((s) => s.items)
+  const st = l.exStats ?? {}
+  const exTotal = items.length
+  const exDone = items.filter((it) => st[it.id]).length
+  const exRight = items.filter((it) => lastOk(st[it.id])).length
+  const exWeak = Object.values(st).filter(isWeakItem).length
+  const all = total + grammarTotal + exTotal
+  const ratio = l.status === 'done' ? 1 : all ? (known + grammarLearned + exRight) / all : 0
+  return { total, known, learning, inReview, lapses, ratio, grammarTotal, grammarLearned, exTotal, exDone, exRight, exWeak }
 }
+
+/** Lý do bài bị coi là "yếu" (nên ôn lại). Rỗng = không yếu. */
+export function weakReasons(p?: LessonProgress): { lapses?: number; exWeak?: number } {
+  if (!p) return {}
+  const r: { lapses?: number; exWeak?: number } = {}
+  // Quên nhiều lần so với số từ đang ôn
+  if (p.inReview > 0 && p.lapses >= Math.max(3, p.inReview * 0.3)) r.lapses = p.lapses
+  // Nhiều câu hay sai (bài tập của bài + câu từ vựng tự tạo / kiểm tra tổng hợp)
+  if (p.exWeak >= 3 || (p.exDone >= 3 && p.exWeak / p.exDone >= 0.4)) r.exWeak = p.exWeak
+  return r
+}
+
+export const isWeak = (p?: LessonProgress) => Object.keys(weakReasons(p)).length > 0
 
 export const unlockRatio = (b: Textbook) => b.unlockAt ?? 0.8
 
 /**
  * Bài có bị khóa không (chỉ khi bật học tuần tự). Bài đầu luôn mở.
- * Bài N mở khi bài N-1 đã đánh dấu xong, hoặc thuộc ≥ ngưỡng (mặc định 80%) số từ của bài N-1.
+ * Bài N mở khi bài N-1 đã đánh dấu xong, hoặc đạt ≥ ngưỡng (mặc định 80%) của bài N-1 (từ + ngữ pháp + bài tập).
  * Bài đã mở hoặc đã học rồi thì không khóa lại.
  */
 export function lockedSet(b: Textbook, lessons: Lesson[], prog: Map<string, LessonProgress>): Set<number> {
@@ -85,7 +111,7 @@ export function lockedSet(b: Textbook, lessons: Lesson[], prog: Map<string, Less
   for (const l of lessons) {
     if (!open && l.status === 'new') locked.add(l.number)
     const p = prog.get(l.id)
-    const passed = l.status === 'done' || (!!p && p.total + p.grammarTotal > 0 && p.ratio >= unlockRatio(b))
+    const passed = l.status === 'done' || (!!p && p.total + p.grammarTotal + p.exTotal > 0 && p.ratio >= unlockRatio(b))
     open = (open || l.status !== 'new') && passed
   }
   return locked

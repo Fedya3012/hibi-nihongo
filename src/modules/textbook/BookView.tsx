@@ -1,5 +1,6 @@
 /**
- * MỘT CUỐN GIÁO TRÌNH: lưới các bài với trạng thái, % từ đã thuộc, bài đang khóa, bài yếu.
+ * MỘT CUỐN GIÁO TRÌNH: biểu đồ tiến độ cả cuốn, cảnh báo bài yếu, lưới các bài (trạng thái, %, bài khóa),
+ * và hai mục ôn tổng hợp: Điểm yếu của cả cuốn, Kiểm tra tổng hợp theo nhóm bài (xem BookReview.tsx).
  * Cài đặt của sách: học tuần tự (khóa bài sau), ôn các bài đã học, xóa sách.
  */
 import { useState } from 'react'
@@ -7,34 +8,36 @@ import { useNavigate } from 'react-router-dom'
 import { useDbQuery } from '@/core/db'
 import { Card } from '@/design/components/Card'
 import { Button } from '@/design/components/Button'
+import { Segmented } from '@/design/components/Segmented'
 import { deleteBook, getBook, listLessons, updateBook } from './store'
-import { bookProgress, lockedSet, nextLesson, unlockRatio, type LessonProgress } from './lib/progress'
+import { bookProgress, isWeak, lockedSet, nextLesson, unlockRatio } from './lib/progress'
 import { lessonTag } from './lib/learn'
 import { Pill, ProgressBar, statusLabel, useTx } from './ui'
 import { BookFiles } from './BookFiles'
+import { BookChart, UnitTest, WeakPoints } from './BookReview'
 
-/** Bài "yếu": quên nhiều lần so với số từ (cảnh báo nên ôn lại). */
-export const isWeak = (p?: LessonProgress) => !!p && p.inReview > 0 && p.lapses >= Math.max(3, p.inReview * 0.3)
+type Tab = 'lessons' | 'weak' | 'test'
 
 export function BookView({ bookId, onBack, onOpen, onRead }: {
-  bookId: string; onBack: () => void; onOpen: (n: number) => void; onRead: (fileId: string, page?: number) => void
+  bookId: string; onBack: () => void; onOpen: (n: number, section?: string) => void; onRead: (fileId: string, page?: number) => void
 }) {
   const t = useTx()
   const navigate = useNavigate()
   const [confirmDel, setConfirmDel] = useState(false)
+  const [tab, setTab] = useState<Tab>('lessons')
   const { data, loading } = useDbQuery(async () => {
     const [book, lessons] = await Promise.all([getBook(bookId), listLessons(bookId)])
     if (!book) return null
-    const { byLesson } = await bookProgress([book], lessons)
+    const { byLesson, cards, grammarIds } = await bookProgress([book], lessons)
     const locked = lockedSet(book, lessons, byLesson)
-    return { book, lessons, byLesson, locked, next: nextLesson(book, lessons, locked) }
+    return { book, lessons, byLesson, cards, grammarIds, locked, next: nextLesson(book, lessons, locked) }
   }, [bookId], ['textbooks', 'textbookLessons', 'srsCards', 'kv', 'knownWords'])
 
   if (loading && !data) return null
   if (!data) {
     return <Card><p>{t('shelfEmpty')}</p><Button className="mt-3" variant="soft" onClick={onBack}>{t('back')}</Button></Card>
   }
-  const { book, lessons, byLesson, locked, next } = data
+  const { book, lessons, byLesson, cards, grammarIds, locked, next } = data
   const studied = lessons.filter((l) => l.status !== 'new')
   const done = lessons.filter((l) => l.status === 'done').length
   const pct = Math.round(unlockRatio(book) * 100)
@@ -57,7 +60,17 @@ export function BookView({ bookId, onBack, onOpen, onRead }: {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+      <BookChart book={book} lessons={lessons} byLesson={byLesson} locked={locked} onOpen={onOpen} />
+
+      <div className="mb-4">
+        <Segmented<Tab> label={t('bookTabs')} value={tab} onChange={setTab}
+          options={[{ value: 'lessons', label: t('tabLessons') }, { value: 'weak', label: t('tabWeak') }, { value: 'test', label: t('tabTest') }]} />
+      </div>
+
+      {tab === 'weak' && <WeakPoints book={book} lessons={lessons} cards={cards} grammarIds={grammarIds} onOpen={onOpen} />}
+      {tab === 'test' && <UnitTest book={book} lessons={lessons} />}
+
+      {tab === 'lessons' && <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         {lessons.map((l) => {
           const p = byLesson.get(l.id)
           const isLocked = locked.has(l.number)
@@ -83,7 +96,7 @@ export function BookView({ bookId, onBack, onOpen, onRead }: {
             </button>
           )
         })}
-      </div>
+      </div>}
 
       <BookFiles bookId={book.id} onRead={onRead} />
 

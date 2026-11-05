@@ -13,10 +13,10 @@ import { JapaneseText } from '@/modules/dictionary'
 import { makeId } from '../store'
 import {
   check, clearStats, deleteSet, exerciseToText, isWeakItem, parseExerciseText, printSet, recordResults, saveSet, shuffle,
-  vocabQuiz,
+  vocabQuiz, wordQuestion,
 } from '../lib/exercises'
 import { inputCls, useTx, type Key } from '../ui'
-import type { ExerciseSet, ExItem, Lesson, LessonWord, Textbook } from '../types'
+import type { ExerciseSet, ExItem, Lesson, Textbook } from '../types'
 
 const KIND_KEY: Record<ExItem['kind'], Key> = { choice: 'exKindChoice', fill: 'exKindFill', order: 'exKindOrder' }
 
@@ -173,7 +173,7 @@ interface RunnerProps {
   bare?: boolean
 }
 
-function Runner({ title, items, stats, onRecord, onEdit, onClose, onPrint, bare }: RunnerProps) {
+export function Runner({ title, items, stats, onRecord, onEdit, onClose, onPrint, bare }: RunnerProps) {
   const t = useTx()
   const [only, setOnly] = useState<string[] | null>(null) // null = cả bộ
   const [round, setRound] = useState(0)
@@ -335,11 +335,7 @@ function WeakList({ book, lesson, onPractice }: { book: Textbook; lesson: Lesson
     const [, , wid, dir] = id.split(':')
     const w = lesson.words.find((x) => x.id === wid)
     if (!w) continue
-    const mean = (x: LessonWord) => (x.meaning || x.en || '').trim()
-    const others = shuffle(lesson.words.filter((x) => x.id !== wid && mean(x))).slice(0, 3)
-    all.set(id, dir === 'm'
-      ? { id, kind: 'choice', q: w.word, options: shuffle([mean(w), ...others.map(mean)]), answer: [mean(w)] }
-      : { id, kind: 'choice', q: mean(w), options: shuffle([w.word, ...others.map((x) => x.word)]), answer: [w.word] })
+    all.set(id, wordQuestion(w, lesson.words, dir === 'm'))
   }
   const rows = Object.entries(stats)
     .filter(([id, s]) => s.wrong > 0 && all.has(id))
