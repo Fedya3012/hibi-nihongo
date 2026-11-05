@@ -16,12 +16,14 @@
     "@fontsource/noto-serif-jp": "^5.3.1",
     "@tauri-apps/plugin-notification": "^2.8.0",
     "fflate": "^0.8.3",
+    "fzstd": "^0.1.1",
     "kuromoji": "^0.1.2",
     "node-unrar-js": "^2.0.2",
     "pdfjs-dist": "^6.5.438",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "react-router-dom": "^7.18.5",
+    "sql.js": "^1.13.0",
     "zustand": "^5.0.16"
   },
   "devDependencies": {
@@ -29,6 +31,7 @@
     "@tauri-apps/cli": "^2.12.4",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "@types/sql.js": "^1.4.11",
     "@vitejs/plugin-react": "^6.2.1",
     "tailwindcss": "^4.3.4",
     "typescript": "^7.0.2",
