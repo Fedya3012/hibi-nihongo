@@ -11,10 +11,10 @@ export default defineModule({
   status: 'ready',
   phase: 2,
   order: 140,
-  description: 'Mẫu ngữ pháp N5, N4 giải thích tiếng Việt, ví dụ tra từ được, luyện điền/sắp xếp câu, đưa vào Ôn tập',
+  description: 'Mẫu ngữ pháp N5 đến N1 giải thích tiếng Việt, ví dụ tra từ được, luyện điền/sắp xếp câu, đưa vào Ôn tập',
   text: {
-    en: { title: 'Grammar', description: 'N5 and N4 grammar points explained in Vietnamese, clickable examples, fill-in and word-order drills, add to SRS' },
-    ja: { title: '文法', description: 'N5・N4の文法解説（ベトナム語）、辞書付き例文、穴埋め・並べ替え練習、SRSに追加' },
+    en: { title: 'Grammar', description: 'N5–N1 grammar points explained in Vietnamese, clickable examples, fill-in and word-order drills, add to SRS' },
+    ja: { title: '文法', description: 'N5〜N1の文法解説（ベトナム語）、辞書付き例文、穴埋め・並べ替え練習、SRSに追加' },
   },
   page: lazy(() => import('./GrammarPage')),
 })
