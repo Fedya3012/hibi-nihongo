@@ -41,6 +41,12 @@ export const STORES = {
   mangaNotes: { backup: true },
   /** Thời gian học mỗi ngày theo nhóm + các phiên học (module Hôm nay & Tiến độ). Có sao lưu. */
   studyDays: { backup: true },
+  /** Giáo trình bạn đang học (Minna, Genki, sách tự tạo): tên, số bài (module textbook). */
+  textbooks: { backup: true },
+  /** Từng bài của giáo trình: từ vựng bạn nhập, ghi chú, trạng thái (module textbook). */
+  textbookLessons: { backup: true },
+  /** File audio bạn nhập cho từng bài. Nặng và nhập lại được nên không sao lưu (module textbook). */
+  textbookMedia: { backup: false },
 } as const satisfies Record<string, { backup: boolean }>
 
 export type StoreName = keyof typeof STORES
@@ -99,6 +105,14 @@ export const migrations: Migration[] = [
   // Phiên bản tiếp theo (module Hôm nay & Tiến độ — today, me): mỗi ngày học một dòng, khóa 'YYYY-MM-DD'
   (db) => {
     db.createObjectStore('studyDays', { keyPath: 'day' })
+  },
+  // Phiên bản tiếp theo (module Giáo trình — textbook)
+  (db) => {
+    db.createObjectStore('textbooks', { keyPath: 'id' })
+    const lessons = db.createObjectStore('textbookLessons', { keyPath: 'id' })
+    lessons.createIndex('by_book', 'bookId')
+    const media = db.createObjectStore('textbookMedia', { keyPath: 'id' })
+    media.createIndex('by_lesson', 'lessonId')
   },
 ]
 

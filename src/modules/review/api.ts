@@ -12,8 +12,9 @@
  *
  * Đường dẫn mở thẳng ôn nhanh 5 phút: /review?quick=1
  */
-import { useDbQuery } from '@/core/db'
-import { addCards, getOverview, type NewCardInput, type Overview } from './store'
+import { getAll, useDbQuery } from '@/core/db'
+import type { SrsCard } from './types'
+import { addCards, getOverview, tagCardsBySource, type NewCardInput, type Overview } from './store'
 
 /*
  * Ảnh: truyền `image` là Blob/File (vd ảnh panel manga cắt từ trang) hoặc data URL.
@@ -26,6 +27,19 @@ export type { CardKind, SrsCard, SrsLog, Rating } from './types'
 
 /** Thêm thẻ vào SRS. Trả về số thẻ được thêm (thẻ trùng bị bỏ qua). */
 export const addReviewCards = (cards: NewCardInput[]) => addCards(cards)
+
+/**
+ * Gắn thêm nhãn cho thẻ đã có theo nguồn, không tạo thẻ mới. Trả về tập "module:ref" đã có thẻ.
+ *   await tagReviewCards([{ module: 'dictionary', ref: '1358280' }], 'minna-5')
+ */
+export const tagReviewCards = (sources: { module: string; ref: string }[], tag: string) => tagCardsBySource(sources, tag)
+
+/** Thẻ theo nguồn: Map "module:ref" → thẻ (vd để biết từ nào trong bài giáo trình đã thuộc). */
+export async function getReviewCardsBySource(): Promise<Map<string, SrsCard>> {
+  const map = new Map<string, SrsCard>()
+  for (const c of await getAll<SrsCard>('srsCards')) if (c.source) map.set(`${c.source.module}:${c.source.ref}`, c)
+  return map
+}
 
 export const getReviewOverview = (): Promise<Overview> => getOverview()
 
