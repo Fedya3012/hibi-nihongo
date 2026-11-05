@@ -164,12 +164,6 @@ export async function getPlayerPrefs(): Promise<PlayerPrefs> {
 }
 export const savePlayerPrefs = (p: PlayerPrefs) => kvSet(PREFS_KEY, p)
 
-// ----- Từ đã biết (không cần học, ví dụ từ bạn đã thuộc từ trước) -----
-
-const KNOWN_KEY = 'anime:known'
-export const getKnownWords = async () => new Set(await kvGet<string[]>(KNOWN_KEY, []))
-export async function setKnownWords(words: string[], known: boolean): Promise<void> {
-  const set = await getKnownWords()
-  for (const w of words) { if (known) set.add(w); else set.delete(w) }
-  await kvSet(KNOWN_KEY, [...set])
-}
+// ----- Từ đã biết -----
+// Đã chuyển sang Kho từ dùng chung: '@/modules/vocab/api' (setWordStatus, useKnowledge...).
+// Danh sách cũ ở kv 'anime:known' được module vocab tự chuyển sang rồi xóa.

@@ -49,6 +49,8 @@ export const STORES = {
   textbookMedia: { backup: false },
   /** Tô sáng, ghi chú, đánh dấu trang trên file sách gốc (module textbook). Có sao lưu. */
   textbookNotes: { backup: true },
+  /** Kho từ dùng chung: từ bạn tự đánh dấu Đã biết / Đang học / Bỏ qua (module vocab). Có sao lưu. */
+  knownWords: { backup: true },
 } as const satisfies Record<string, { backup: boolean }>
 
 export type StoreName = keyof typeof STORES
@@ -121,6 +123,12 @@ export const migrations: Migration[] = [
     const notes = db.createObjectStore('textbookNotes', { keyPath: 'id' })
     notes.createIndex('by_file', 'fileId')
     notes.createIndex('by_book', 'bookId')
+  },
+  // Phiên bản tiếp theo (module Kho từ — vocab): mỗi từ một dòng, khóa là chữ viết của từ
+  (db) => {
+    const known = db.createObjectStore('knownWords', { keyPath: 'w' })
+    known.createIndex('by_status', 'status')
+    known.createIndex('by_dict', 'id')
   },
 ]
 
