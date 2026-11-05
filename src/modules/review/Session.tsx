@@ -16,7 +16,7 @@ import { choiceOptions, clozeAnswers, pickQuestion, QUESTION_LABEL } from './que
 import {
   buryCard, rateCard, restoreSnapshot, setSuspended, undoRating, type CardSnapshot, type UndoEntry,
 } from './store'
-import { AnswerDetails, Example, Front, frontSize, kindLabel, speakJa } from './CardFace'
+import { AnswerDetails, Example, Front, frontSize, kindLabel, playCardAudio, speakJa } from './CardFace'
 import type { QuestionType, Rating, ReviewSettings, SrsCard } from './types'
 
 const LEARN_AHEAD = 20 * 60_000 // thẻ hẹn lại trong vòng 20 phút sẽ quay lại ngay trong buổi này
@@ -232,6 +232,7 @@ export function Session({
       const k = e.key.toLowerCase()
       if (k === 'b') { void putAway('bury'); return }
       if (k === 's') { void putAway('suspend'); return }
+      if (k === 'r' && current && revealed && current.card.audio) { playCardAudio(current.card.audio); return }
       if (k === 'r' && current) { speakJa(revealed && current.card.example && current.question === 'cloze' ? current.card.example : current.card.front); return }
       if (!revealed) {
         if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); reveal() }

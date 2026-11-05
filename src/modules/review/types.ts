@@ -48,6 +48,8 @@ export interface SrsCard extends Schedule {
   notes?: string
   /** Ảnh minh họa (vd ảnh panel manga), lưu dạng data URL JPEG để sao lưu được cùng file .json. */
   image?: string
+  /** Tiếng nói gốc (vd đoạn thoại cắt từ anime), lưu dạng data URL (webm/opus hoặc mp4) để sao lưu được. */
+  audio?: string
   tags?: string[]
   /** Thẻ được tạo từ module khác (từ điển, anime...), để không tạo trùng. */
   source?: { module: string; ref: string }
