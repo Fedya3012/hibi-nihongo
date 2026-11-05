@@ -16,6 +16,7 @@ import {
 import { openLookup } from '@/modules/dictionary/api'
 import { ProgressBar } from '../manga/ui'
 import { coverageOf, markKnown, useKnowledge, type Coverage } from './known'
+import { PreStudyButton } from '@/modules/vocab/api'
 import { glossOf, mineSentence, sentenceAt } from './mining'
 import { SIZES, useReaderPrefs } from './prefs'
 import { textToParas } from './importers'
@@ -228,6 +229,12 @@ export function ReaderView({ docId, onClose }: { docId: string; onClose: () => v
           value={prefs.size} onChange={(e) => prefs.set({ size: Number(e.target.value) })}>
           {SIZES.map((s) => <option key={s} value={s}>{s}px</option>)}
         </select>
+        {/* Học trước từ của chương đang đọc (cả văn bản nếu chỉ có một chương) */}
+        {cur && body.chapters[cur.chapter]?.paras.length ? (
+          <PreStudyButton variant="ghost" className="min-h-9 px-3 text-sm"
+            name={(body.chapters.length > 1 && body.chapters[cur.chapter].title) || meta.title}
+            lines={body.chapters[cur.chapter].paras} deck={`Đọc · ${meta.title}`.slice(0, 60)} tags={['reader']} src="reader" />
+        ) : null}
         {meta.source === 'clipboard' && (
           <button className={btnToggle(live)} aria-pressed={live} onClick={() => setLive(!live)}>
             {live ? `● ${t('listening')}` : t('listen')}

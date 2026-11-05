@@ -79,3 +79,24 @@ const cls = k && isStudyWord(seg) ? statusUnderline(segmentStatus(k, seg), mode)
 | `prefs.ts` | Tùy chọn tô màu, lớp CSS gạch chân |
 | `components/` | Nút đánh dấu, ô chọn cách tô màu |
 | `VocabPage.tsx` | Trang Kho từ của tôi |
+
+## Học trước từ của một chương / bài đọc
+
+"Học 30 từ này để hiểu 90%": tách từ cả chương, so với Kho từ, rồi chọn các từ **mới** gặp nhiều nhất
+cho tới khi đủ mục tiêu (80 / 90 / 95 / 98% lượt từ). Từ đang học (đã có thẻ) được tính vào độ phủ dự kiến.
+Từ danh sách: thêm thẻ Ôn tập (kèm câu trong văn bản, dạng điền chỗ trống) hoặc đánh dấu "Đã biết".
+
+Đang dùng ở:
+- **Đọc văn bản**: nút "Học trước từ" trên thanh công cụ, cho chương đang đọc.
+- **Manga**: nút "⋯" của một chương → "Học trước từ" (dựa trên chữ các bong bóng thoại đã lưu).
+- **Giáo trình**: mục Hội thoại / Luyện nghe / Đọc hiểu của bài, cho mọi đoạn đã nhập.
+
+Dùng ở module khác:
+
+```tsx
+import { PreStudyButton } from '@/modules/vocab/api'
+<PreStudyButton name="Chương 3" lines={paras} deck="Đọc · Tên sách" tags={['reader']} src="reader" />
+// Chỉ cần số liệu: const a = await analyzeLines(paras); planPreStudy(a, await loadKnowledge(), 0.9)
+```
+
+Code: `prestudy.ts` (tính toán), `components/PreStudy.tsx` (giao diện), `prestudy-strings.ts` (chữ giao diện).
