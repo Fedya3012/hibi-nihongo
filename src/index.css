@@ -1,0 +1,49 @@
+@import 'tailwindcss';
+@import './design/tokens.css';
+
+/* Nối biến màu vào Tailwind: dùng được class như bg-surface, text-primary... */
+@theme {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-text: var(--text);
+  --color-muted: var(--text-muted);
+  --color-primary: var(--primary);
+  --color-primary-soft: var(--primary-soft);
+  --color-on-primary: var(--on-primary);
+  --color-good: var(--good);
+  --color-bad: var(--bad);
+  --color-warn: var(--warn);
+  --shadow-card: var(--shadow);
+  --radius-card: 1rem;
+  --font-sans: 'Be Vietnam Pro', 'Noto Sans JP', system-ui, sans-serif;
+  --font-jp: 'Noto Sans JP', 'Be Vietnam Pro', sans-serif;
+  --font-jp-serif: 'Noto Serif JP', serif;
+}
+
+/* Cỡ chữ toàn app, chỉnh trong Cài đặt (80%–200%) */
+html { font-size: calc(16px * var(--font-scale, 1)); }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Chuyển Sáng/Tối mượt: chỉ bật hiệu ứng trong lúc đổi giao diện */
+html.theme-transition,
+html.theme-transition * {
+  transition: background-color 300ms ease, color 300ms ease, border-color 300ms ease !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.theme-transition, html.theme-transition * { transition: none !important; }
+}
+
+/* Chữ tiếng Nhật: khoảng dòng rộng hơn để furigana không bị đè */
+.jp { font-family: var(--font-jp); line-height: 1.9; }
+.jp-vertical { writing-mode: vertical-rl; text-orientation: mixed; }
+ruby rt { font-size: 0.5em; color: var(--text-muted); }
+[data-furigana='off'] ruby rt { display: none; }

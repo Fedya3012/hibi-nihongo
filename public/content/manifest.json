@@ -1,0 +1,44 @@
+{
+  "format": 1,
+  "packs": [
+    {
+      "id": "jmdict-en",
+      "title": "Từ điển từ vựng (JMdict)",
+      "description": "Khoảng 190.000 từ, nghĩa tiếng Anh, kèm pitch accent, cấp JLPT và độ thông dụng",
+      "license": "JMdict © EDRDG, CC BY-SA 4.0 · Pitch accent & tần suất: Kanjium (CC BY-SA 4.0) · JLPT: Jonathan Waller (CC BY)",
+      "version": 1,
+      "contentHash": "41411155ce5555557210d7fc81a313ae32c8bf9ddc2ed9325daa7082c9b66b1d",
+      "full": {
+        "url": "jmdict-en.v1.pack",
+        "size": 10202576,
+        "sha256": "22c2a2f0f08313b436856d77eea683b5f5528ec6ebdbe83bb10e8890aa04ba35"
+      }
+    },
+    {
+      "id": "kanjidic",
+      "title": "Từ điển Kanji (KANJIDIC2)",
+      "description": "Hơn 13.000 Kanji: âm On/Kun, âm Hán Việt, số nét, nghĩa, cấp JLPT",
+      "license": "KANJIDIC2 © EDRDG, CC BY-SA 4.0 · JLPT: Jonathan Waller (CC BY)",
+      "version": 1,
+      "contentHash": "3cf0d74643789d50d4e4b55a15998e93617b63b10d3e6ea829a8c382fbbd8a83",
+      "full": {
+        "url": "kanjidic.v1.pack",
+        "size": 484269,
+        "sha256": "13a43bd2209316bca51930a5cbb4a85c55db36b52c7f816aa3a9d2154601f5e3"
+      }
+    },
+    {
+      "id": "kanji-study",
+      "title": "Nét viết & từ ví dụ Kanji",
+      "description": "Thứ tự nét (KanjiVG) cho hơn 6.000 Kanji, thành phần/bộ thủ, từ ví dụ thông dụng, danh sách JLPT",
+      "license": "KanjiVG © Ulrich Apel, CC BY-SA 3.0 · Từ ví dụ: JMdict © EDRDG, CC BY-SA 4.0",
+      "version": 1,
+      "contentHash": "8de4040e94905967942bb1f255cd1f6ac8f1f6939c96573440842591220fd466",
+      "full": {
+        "url": "kanji-study.v1.pack",
+        "size": 3038468,
+        "sha256": "443d8312f165dc67ae9c1f3333467c797be0b202ebb7f711862e2d6d8500e4d2"
+      }
+    }
+  ]
+}

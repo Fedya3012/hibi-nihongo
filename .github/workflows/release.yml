@@ -1,0 +1,49 @@
+# TỰ ĐỘNG BUILD BẢN WINDOWS (.exe) VÀ WEBSITE
+# Khi bạn tạo một "tag" bắt đầu bằng v (ví dụ v0.1.0), máy chủ GitHub sẽ:
+#   1. Build file cài đặt .exe cho Windows và đăng lên mục Releases
+#   2. Build website và đăng lên GitHub Pages
+# Bạn không cần cài gì trên máy mình.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - uses: dtolnay/rust-toolchain@stable
+      - run: npm ci
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: v__VERSION__
+          releaseName: 'Hibi Nihongo v__VERSION__'
+          releaseBody: 'Tải file *-setup.exe bên dưới và mở nó để cài.'
+          releaseDraft: false
+
+  web:
+    runs-on: ubuntu-latest
+    environment: { name: github-pages, url: '${{ steps.deploy.outputs.page_url }}' }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: npm run build -- --base=./
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with: { path: dist }
+      - id: deploy
+        uses: actions/deploy-pages@v4

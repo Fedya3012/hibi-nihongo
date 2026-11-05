@@ -1,0 +1,52 @@
+/*
+ * HỆ MÀU HIBI NIHONGO (design tokens)
+ * -----------------------------------
+ * Mọi màu trong app đều lấy từ các biến dưới đây.
+ * Muốn đổi màu cả app: chỉ cần sửa ở file này.
+ *
+ * Màu chủ đạo: vàng hổ phách lấy cảm hứng từ mắt Nea D. Campbell (D.Gray-man).
+ * Dark Mode được thiết kế riêng (nền tím than ấm), không phải đảo ngược Light Mode.
+ */
+
+:root,
+[data-theme='light'] {
+  --bg: #faf7f2;            /* nền giấy washi */
+  --surface: #ffffff;       /* nền thẻ (card) */
+  --surface-2: #f3eee6;     /* nền phụ: ô nhập, thanh bên */
+  --border: #e6dfd3;
+  --text: #23202a;          /* chữ chính, màu mực */
+  --text-muted: #6b6474;    /* chữ phụ */
+  --primary: #a86f0c;       /* vàng hổ phách đậm (đủ tương phản trên nền sáng) */
+  --primary-soft: #f6e7c8;  /* nền nhạt của màu chủ đạo */
+  --on-primary: #ffffff;    /* chữ đặt trên nút màu chủ đạo */
+  --good: #3f8f6b;          /* đúng */
+  --bad: #c8372d;           /* sai */
+  --warn: #c2850f;
+  --shadow: 0 1px 2px rgb(35 32 42 / 0.04), 0 4px 16px rgb(35 32 42 / 0.06);
+  color-scheme: light;
+}
+
+[data-theme='dark'] {
+  --bg: #1c1a22;            /* tím than ấm */
+  --surface: #26232e;
+  --surface-2: #2f2b38;
+  --border: #3a3545;        /* viền sáng mờ thay cho bóng đổ */
+  --text: #ece6dd;          /* kem, không dùng trắng tinh để đỡ mỏi mắt */
+  --text-muted: #a39cab;
+  --primary: #e3b04b;       /* vàng mắt Noah */
+  --primary-soft: #3d3220;
+  --on-primary: #1c1a22;
+  --good: #6cc49a;
+  --bad: #f08080;
+  --warn: #e8b85c;
+  --shadow: 0 0 0 1px rgb(255 255 255 / 0.04);
+  color-scheme: dark;
+}
+
+/* Chế độ tương phản cao (bật trong Cài đặt) */
+[data-contrast='high'] {
+  --text-muted: var(--text);
+  --border: var(--text);
+}
+[data-theme='light'][data-contrast='high'] { --primary: #7a4f00; }
+[data-theme='dark'][data-contrast='high'] { --primary: #ffd27a; }
