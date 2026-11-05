@@ -79,7 +79,7 @@ export function WordPopup({ anchor, query, results, onClose, onPointerEnter, onP
         <div className="space-y-4">
           {results.slice(0, 3).map((r, i) => (
             <div key={r.id} className={i ? 'border-t border-border pt-3' : ''}>
-              <WordEntry r={r} compact showKanji={i === 0} />
+              <WordEntry r={r} compact showKanji={i === 0} showExamples={i === 0} />
             </div>
           ))}
           {/* Dùng thẻ <a> với đường dẫn dạng #/... (app dùng HashRouter) để popup chạy được cả ngoài khung app */}

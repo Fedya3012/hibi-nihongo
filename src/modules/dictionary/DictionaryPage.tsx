@@ -201,6 +201,11 @@ function DataTab() {
           <li>Pitch accent và tần suất từ: dự án <b>Kanjium</b> của Uros O., CC BY-SA 4.0.</li>
           <li>Cấp JLPT: danh sách của <b>Jonathan Waller</b> (tanos.co.uk), CC BY; Kanji qua dự án kanji-data (MIT).</li>
           <li>Tách từ: <b>Kuromoji</b> (Apache-2.0) với từ điển <b>IPADIC</b>.</li>
+          <li>
+            Câu ví dụ: <a href="https://tatoeba.org" target="_blank" rel="noreferrer" className="font-semibold text-primary hover:underline">Tatoeba</a>{' '}
+            (tatoeba.org), giấy phép CC BY 2.0 FR. Mỗi câu có liên kết về câu gốc kèm tên người đóng góp.
+            Furigana của câu được tạo tự động bằng Kuromoji nên đôi khi có thể sai.
+          </li>
         </ul>
         <p>Nghĩa hiện là tiếng Anh vì chưa có từ điển Nhật–Việt nào giấy phép mở đủ lớn. Âm Hán Việt của Kanji lấy từ KANJIDIC2.</p>
         <p className="flex flex-wrap items-center gap-1">Ví dụ furigana: <Furigana text="日本語" reading="にほんご" className="text-base text-text" /></p>
