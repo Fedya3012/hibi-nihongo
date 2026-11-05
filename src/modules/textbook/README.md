@@ -39,7 +39,14 @@ lật trang (nút, phím ← →), phóng to, nhớ trang đang đọc; **Chọn
 (thẻ ngữ pháp có nhãn của bài). Cuối mục là **bài luyện** (điền chỗ trống, sắp xếp câu, chọn nghĩa) chỉ với các mẫu của bài;
 kết quả ghi chung với trang Ngữ pháp. **Học bài này** cũng đưa luôn ngữ pháp của bài vào Ôn tập.
 
-Các mục Hội thoại, Luyện nghe, Bài tập, Đọc hiểu hiện "Sẽ có ở bước N" cho tới khi làm xong.
+**Hội thoại · Luyện nghe · Đọc hiểu:** bấm *+ Thêm đoạn…*, dán chữ từ sách, mỗi dòng một câu (`Tên：câu | nghĩa`,
+hoặc để bản dịch ở dòng ngay dưới), gắn file audio của bạn nếu có. Trình phát: bật tắt **furigana** (tự thêm) và **bản dịch**,
+bấm chữ để tra từ, **nghe từng câu** hoặc **cả đoạn**, tốc độ 0.7–1.5x, tô sáng câu đang nghe, **Nói theo (shadowing)**: sau mỗi câu
+app dừng một lúc để bạn nói lại. Có audio: **Đồng bộ câu** (audio phát, bấm nút hoặc phím Space khi mỗi câu bắt đầu) để
+nghe đúng từng câu. Chưa có audio: dùng giọng đọc tiếng Nhật của máy. Luyện nghe mặc định ẩn chữ. Đọc hiểu có thêm ô
+**Bài viết của bạn** (作文). Audio chỉ nằm trên máy (dùng được khi không có mạng), không có trong file sao lưu.
+
+Mục Bài tập hiện "Sẽ có ở bước 4".
 
 ## Ôn tập theo bài
 
@@ -78,6 +85,7 @@ Các mục Hội thoại, Luyện nghe, Bài tập, Đọc hiểu hiện "Sẽ c
 | `lib/progress.ts` | Đã thuộc, % mỗi bài (từ + ngữ pháp), khóa bài, bài tiếp theo |
 | `lib/grammar.ts` | Mẫu ngữ pháp của bài (gợi ý theo số bài hoặc danh sách bạn sửa) |
 | `sections/GrammarSection.tsx` | Mục Ngữ pháp của bài |
+| `sections/TrackSection.tsx`, `lib/tracks.ts` | Hội thoại / Luyện nghe / Đọc hiểu: nhập đoạn, audio, trình phát, đồng bộ câu |
 | `BookFiles.tsx` | Thêm / xóa file sách gốc |
 | `reader/BookReader.tsx` | Trình đọc file sách: trang, chọn chữ, tô sáng, ghi chú, danh sách ghi chú |
 | `lib/files.ts`, `lib/pdf.ts` | Lưu file + ghi chú, xuất Markdown; vẽ trang PDF và lớp chữ (pdf.js) |

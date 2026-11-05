@@ -16,6 +16,7 @@ import { listFiles } from './lib/files'
 import { VocabSection } from './sections/VocabSection'
 import { KanjiSection } from './sections/KanjiSection'
 import { GrammarSection } from './sections/GrammarSection'
+import { TrackSection } from './sections/TrackSection'
 import { SoonSection } from './sections/SoonSection'
 import { inputCls, ProgressBar, useTx, type Key } from './ui'
 import { SECTIONS, type LessonStatus, type Section } from './types'
@@ -150,10 +151,10 @@ export function LessonView({ bookId, number, section, onSection, onLesson, onBac
       {section === 'vocab' && <VocabSection book={book} lesson={lesson} cards={cards} />}
       {section === 'kanji' && <KanjiSection book={book} lesson={lesson} />}
       {section === 'grammar' && <GrammarSection book={book} lesson={lesson} ids={gIds} />}
-      {section === 'dialogue' && <SoonSection step={3} text={t('soonDialogue')} />}
-      {section === 'listening' && <SoonSection step={3} text={t('soonListening')} />}
+      {section === 'dialogue' && <TrackSection key="dialogue" book={book} lesson={lesson} section="dialogue" />}
+      {section === 'listening' && <TrackSection key="listening" book={book} lesson={lesson} section="listening" />}
       {section === 'exercise' && <SoonSection step={4} text={t('soonExercise')} />}
-      {section === 'reading' && <SoonSection step={3} text={t('soonReading')} />}
+      {section === 'reading' && <TrackSection key="reading" book={book} lesson={lesson} section="reading" />}
 
       <Card className="mt-4">
         <label className="block">
