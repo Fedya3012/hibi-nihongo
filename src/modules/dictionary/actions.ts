@@ -3,7 +3,8 @@
  * Dùng API công khai của module Ôn tập. Thẻ trùng (cùng id từ điển) tự được bỏ qua.
  */
 import { addReviewCards } from '@/modules/review/api'
-import type { KanjiData, WordData } from './types'
+import type { Example, KanjiData, WordData } from './types'
+import { exampleCloze } from './lib/examples'
 
 /** Chữ viết chính và cách đọc chính của một từ (ưu tiên dạng thông dụng). */
 export function headword(d: WordData): { word: string; reading: string } {
@@ -13,12 +14,21 @@ export function headword(d: WordData): { word: string; reading: string } {
   return { word: k && !usuallyKana ? k.t : reading, reading }
 }
 
-export async function addWordToReview(id: string, d: WordData): Promise<boolean> {
+/**
+ * Thêm từ vào Ôn tập. Truyền `example` (câu ví dụ) thì thẻ có thêm câu đó với từ được chừa trống,
+ * nên khi ôn có cả dạng câu hỏi "Điền vào chỗ trống". Cùng một từ chỉ có một thẻ (id từ điển).
+ */
+export async function addWordToReview(id: string, d: WordData, example?: Example): Promise<boolean> {
   const { word, reading } = headword(d)
   const meaning = d.s.slice(0, 3).map((s) => s.g.slice(0, 3).join(', ')).join('; ')
   const n = await addReviewCards([{
     deck: 'Từ vựng của tôi', kind: 'vocab', front: word, reading: word === reading ? undefined : reading,
     meaning, tags: d.j ? [`N${d.j}`] : undefined, source: { module: 'dictionary', ref: id },
+    ...(example && {
+      example: exampleCloze(example),
+      exampleMeaning: example.data.v ?? example.data.e,
+      notes: `Câu ví dụ: Tatoeba #${example.id} (CC BY 2.0 FR)`,
+    }),
   }])
   return n > 0
 }
