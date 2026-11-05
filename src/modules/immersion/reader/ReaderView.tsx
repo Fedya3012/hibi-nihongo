@@ -181,10 +181,15 @@ export function ReaderView({ docId, onClose }: { docId: string; onClose: () => v
   }
   const known = async () => {
     if (!last) return
-    const w = last.result ? headword(last.result.data).word : last.seg.base || last.seg.surface
-    await markKnown(last.seg.base || last.seg.surface, true)
-    if (w !== (last.seg.base || last.seg.surface)) await markKnown(w, true)
-    setMsg(t('marked', { w }))
+    const base = last.seg.base || last.seg.surface
+    if (last.result) {
+      const { word, reading } = headword(last.result.data)
+      await markKnown({ w: word, r: reading, id: last.result.id, alt: base !== word ? [base] : undefined }, true)
+      setMsg(t('marked', { w: word }))
+    } else {
+      await markKnown({ w: base, r: last.seg.reading || undefined }, true)
+      setMsg(t('marked', { w: base }))
+    }
   }
 
   if (meta === undefined || body === undefined) return <p className="text-muted">{t('loading')}</p>

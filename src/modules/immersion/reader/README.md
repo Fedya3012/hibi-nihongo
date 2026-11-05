@@ -26,10 +26,9 @@ và lưu từ kèm câu đang đọc vào Ôn tập. Mở trong app: **Immersion
 
 ## Từ "đã biết" lấy từ đâu
 
-Qua một file duy nhất: `known.ts`. Hiện tại: thẻ Ôn tập đã thuộc + từ bấm "Đã biết" (dùng chung với anime, kv `anime:known`).
-Khi **kho từ đã biết dùng chung** (module `vocab`) có trên main, chỉ cần đổi `known.ts` sang `@/modules/vocab/api`
-(tên hàm đã đặt giống: `useKnowledge`, `segmentStatus`, `isStudyWord`, `coverageOf`). Khi đó chữ trong trình đọc
-tự được gạch chân theo trạng thái (vì trình đọc dùng `<JapaneseText>`), và popup có sẵn nút đánh dấu.
+Từ kho từ dùng chung (module `vocab`, `@/modules/vocab/api`), qua một file duy nhất `known.ts`.
+Chữ trong trình đọc tự được gạch chân theo trạng thái (mới / đang học) vì trình đọc dùng `<JapaneseText>`,
+và popup tra từ có sẵn nút đánh dấu. Nút "Đã biết" ở thanh dưới ghi vào cùng kho đó (nguồn `reader`).
 
 ## Dữ liệu được lưu ở đâu
 
