@@ -14,12 +14,13 @@ Chạy được dưới dạng **Website (cài như app nhờ PWA)** và **ứng
 | `src/` | Toàn bộ code giao diện của app |
 | `src/design/` | **Hệ màu, font, các nút/thẻ dùng chung.** Muốn đổi màu cả app: sửa `src/design/tokens.css` |
 | `src/modules/` | Mỗi tính năng là **một thư mục riêng** (ôn tập, kanji, manga…) |
-| `src/modules/registry.ts` | Danh sách tất cả tính năng, hiện trên thanh điều hướng |
+| `src/modules/<id>/module.ts` | Mỗi tính năng tự khai báo tên, biểu tượng, trạng thái ở đây (`registry.ts` tự gom lại) |
 | `src/core/` | Phần lõi dùng chung: cài đặt, lưu dữ liệu |
 | `src-tauri/` | "Vỏ" để đóng gói thành file .exe cho Windows |
 | `public/` | Biểu tượng app |
 | `.github/workflows/` | Kịch bản để GitHub **tự build** .exe và website cho bạn |
 | `docs/MODULES.md` | Danh sách các module và quy ước khi làm từng module |
+| `docs/LAM-VIEC-SONG-SONG.md` | Quy tắc để nhiều PR làm song song không bị conflict |
 
 ---
 
