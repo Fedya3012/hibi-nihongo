@@ -12,6 +12,7 @@ import { Segmented } from '@/design/components/Segmented'
 import { getBook, listLessons, markOpened, setLessonNotes, setLessonStatus, setLessonTitle } from './store'
 import { bookProgress, lockedSet, unlockRatio } from './lib/progress'
 import { learnLesson, lessonTag, type LearnResult } from './lib/learn'
+import { listFiles } from './lib/files'
 import { VocabSection } from './sections/VocabSection'
 import { KanjiSection } from './sections/KanjiSection'
 import { GrammarSection } from './sections/GrammarSection'
@@ -24,13 +25,14 @@ const SECTION_KEY: Record<Section, Key> = {
   exercise: 'secExercise', kanji: 'secKanji', reading: 'secReading',
 }
 
-export function LessonView({ bookId, number, section, onSection, onLesson, onBack }: {
+export function LessonView({ bookId, number, section, onSection, onLesson, onBack, onRead }: {
   bookId: string
   number: number
   section: Section
   onSection: (s: Section) => void
   onLesson: (n: number) => void
   onBack: () => void
+  onRead: (fileId: string, page?: number) => void
 }) {
   const t = useTx()
   const navigate = useNavigate()
@@ -39,15 +41,15 @@ export function LessonView({ bookId, number, section, onSection, onLesson, onBac
   const [busy, setBusy] = useState(false)
 
   const { data } = useDbQuery(async () => {
-    const [book, lessons] = await Promise.all([getBook(bookId), listLessons(bookId)])
+    const [book, lessons, files] = await Promise.all([getBook(bookId), listLessons(bookId), listFiles(bookId)])
     if (!book) return null
     const { cards, byLesson, grammarIds } = await bookProgress([book], lessons)
     const lesson = lessons.find((l) => l.number === number)
     const locked = lockedSet(book, lessons, byLesson)
     const i = lessons.findIndex((l) => l.number === number)
     return { book, lesson, cards, prog: lesson ? byLesson.get(lesson.id) : undefined, locked, nextNo: lessons[i + 1]?.number,
-      gIds: lesson ? grammarIds.get(lesson.id) ?? [] : [] }
-  }, [bookId, number], ['textbooks', 'textbookLessons', 'srsCards', 'kv'])
+      gIds: lesson ? grammarIds.get(lesson.id) ?? [] : [], files }
+  }, [bookId, number], ['textbooks', 'textbookLessons', 'srsCards', 'kv', 'textbookMedia'])
 
   const isLocked = !!data?.locked.has(number)
   // Ghi nhớ bài đang học (cho "Học tiếp", màn Hôm nay) khi bài mở được
@@ -56,7 +58,9 @@ export function LessonView({ bookId, number, section, onSection, onLesson, onBac
   }, [bookId, number, !!data?.lesson, isLocked, forceOpen])
 
   if (!data) return null
-  const { book, lesson, cards, prog, nextNo, gIds } = data
+  const { book, lesson, cards, prog, nextNo, gIds, files } = data
+  const startPage = book.lessonPages?.[number]
+  const bookFile = startPage ? files.find((f) => f.id === startPage.fileId) : files[0]
   if (!lesson) {
     return <Card><Button variant="soft" onClick={onBack}>{t('backBook', { book: book.short })}</Button></Card>
   }
@@ -111,6 +115,12 @@ export function LessonView({ bookId, number, section, onSection, onLesson, onBac
           <Button variant="soft" disabled={!prog?.inReview && !prog?.grammarLearned} onClick={() => navigate(`/review?tags=${lessonTag(book, number)}`)}>
             {t('reviewLesson')}
           </Button>
+          {bookFile && (
+            <Button variant="soft" title={startPage ? undefined : t('rSetPageHint')}
+              onClick={() => onRead(bookFile.id, startPage?.page)}>
+              📕 {startPage ? t('rOpenBook', { n: startPage.page + 1 }) : t('rOpenBookNoPage')}
+            </Button>
+          )}
           {nextNo != null && (
             <Button variant="ghost" className="ml-auto" onClick={() => onLesson(nextNo)}>{t('nextLesson', { n: nextNo })}</Button>
           )}

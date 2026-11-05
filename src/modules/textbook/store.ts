@@ -76,9 +76,9 @@ export async function updateBook(id: string, patch: Partial<Omit<Textbook, 'id'>
 /** Ghi nhớ bài đang học để "Tiếp tục bài…". */
 export const markOpened = (bookId: string, n: number) => updateBook(bookId, { lastLesson: n, lastOpenedAt: Date.now() })
 
-/** Xóa sách và mọi bài, file audio của nó. Thẻ Ôn tập đã tạo vẫn giữ nguyên. */
+/** Xóa sách và mọi bài, file audio, file sách gốc và ghi chú trên sách. Thẻ Ôn tập đã tạo vẫn giữ nguyên. */
 export async function deleteBook(id: string): Promise<void> {
-  await transaction(['textbooks', 'textbookLessons', 'textbookMedia'], 'readwrite', async (tx) => {
+  await transaction(['textbooks', 'textbookLessons', 'textbookMedia', 'textbookNotes'], 'readwrite', async (tx) => {
     tx.objectStore('textbooks').delete(id)
     const ls = tx.objectStore('textbookLessons')
     const lessons = await promisify<Lesson[]>(ls.index('by_book').getAll(id))
@@ -88,6 +88,9 @@ export async function deleteBook(id: string): Promise<void> {
       const keys = await promisify<IDBValidKey[]>(media.index('by_lesson').getAllKeys(l.id))
       for (const k of keys) media.delete(k)
     }
+    for (const k of await promisify<IDBValidKey[]>(media.index('by_lesson').getAllKeys(`${id}:book`))) media.delete(k)
+    const notes = tx.objectStore('textbookNotes')
+    for (const k of await promisify<IDBValidKey[]>(notes.index('by_book').getAllKeys(id))) notes.delete(k)
   })
 }
 
