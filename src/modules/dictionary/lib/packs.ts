@@ -7,15 +7,20 @@ import {
   fetchManifest, installPackFile, listPacks, planUpdates, runUpdates, useDbQuery,
   type InstalledPack, type Progress, type UpdatePlanItem,
 } from '@/core/db'
-import { KANJI_PACK, WORD_PACK } from '../types'
+import { EXAMPLE_PACK, KANJI_PACK, WORD_PACK } from '../types'
 import { clearSearchCache } from './search'
+import { clearExampleCache } from './examples'
 
-export const DICT_PACKS = [WORD_PACK, KANJI_PACK]
+/** Các gói được cài cùng nút "Tải từ điển". Gói câu ví dụ là phần thêm: chưa có thì từ điển vẫn chạy. */
+export const DICT_PACKS = [WORD_PACK, KANJI_PACK, EXAMPLE_PACK]
+
+const clearCaches = () => { clearSearchCache(); clearExampleCache() }
 
 export interface DictPackState {
   loading: boolean
   word?: InstalledPack
   kanji?: InstalledPack
+  examples?: InstalledPack
   /** true khi gói từ vựng đã cài xong và dùng được. */
   ready: boolean
 }
@@ -25,7 +30,8 @@ export function useDictPacks(): DictPackState {
   const { data, loading } = useDbQuery(() => listPacks(), [], ['packs'])
   const word = data?.find((p) => p.id === WORD_PACK)
   const kanji = data?.find((p) => p.id === KANJI_PACK)
-  return { loading, word, kanji, ready: word?.status === 'ready' }
+  const examples = data?.find((p) => p.id === EXAMPLE_PACK)
+  return { loading, word, kanji, examples, ready: word?.status === 'ready' }
 }
 
 export interface InstallState {
@@ -58,7 +64,7 @@ function install(): Promise<void> {
       // Gói Kanji nhỏ, cài trước để có thông tin Kanji sớm
       plan.sort((a, b) => (a.pack.id === KANJI_PACK ? -1 : 0) - (b.pack.id === KANJI_PACK ? -1 : 0))
       const res = await runUpdates(plan, (progress) => useInstallStore.setState({ progress }))
-      clearSearchCache()
+      clearCaches()
       useInstallStore.setState({
         running: false, plan: [], progress: undefined,
         error: res.failed.length ? res.failed.map((f) => `${f.pack}: ${f.error}`).join('\n') : undefined,
@@ -79,7 +85,7 @@ async function installFile(file: File) {
   running = (async () => {
     try {
       await installPackFile(file, (progress) => useInstallStore.setState({ progress }))
-      clearSearchCache()
+      clearCaches()
       useInstallStore.setState({ running: false, progress: undefined })
     } catch (e) {
       useInstallStore.setState({ running: false, error: e instanceof Error ? e.message : String(e) })

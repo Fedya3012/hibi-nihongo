@@ -4,7 +4,9 @@ import { formatBytes } from '@/core/db'
 import { Card } from '@/design/components/Card'
 import { Button } from '@/design/components/Button'
 import { useDictInstaller, useDictPacks } from '../lib/packs'
-import { WORD_PACK } from '../types'
+import { EXAMPLE_PACK, KANJI_PACK, WORD_PACK } from '../types'
+
+const PART: Record<string, string> = { [WORD_PACK]: 'từ vựng', [KANJI_PACK]: 'Kanji', [EXAMPLE_PACK]: 'câu ví dụ' }
 
 export function PackSetup({ compact = false }: { compact?: boolean }) {
   const packs = useDictPacks()
@@ -12,7 +14,7 @@ export function PackSetup({ compact = false }: { compact?: boolean }) {
   const fileRef = useRef<HTMLInputElement>(null)
   const { check } = inst
 
-  useEffect(() => { check().catch(() => {}) }, [packs.word?.version, packs.kanji?.version])
+  useEffect(() => { check().catch(() => {}) }, [packs.word?.version, packs.kanji?.version, packs.examples?.version])
 
   const pending = inst.plan ?? []
   const size = pending.reduce((s, p) => s + (p.downloadSize ?? 0), 0)
@@ -28,7 +30,7 @@ export function PackSetup({ compact = false }: { compact?: boolean }) {
           <h2 className="font-semibold">Tải dữ liệu từ điển về máy</h2>
           <p className="text-sm text-muted">
             Từ điển chạy hoàn toàn offline. Cần tải một lần{size ? ` khoảng ${formatBytes(size)}` : ''}: hơn 190.000 từ
-            (JMdict, nghĩa tiếng Anh), 13.000 Kanji kèm âm Hán Việt, pitch accent và cấp JLPT. Cài xong mất khoảng 1 phút.
+            (JMdict, nghĩa tiếng Anh), 13.000 Kanji kèm âm Hán Việt, pitch accent, cấp JLPT và gần 50.000 câu ví dụ có bản dịch. Cài xong mất khoảng 1 phút.
           </p>
         </>
       ) : pending.length > 0 ? (
@@ -42,7 +44,8 @@ export function PackSetup({ compact = false }: { compact?: boolean }) {
       ) : (
         <p className="text-sm text-muted">
           Dữ liệu từ điển: {packs.word?.itemCount.toLocaleString('vi-VN')} từ (v{packs.word?.version})
-          {packs.kanji ? `, ${packs.kanji.itemCount.toLocaleString('vi-VN')} Kanji (v${packs.kanji.version})` : ''}. Đã là bản mới nhất.
+          {packs.kanji ? `, ${packs.kanji.itemCount.toLocaleString('vi-VN')} Kanji (v${packs.kanji.version})` : ''}
+          {packs.examples ? `, ${packs.examples.itemCount.toLocaleString('vi-VN')} câu ví dụ (v${packs.examples.version})` : ''}. Đã là bản mới nhất.
         </p>
       )}
 
@@ -52,7 +55,7 @@ export function PackSetup({ compact = false }: { compact?: boolean }) {
             <div className="h-full bg-primary transition-all" style={{ width: `${p?.phase === 'install' ? pct : 5}%` }} />
           </div>
           <p className="text-xs text-muted">
-            {!p ? 'Đang chuẩn bị…' : p.phase === 'download' ? `Đang tải ${p.pack === WORD_PACK ? 'từ vựng' : 'Kanji'}…` : `Đang cài ${p.pack === WORD_PACK ? 'từ vựng' : 'Kanji'}: ${pct}%`}
+            {!p ? 'Đang chuẩn bị…' : p.phase === 'download' ? `Đang tải ${PART[p.pack] ?? p.pack}…` : `Đang cài ${PART[p.pack] ?? p.pack}: ${pct}%`}
             {' '}Đừng đóng app trong lúc cài.
           </p>
         </div>
