@@ -45,7 +45,7 @@ export default function TextbookPage() {
       ) : !bookId ? (
         <Shelf onOpen={(b, l) => go({ b, l })} />
       ) : lesson == null || Number.isNaN(lesson) ? (
-        <BookView bookId={bookId} onBack={() => go({ b: undefined })} onOpen={(n) => go({ l: n })}
+        <BookView bookId={bookId} onBack={() => go({ b: undefined })} onOpen={(n, s) => go({ l: n, s })}
           onRead={(fileId, p) => go({ read: fileId, p })} />
       ) : (
         <LessonView key={`${bookId}:${lesson}`} bookId={bookId} number={lesson} section={section}

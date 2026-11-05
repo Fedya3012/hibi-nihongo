@@ -13,6 +13,7 @@
  */
 import { kataToHira } from '@/modules/dictionary'
 import { makeId, updateLesson } from '../store'
+export { isWeakItem, lastOk } from './exstat'
 import type { ExerciseSet, ExItem, ExStat, Lesson, LessonWord } from '../types'
 
 export interface ParsedLine { item?: ExItem; heading?: string; error?: string; raw: string }
@@ -112,38 +113,50 @@ export const recordResults = (bookId: string, n: number, results: Record<string,
     const now = Date.now()
     for (const [id, [ok, ans]] of Object.entries(results)) {
       const s: ExStat = stats[id] ?? { right: 0, wrong: 0, last: now }
-      stats[id] = ok ? { ...s, right: s.right + 1, last: now } : { ...s, wrong: s.wrong + 1, last: now, lastWrong: ans }
+      stats[id] = ok ? { ...s, right: s.right + 1, last: now, lastOk: true } : { ...s, wrong: s.wrong + 1, last: now, lastWrong: ans, lastOk: false }
     }
     return { ...l, exStats: stats }
   })
 
+/** Ghi kết quả của câu thuộc nhiều bài (kiểm tra tổng hợp, luyện điểm yếu): `lessonOf` = mã câu → số bài. */
+export async function recordAcross(bookId: string, results: Record<string, [boolean, string]>, lessonOf: Map<string, number>) {
+  const byLesson = new Map<number, Record<string, [boolean, string]>>()
+  for (const [id, r] of Object.entries(results)) {
+    const n = lessonOf.get(id)
+    if (n == null) continue
+    byLesson.set(n, { ...byLesson.get(n), [id]: r })
+  }
+  for (const [n, r] of byLesson) await recordResults(bookId, n, r)
+}
+
+
 export const clearStats = (bookId: string, n: number) => updateLesson(bookId, n, (l) => ({ ...l, exStats: {} }))
 
-/** Câu đang "hay sai": sai ít nhất một lần và lần làm gần nhất (hoặc tổng) sai nhiều hơn đúng. */
-export const isWeakItem = (s?: ExStat) => !!s && s.wrong > 0 && s.wrong >= s.right
 
 /* ---------- Bài tập tự tạo từ từ vựng của bài ---------- */
 
 export const VOCAB_SET_ID = 'auto:vocab'
 
-/** Tạo bộ câu chọn nghĩa / chọn từ từ chính từ vựng của bài (cần ≥ 4 từ có nghĩa). */
-export function vocabQuiz(l: Lesson, max = 10): ExItem[] {
-  const words = l.words.filter((w) => (w.meaning || w.en)?.trim())
+const meaningOf = (w: LessonWord) => (w.meaning || w.en || '').trim()
+
+/** Một câu từ vựng: nhìn chữ chọn nghĩa (toMeaning) hoặc nhìn nghĩa chọn chữ; lựa chọn nhiễu lấy từ `pool`. */
+export function wordQuestion(w: LessonWord, pool: LessonWord[], toMeaning: boolean): ExItem {
+  const others = shuffle(pool.filter((x) => x.id !== w.id && meaningOf(x) && meaningOf(x) !== meaningOf(w) && x.word !== w.word)).slice(0, 3)
+  const right = toMeaning ? meaningOf(w) : w.word
+  return {
+    id: `${VOCAB_SET_ID}:${w.id}:${toMeaning ? 'm' : 'w'}`,
+    kind: 'choice',
+    q: toMeaning ? w.word + (w.reading && w.reading !== w.word ? `（${w.reading}）` : '') : meaningOf(w),
+    options: shuffle([right, ...others.map((o) => (toMeaning ? meaningOf(o) : o.word))]),
+    answer: [right],
+  }
+}
+
+/** Tạo bộ câu chọn nghĩa / chọn từ từ chính từ vựng của bài (cần ≥ 4 từ có nghĩa). Xen kẽ hai chiều. */
+export function vocabQuiz(l: Pick<Lesson, 'words'>, max = 10): ExItem[] {
+  const words = l.words.filter(meaningOf)
   if (words.length < 4) return []
-  const mean = (w: LessonWord) => (w.meaning || w.en || '').trim()
-  return shuffle(words).slice(0, max).map((w, i) => {
-    const others = shuffle(words.filter((x) => x.id !== w.id)).slice(0, 3)
-    // Xen kẽ hai chiều: nhìn chữ chọn nghĩa / nhìn nghĩa chọn chữ
-    const toMeaning = i % 2 === 0
-    const right = toMeaning ? mean(w) : w.word
-    return {
-      id: `${VOCAB_SET_ID}:${w.id}:${toMeaning ? 'm' : 'w'}`,
-      kind: 'choice' as const,
-      q: toMeaning ? w.word + (w.reading && w.reading !== w.word ? `（${w.reading}）` : '') : mean(w),
-      options: shuffle([right, ...others.map((o) => (toMeaning ? mean(o) : o.word))]),
-      answer: [right],
-    }
-  })
+  return shuffle(words).slice(0, max).map((w, i) => wordQuestion(w, words, i % 2 === 0))
 }
 
 /* ---------- In / xuất PDF ---------- */
