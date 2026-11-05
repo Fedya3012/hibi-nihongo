@@ -1,6 +1,6 @@
 /**
  * TRANG ÔN TẬP (module review)
- * 3 tab: Ôn tập (tổng quan + bắt đầu ôn) · Thẻ (thêm, sửa, tìm) · Cài đặt.
+ * 4 tab: Ôn tập (tổng quan + bắt đầu ôn) · Thẻ (thêm, sửa, tìm) · Thống kê (dự báo, tỉ lệ nhớ, thẻ khó) · Cài đặt.
  * Mở thẳng chế độ ôn nhanh: đường dẫn /review?quick=1 (nút "Ôn nhanh 5 phút" ở trang Hôm nay dùng được).
  * Mở tab Thẻ và tìm sẵn: /review?tab=cards&q=食べる (dùng cho tìm kiếm toàn cục Ctrl+K).
  * Ôn riêng các thẻ có nhãn: /review?tags=minna-5,minna-6 (module Giáo trình: ôn một hoặc nhiều bài).
@@ -17,9 +17,10 @@ import { starterCards } from './starter'
 import { Session } from './Session'
 import { CardsTab } from './CardsTab'
 import { SettingsTab } from './SettingsTab'
+import { StatsTab } from './StatsTab'
 import type { QuestionMode, ReviewSettings, SrsCard } from './types'
 
-type Tab = 'study' | 'cards' | 'settings'
+type Tab = 'study' | 'cards' | 'stats' | 'settings'
 
 interface Running {
   queue: SrsCard[]
@@ -50,7 +51,7 @@ export default function ReviewPage() {
     } else if (tags) {
       setParams({}, { replace: true })
       void start(false, null, tags.split(',').filter(Boolean))
-    } else if (t === 'cards' || t === 'settings' || t === 'study') {
+    } else if (t === 'cards' || t === 'settings' || t === 'study' || t === 'stats') {
       setRunning(null)
       setTab(t)
       if (t === 'cards') setCardQuery(params.get('q') ?? '')
@@ -75,10 +76,16 @@ export default function ReviewPage() {
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold">Ôn tập</h1>
         <Segmented<Tab> label="Mục" value={tab} onChange={setTab}
-          options={[{ value: 'study', label: 'Ôn tập' }, { value: 'cards', label: 'Thẻ' }, { value: 'settings', label: 'Cài đặt' }]} />
+          options={[{ value: 'study', label: 'Ôn tập' }, { value: 'cards', label: 'Thẻ' }, { value: 'stats', label: 'Thống kê' }, { value: 'settings', label: 'Cài đặt' }]} />
       </div>
       {tab === 'study' && <StudyTab onStart={start} onGoCards={() => setTab('cards')} />}
       {tab === 'cards' && <CardsTab initialQuery={cardQuery} />}
+      {tab === 'stats' && (
+        <StatsTab
+          onOpenCard={(front) => { setCardQuery(front); setTab('cards') }}
+          onGoSettings={() => setTab('settings')}
+        />
+      )}
       {tab === 'settings' && <SettingsTab />}
     </div>
   )
