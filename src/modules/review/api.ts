@@ -14,11 +14,12 @@
  */
 import { getAll, useDbQuery } from '@/core/db'
 import type { SrsCard } from './types'
-import { addCards, getOverview, tagCardsBySource, type NewCardInput, type Overview } from './store'
+import { addCards, attachMediaBySource, getOverview, tagCardsBySource, type NewCardInput, type Overview } from './store'
 
 /*
  * Ảnh: truyền `image` là Blob/File (vd ảnh panel manga cắt từ trang) hoặc data URL.
  * Ảnh tự được nén thành JPEG cạnh dài ≤ 900px và hiện ở mặt đáp án.
+ * Tiếng nói: truyền `audio` là Blob (vd đoạn thoại anime) hoặc data URL. Thẻ có tiếng thì tự phát khi lật thẻ.
  * Mở thẳng tab Thẻ và tìm sẵn: /review?tab=cards&q=<chữ cần tìm>
  */
 
@@ -47,3 +48,12 @@ export const getReviewOverview = (): Promise<Overview> => getOverview()
 export function useReviewOverview(): Overview | undefined {
   return useDbQuery(() => getOverview(), [], ['srsCards', 'srsLogs', 'kv']).data
 }
+
+/**
+ * Gắn ảnh / tiếng nói vào thẻ đã có theo nguồn (không tạo thẻ mới). Trả về số thẻ được cập nhật.
+ *   await attachReviewMedia({ module: 'dictionary', ref: '1358280' }, { image: blob, audio: clip })
+ */
+export const attachReviewMedia = (
+  source: { module: string; ref: string },
+  media: { image?: string | Blob; audio?: string | Blob },
+) => attachMediaBySource(source, media)

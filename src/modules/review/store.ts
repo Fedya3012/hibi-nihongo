@@ -45,12 +45,14 @@ export interface NewCardInput {
   notes?: string
   /** Ảnh minh họa: data URL, hoặc Blob/File (tự nén thành JPEG ≤ 900px). */
   image?: string | Blob
+  /** Tiếng nói gốc: data URL, hoặc Blob (vd đoạn thoại anime ghi bằng MediaRecorder). */
+  audio?: string | Blob
   tags?: string[]
   source?: { module: string; ref: string }
 }
 
 /** Nội dung thẻ sau khi đã xử lý ảnh (ảnh luôn là chuỗi data URL). */
-type CleanInput = Omit<NewCardInput, 'image'> & { image?: string }
+type CleanInput = Omit<NewCardInput, 'image' | 'audio'> & { image?: string; audio?: string }
 
 const makeId = () =>
   typeof crypto !== 'undefined' && 'randomUUID' in crypto
@@ -71,6 +73,7 @@ function cleanInput(input: CleanInput): CleanInput {
   const t = (s?: string) => (s && s.trim() ? s.trim() : undefined)
   return {
     image: input.image || undefined,
+    audio: input.audio || undefined,
     deck: input.deck.trim() || 'Thẻ của tôi',
     kind: input.kind,
     front: input.front.trim(),
@@ -153,10 +156,39 @@ export async function imageToDataUrl(img: Blob, maxSide = 900): Promise<string> 
   }
 }
 
+/** Đổi Blob bất kỳ (vd tiếng nói) thành data URL, để lưu trong thẻ và đi kèm file sao lưu. */
+export function blobToDataUrl(b: Blob): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
+    const r = new FileReader()
+    r.onload = () => resolve(String(r.result))
+    r.onerror = () => reject(r.error)
+    r.readAsDataURL(b)
+  })
+}
+
 async function prepareImage(input: NewCardInput): Promise<CleanInput> {
-  const { image, ...rest } = input
-  if (!image) return rest
-  return { ...rest, image: typeof image === 'string' ? image : await imageToDataUrl(image) }
+  const { image, audio, ...rest } = input
+  return {
+    ...rest,
+    image: !image || typeof image === 'string' ? image : await imageToDataUrl(image),
+    audio: !audio || typeof audio === 'string' ? audio : await blobToDataUrl(audio),
+  }
+}
+
+/**
+ * Gắn ảnh / tiếng nói vào thẻ ĐÃ CÓ theo nguồn (vd từ đã thêm từ Từ điển, nay lấy được cảnh anime).
+ * Chỉ ghi đè phần được truyền vào. Trả về số thẻ được cập nhật.
+ */
+export async function attachMediaBySource(
+  source: { module: string; ref: string },
+  media: { image?: string | Blob; audio?: string | Blob },
+): Promise<number> {
+  const key = `${source.module}:${source.ref}`
+  const cards = (await getAll<SrsCard>('srsCards')).filter((c) => c.source && `${c.source.module}:${c.source.ref}` === key)
+  if (!cards.length) return 0
+  const { image, audio } = await prepareImage({ deck: '', kind: 'vocab', front: '', meaning: '', ...media })
+  await putMany('srsCards', cards.map((c) => ({ ...c, ...(image && { image }), ...(audio && { audio }) })))
+  return cards.length
 }
 
 const dupKey = (c: Pick<SrsCard, 'deck' | 'kind' | 'front'>) => `${c.deck}\u0000${c.kind}\u0000${c.front}`
