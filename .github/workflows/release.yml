@@ -47,18 +47,21 @@ jobs:
       - run: npm ci
       - run: npm run build -- --base=./
       - uses: actions/configure-pages@v6
+      # Tên gói có số lần chạy: bấm "Re-run" sẽ không bị lỗi "Multiple artifacts named github-pages"
       - uses: actions/upload-pages-artifact@v5
-        with: { path: dist }
+        with: { path: dist, name: 'github-pages-${{ github.run_attempt }}' }
       # Máy chủ GitHub Pages thỉnh thoảng lỗi tạm thời (ví dụ "status: 502").
       # Khi đó đợi 1 phút rồi tự thử đăng lại, không cần bạn bấm gì.
       - id: deploy
         uses: actions/deploy-pages@v5
         continue-on-error: true
+        with: { artifact_name: 'github-pages-${{ github.run_attempt }}' }
       - if: steps.deploy.outcome == 'failure'
         run: sleep 60
       - id: deploy-retry
         if: steps.deploy.outcome == 'failure'
         uses: actions/deploy-pages@v5
+        with: { artifact_name: 'github-pages-${{ github.run_attempt }}' }
 
   # Nếu bước đăng website lỗi, ghi hướng dẫn sửa bằng tiếng Việt vào trang kết quả của lần chạy
   web-help:
