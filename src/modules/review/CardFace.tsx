@@ -1,6 +1,7 @@
 /**
  * CÁC MẢNH HIỂN THỊ THẺ: chữ Nhật có furigana, câu ví dụ, phần đáp án đầy đủ.
  */
+import { useEffect } from 'react'
 import type { SrsCard } from './types'
 
 const hasKanji = (s: string) => /[一-鿿々]/.test(s)
@@ -32,6 +33,30 @@ export function SpeakButton({ text, label = 'Nghe đọc' }: { text: string; lab
     <button type="button" onClick={(e) => { e.stopPropagation(); speakJa(text) }} aria-label={label} title={`${label} (phím R)`}
       className="inline-grid size-9 place-items-center rounded-full align-middle text-muted transition hover:bg-surface-2 hover:text-primary">
       🔊
+    </button>
+  )
+}
+
+let player: HTMLAudioElement | null = null
+/** Phát tiếng nói gốc của thẻ (vd giọng nhân vật anime). */
+export function playCardAudio(src: string) {
+  if (typeof Audio === 'undefined') return
+  if (typeof speechSynthesis !== 'undefined') speechSynthesis.cancel()
+  player?.pause()
+  player = new Audio(src)
+  void player.play().catch(() => {})
+}
+
+/** Nút nghe tiếng nói gốc. autoPlay = tự phát một lần khi hiện (lúc lật thẻ). */
+export function CardAudio({ src, autoPlay }: { src: string; autoPlay?: boolean }) {
+  useEffect(() => {
+    if (autoPlay) playCardAudio(src)
+    return () => player?.pause()
+  }, [src, autoPlay])
+  return (
+    <button type="button" onClick={(e) => { e.stopPropagation(); playCardAudio(src) }} title="Nghe câu gốc (phím R)"
+      className="inline-flex min-h-9 items-center gap-1 rounded-full bg-surface-2 px-3 text-sm text-text transition hover:text-primary">
+      ▶ Nghe câu gốc
     </button>
   )
 }
@@ -93,6 +118,7 @@ export function AnswerDetails({ card }: { card: SrsCard }) {
       </div>
       <p className="whitespace-pre-line text-xl font-medium">{card.meaning}</p>
       {card.image && <CardImage src={card.image} />}
+      {card.audio && <CardAudio src={card.audio} autoPlay />}
       {card.example && (
         <div className="rounded-xl bg-surface-2 px-4 py-3 text-left">
           <p className="text-lg"><Example text={card.example} blank={false} /> <SpeakButton text={card.example} label="Nghe câu ví dụ" /></p>

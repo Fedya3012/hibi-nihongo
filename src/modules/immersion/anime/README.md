@@ -37,6 +37,7 @@ Nếu đổi chỗ/đổi tên file, bấm **Chọn file video** trong trình xe
 | Z / X | Phụ đề sớm / muộn 0,1 giây (lưu riêng cho từng tập) |
 | [ ] | Chậm / nhanh (0,5× → 1,5×) |
 | F | Toàn màn hình |
+| C | Tạo thẻ ôn tập từ câu đang nói, kèm ảnh cảnh phim và tiếng nhân vật |
 
 - **Di chuột vào phụ đề** → video tạm dừng, popup tra từ hiện khi di qua từng từ. Rời chuột → chạy tiếp.
   Bấm vào một từ thì video dừng hẳn để bạn đọc kỹ. Tắt được bằng ô "Di chuột vào phụ đề thì tạm dừng".
@@ -62,6 +63,21 @@ Trong bảng **Từ vựng** (ở trình xem hoặc nút "Từ vựng" của t�
 - Thẻ dùng cùng nguồn với nút "Thêm vào ôn tập" của Từ điển (`source: { module: 'dictionary', ref: <id JMdict> }`),
   nên một từ không bị tạo hai thẻ dù thêm từ popup hay từ danh sách.
 
+### Thẻ kèm ảnh cảnh phim và tiếng nhân vật
+
+Bấm **C** (hoặc nút 📸 trên thanh điều khiển, hay 📸 cạnh mỗi dòng trong bảng Lời thoại):
+
+1. App tự **phát lại câu đó một lần** ở tốc độ 1× để ghi tiếng nói gốc, và chụp ảnh cảnh phim ở giữa câu.
+   Nghe thử ngay trong hộp; chưa ưng thì bấm **Ghi lại**.
+2. Chọn từ muốn học trong câu (từ chưa có thẻ được chọn sẵn), và/hoặc tick **Lưu cả câu thành một thẻ**.
+3. **Lưu**: thẻ vào bộ `Anime · <tên series>`, có câu ví dụ điền chỗ trống, nghĩa câu (từ phụ đề dịch nếu có),
+   ghi chú "series · tập · thời điểm", ảnh và tiếng. Khi ôn, **lật thẻ là tự phát giọng nhân vật**; phím R nghe lại.
+   Từ đã có thẻ (thêm từ Từ điển, manga...) thì app **gắn ảnh và tiếng vào thẻ cũ**, không tạo thẻ trùng.
+
+Ảnh (JPEG ≤ 900px) và tiếng (Opus/AAC ~48 kbps, câu 3 giây ~20 KB) được lưu ngay trong thẻ nên có trong file sao lưu,
+không cần giữ file video. Chrome/Edge/bản Windows lấy tiếng thẳng từ video; Firefox/Safari đi qua Web Audio.
+Mã: `capture.ts` (chụp ảnh, ghi tiếng), `MineDialog.tsx` (hộp tạo thẻ).
+
 Lần đầu phân tích cần tải bộ tách từ (~17 MB), sau đó chạy offline. Kết quả phân tích được lưu lại.
 
 ## Dữ liệu được lưu ở đâu
@@ -84,6 +100,7 @@ Khôi phục sao lưu ở máy mới: danh sách tập, phụ đề, tiến đ�
 | `Library.tsx`, `SeriesView.tsx`, `ImportDialog.tsx` | Thư viện, trang series, hộp thoại nhập |
 | `Player.tsx` | Trình xem: phụ đề tra từ, lời thoại, phím tắt, lặp câu, A-B, tự dừng, Smart Resume |
 | `VocabPanel.tsx` | Điểm hiểu, danh sách từ/Kanji, tạo thẻ ôn tập |
+| `MineDialog.tsx`, `capture.ts` | Tạo thẻ từ một câu thoại, kèm ảnh cảnh phim + tiếng nhân vật |
 | `subtitles.ts` | Đọc SRT/VTT/ASS, nhận bảng mã, tìm dòng đang hiện |
 | `importer.ts` | Ghép video ↔ phụ đề, đoán số tập, lưu |
 | `media.ts` | Chọn file, nhớ file trên máy (File System Access API), mở lại video |
