@@ -50,7 +50,7 @@ export function LessonView({ bookId, number, section, onSection, onLesson, onBac
     const i = lessons.findIndex((l) => l.number === number)
     return { book, lesson, cards, prog: lesson ? byLesson.get(lesson.id) : undefined, locked, nextNo: lessons[i + 1]?.number,
       gIds: lesson ? grammarIds.get(lesson.id) ?? [] : [], files }
-  }, [bookId, number], ['textbooks', 'textbookLessons', 'srsCards', 'kv', 'textbookMedia'])
+  }, [bookId, number], ['textbooks', 'textbookLessons', 'srsCards', 'kv', 'textbookMedia', 'knownWords'])
 
   const isLocked = !!data?.locked.has(number)
   // Ghi nhớ bài đang học (cho "Học tiếp", màn Hôm nay) khi bài mở được

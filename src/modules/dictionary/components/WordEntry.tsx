@@ -14,6 +14,7 @@ import { WordBadges } from './Badges'
 import { KanjiInfo } from './KanjiInfo'
 import { ExampleSentences } from './ExampleSentences'
 import { useDictPrefs } from '../prefs'
+import { WordStatusPicker } from '@/modules/vocab/api'
 
 export function WordEntry({ r, compact = false, showKanji = true, showExamples = true }: {
   r: WordResult; compact?: boolean; showKanji?: boolean
@@ -82,13 +83,17 @@ export function WordEntry({ r, compact = false, showKanji = true, showExamples =
         </div>
       )}
 
-      <button
-        className="text-sm font-medium text-primary hover:underline disabled:opacity-60"
-        disabled={added !== null}
-        onClick={async () => setAdded(await addWordToReview(r.id, d))}
-      >
-        {added === null ? '+ Thêm vào Ôn tập' : added ? '✓ Đã thêm vào Ôn tập' : 'Từ này đã có trong Ôn tập'}
-      </button>
+      {/* Đánh dấu mức độ biết (Kho từ dùng chung): chữ trong manga/anime/giáo trình đổi màu ngay */}
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+        <WordStatusPicker word={{ w: word, r: reading, id: r.id, alt: r.matched !== word ? [r.matched] : undefined }} />
+        <button
+          className="text-sm font-medium text-primary hover:underline disabled:opacity-60"
+          disabled={added !== null}
+          onClick={async () => setAdded(await addWordToReview(r.id, d))}
+        >
+          {added === null ? '+ Thêm vào Ôn tập' : added ? '✓ Đã thêm vào Ôn tập' : 'Từ này đã có trong Ôn tập'}
+        </button>
+      </div>
     </article>
   )
 }

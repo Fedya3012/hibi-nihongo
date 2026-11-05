@@ -18,7 +18,8 @@ import {
   comprehension, comprehensionLabel, ensureAnalysis, kanjiStatus, useKnowledge, wordStatus,
   type Knowledge, type WordStatus,
 } from './analysis'
-import { getSubs, setKnownWords } from './store'
+import { getSubs } from './store'
+import { setWordStatus } from '@/modules/vocab/api'
 import type { AnimeEpisode, Cue, SubAnalysis, WordStat } from './types'
 
 const PAGE = 40
@@ -198,7 +199,11 @@ export function VocabPanel({ episode, seriesTitle, className = '' }: {
   }
 
   const markKnown = async (known: boolean) => {
-    await setKnownWords([...selected], known)
+    // Ghi vào Kho từ dùng chung → chữ trong manga, giáo trình... cũng đổi màu theo
+    await setWordStatus([...selected].map((w) => {
+      const st = byWord.get(w)
+      return { w, r: st?.r, alt: st && st.s !== w ? [st.s] : undefined }
+    }), known ? 'known' : null, 'anime')
     setMsg(known ? `Đã đánh dấu ${selected.size} từ là "Đã biết".` : `Đã bỏ đánh dấu ${selected.size} từ.`)
     setSelected(new Set())
   }
