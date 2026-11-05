@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <link rel="icon" href="/icon.svg" type="image/svg+xml" />
-    <meta name="theme-color" content="#A86F0C" />
+    <meta name="theme-color" content="#8F5E08" />
     <title>Hibi Nihongo</title>
     <!-- Đặt giao diện Sáng/Tối trước khi app tải, tránh nháy màn hình -->
     <script>
@@ -12,6 +12,14 @@
         var t = localStorage.getItem('hibi-theme') || 'system';
         var dark = t === 'dark' || (t === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
         document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+        // Màu chủ đạo người dùng đã chọn (src/core/accent.ts), gắn trước để không nháy màu cũ
+        var accent = localStorage.getItem('hibi-accent-css');
+        if (accent) {
+          var st = document.createElement('style');
+          st.id = 'hibi-accent';
+          st.textContent = accent;
+          document.head.appendChild(st);
+        }
       } catch (e) {}
     </script>
   </head>
