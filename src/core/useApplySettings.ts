@@ -1,12 +1,16 @@
 /**
- * Áp cài đặt giao diện lên trang: Sáng/Tối, cỡ chữ, furigana, tương phản cao.
+ * Áp cài đặt giao diện lên trang: Sáng/Tối, màu chủ đạo, cỡ chữ, furigana, tương phản cao.
  * Gọi một lần ở gốc app (App.tsx).
  */
 import { useEffect } from 'react'
 import { useSettings } from './settings'
+import { applyAccent } from './accent'
 
 export function useApplySettings() {
-  const { theme, fontScale, furigana, highContrast } = useSettings()
+  const { theme, fontScale, furigana, highContrast, accent, customAccent } = useSettings()
+
+  // Màu chủ đạo (tự tính bản Sáng/Tối đủ tương phản)
+  useEffect(() => { applyAccent(accent ?? 'amber', customAccent ?? '#3a8fb7') }, [accent, customAccent])
 
   useEffect(() => {
     const root = document.documentElement

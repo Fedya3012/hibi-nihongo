@@ -7,6 +7,7 @@ import { coverage, FALLBACK, LANGS, useT, type Lang } from '@/core/i18n'
 import { APP } from '@/app/strings'
 import { S as SEARCH } from '@/modules/search/strings'
 import { SET } from './strings'
+import { AccentPicker } from './AccentPicker'
 
 /** Các bảng chữ dùng chung, để tính "đã dịch bao nhiêu %". */
 const SHARED_TABLES = [SET, APP, SEARCH]
@@ -55,6 +56,11 @@ export default function SettingsPage() {
           <Segmented<ThemeChoice> label={t('theme')} value={s.theme} onChange={(theme) => s.set({ theme })}
             options={[{ value: 'system', label: t('themeSystem') }, { value: 'light', label: t('themeLight') }, { value: 'dark', label: t('themeDark') }]} />
         </Row>
+        <div className="border-b border-border py-4">
+          <p className="font-medium">{t('accent')}</p>
+          <p className="mb-3 text-sm text-muted">{t('accentHint')}</p>
+          <AccentPicker />
+        </div>
         <Row label={t('fontSize')} hint={`${Math.round(s.fontScale * 100)}%`}>
           <input type="range" min={0.8} max={2} step={0.1} value={s.fontScale} aria-label={t('fontSize')}
             onChange={(e) => s.set({ fontScale: Number(e.target.value) })} className="w-48 accent-[var(--primary)]" />
