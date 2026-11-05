@@ -72,10 +72,21 @@ hiragana/katakana, dấu cách, dấu câu), hiện đáp án đúng và giải 
 - **Kiểm tra tổng hợp**: chọn nhóm bài (mặc định nhóm 5 bài chứa bài đang học) và số câu; đề trộn bài tập đã nhập và câu từ vựng
   tự tạo. Điểm lưu trong sách (`tests`, 30 lần gần nhất), câu sai vào "Câu hay sai" của từng bài.
 
+## Ghép vào app (bước 6)
+
+- **Ctrl+K** (`search.ts`): tìm tên sách, "bài 5" / tên bài / ghi chú bài, từ vựng của bài, câu hội thoại / bài đọc,
+  câu bài tập, ghi chú và chỗ tô sáng trên file sách gốc. Bấm là mở đúng bài, đúng mục, đúng trang sách.
+- **Hôm nay** (`TodayWidget.tsx`, khối "Giáo trình"): sách đang học, % cả cuốn, nút Học tiếp bài N, các bài nên ôn lại,
+  lần kiểm tra tổng hợp gần nhất. (Thêm một dòng vào `WIDGETS` của module Hôm nay.)
+- Tab **Ghi chú** của cuốn sách (`BookNotes.tsx`): gom ghi chú bài, ghi chú từ, ghi chú ngữ pháp, ghi chú trên file sách,
+  xếp theo bài, lọc, xuất Markdown.
+- Giao diện có tiếng Anh đầy đủ; tiếng Nhật cho các nút và tiêu đề chính (phần còn lại dùng tiếng Anh).
+
 ## Đường dẫn mở thẳng
 
 `?b=minna-1` (một sách) · `?b=minna-1&l=5` (bài 5) · `?b=minna-1&l=5&s=kanji` (mục Kanji: `vocab`, `grammar`, `dialogue`,
-`listening`, `exercise`, `kanji`, `reading`) · `?b=minna-1&read=<mã file>&p=12` (đọc file sách ở trang 13).
+`listening`, `exercise`, `kanji`, `reading`) · `?b=minna-1&v=weak` (tab `weak`, `test`, `notes`) ·
+`?b=minna-1&read=<mã file>&p=12` (đọc file sách ở trang 13).
 
 ## Dữ liệu
 
@@ -102,6 +113,9 @@ hiragana/katakana, dấu cách, dấu câu), hiện đáp án đúng và giải 
 | `lib/grammar.ts` | Mẫu ngữ pháp của bài (gợi ý theo số bài hoặc danh sách bạn sửa) |
 | `sections/GrammarSection.tsx` | Mục Ngữ pháp của bài |
 | `sections/TrackSection.tsx`, `lib/tracks.ts` | Hội thoại / Luyện nghe / Đọc hiểu: nhập đoạn, audio, trình phát, đồng bộ câu |
+| `BookNotes.tsx` | Tab Ghi chú của cả cuốn |
+| `TodayWidget.tsx` | Khối Giáo trình trên màn Hôm nay |
+| `search.ts` | Nguồn tìm kiếm Ctrl+K |
 | `BookReview.tsx` | Tổng quan cả cuốn: biểu đồ, cảnh báo bài yếu, Điểm yếu, Kiểm tra tổng hợp |
 | `sections/ExerciseSection.tsx`, `lib/exercises.ts`, `lib/exstat.ts` | Bài tập: nhập, tự chấm, làm lại câu sai, lịch sử câu sai, bài từ vựng tự tạo, xuất PDF |
 | `BookFiles.tsx` | Thêm / xóa file sách gốc |

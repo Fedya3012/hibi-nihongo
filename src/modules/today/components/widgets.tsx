@@ -18,6 +18,7 @@ import { addDays, dayRange, fmtMinutes, parseDay, weekdayShort } from '../lib/da
 import { CATEGORY_SERIES, dailyMinuteRows, heatmapCells } from '../lib/chartData'
 import { SENTENCES } from '../data/sentences'
 import { BarChart, Heatmap, Legend } from './charts'
+import TextbookWidget from '@/modules/textbook/TodayWidget'
 
 export interface WidgetProps { stats: StudyStats; onOpenSettings: () => void }
 
@@ -360,6 +361,7 @@ export const WIDGETS: WidgetDef[] = [
   { id: 'week', title: '7 ngày qua', span: 2, component: WeekWidget },
   { id: 'learned', title: 'Đã học', span: 1, component: LearnedWidget },
   { id: 'heatmap', title: 'Lịch học (heatmap)', span: 3, component: HeatmapWidget },
+  { id: 'textbook', title: 'Giáo trình', span: 1, component: TextbookWidget },
 ]
 
 export const WIDGET_BY_ID = new Map(WIDGETS.map((w) => [w.id, w]))
