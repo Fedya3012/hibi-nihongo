@@ -5,9 +5,13 @@
  *   - bạn tự đánh dấu đã thuộc, hoặc
  *   - thẻ Ôn tập của nó đã qua giai đoạn học và nhớ được ít nhất 7 ngày (độ bền FSRS ≥ 7).
  * Bạn tự đánh dấu "chưa thuộc" thì luôn tính là chưa thuộc.
+ * Một mẫu ngữ pháp "đã học" khi bạn bấm "Đã hiểu" hoặc mẫu đã có trong Ôn tập (giống trang Ngữ pháp).
+ * % của bài = (từ đã thuộc + mẫu đã học) / (số từ + số mẫu).
  */
 import { getReviewCardsBySource, type SrsCard } from '@/modules/review/api'
+import { getGrammarProgress, grammarInReview, type GrammarProgress } from '@/modules/grammar/api'
 import type { Lesson, LessonWord, Textbook } from '../types'
+import { lessonGrammarIds, loadAllGrammar } from './grammar'
 
 /** Độ bền trí nhớ (ngày) tối thiểu để coi một từ là đã thuộc. */
 export const KNOWN_STABILITY = 7
@@ -34,11 +38,15 @@ export interface LessonProgress {
   inReview: number
   /** Số lần quên (lapses) cộng dồn của các thẻ trong bài: cao = bài yếu. */
   lapses: number
+  grammarTotal: number
+  grammarLearned: number
   /** 0–1. Bài đánh dấu xong = 1. */
   ratio: number
 }
 
-export function lessonProgress(l: Lesson, cards: Map<string, SrsCard>): LessonProgress {
+export interface GrammarInfo { ids: string[]; progress: GrammarProgress; inReview: Set<string> }
+
+export function lessonProgress(l: Lesson, cards: Map<string, SrsCard>, g?: GrammarInfo): LessonProgress {
   let known = 0, learning = 0, inReview = 0, lapses = 0
   for (const w of l.words) {
     const c = cards.get(sourceKey(l, w))
@@ -48,8 +56,11 @@ export function lessonProgress(l: Lesson, cards: Map<string, SrsCard>): LessonPr
     else if (s === 'learning') learning++
   }
   const total = l.words.length
-  const ratio = l.status === 'done' ? 1 : total ? known / total : 0
-  return { total, known, learning, inReview, lapses, ratio }
+  const grammarTotal = g?.ids.length ?? 0
+  const grammarLearned = g ? g.ids.filter((id) => g.progress[id]?.learned || g.inReview.has(id)).length : 0
+  const all = total + grammarTotal
+  const ratio = l.status === 'done' ? 1 : all ? (known + grammarLearned) / all : 0
+  return { total, known, learning, inReview, lapses, ratio, grammarTotal, grammarLearned }
 }
 
 export const unlockRatio = (b: Textbook) => b.unlockAt ?? 0.8
@@ -66,17 +77,29 @@ export function lockedSet(b: Textbook, lessons: Lesson[], prog: Map<string, Less
   for (const l of lessons) {
     if (!open && l.status === 'new') locked.add(l.number)
     const p = prog.get(l.id)
-    const passed = l.status === 'done' || (!!p && p.total > 0 && p.ratio >= unlockRatio(b))
+    const passed = l.status === 'done' || (!!p && p.total + p.grammarTotal > 0 && p.ratio >= unlockRatio(b))
     open = (open || l.status !== 'new') && passed
   }
   return locked
 }
 
 /** Đọc mọi thứ cần cho tiến độ một sách trong một lần (thẻ ôn đọc một lần, dùng chung). */
-export async function bookProgress(lessons: Lesson[]): Promise<{ cards: Map<string, SrsCard>; byLesson: Map<string, LessonProgress> }> {
-  const cards = await getReviewCardsBySource()
-  const byLesson = new Map(lessons.map((l) => [l.id, lessonProgress(l, cards)]))
-  return { cards, byLesson }
+export async function bookProgress(books: Textbook[], lessons: Lesson[]): Promise<{
+  cards: Map<string, SrsCard>; byLesson: Map<string, LessonProgress>; grammarIds: Map<string, string[]>
+}> {
+  const [cards, all, progress, inReview] = await Promise.all([
+    getReviewCardsBySource(), loadAllGrammar().catch(() => []), getGrammarProgress(), grammarInReview(),
+  ])
+  const bookById = new Map(books.map((b) => [b.id, b]))
+  const grammarIds = new Map<string, string[]>()
+  const byLesson = new Map<string, LessonProgress>()
+  for (const l of lessons) {
+    const b = bookById.get(l.bookId)
+    const ids = b ? lessonGrammarIds(b, l, all) : []
+    grammarIds.set(l.id, ids)
+    byLesson.set(l.id, lessonProgress(l, cards, { ids, progress, inReview }))
+  }
+  return { cards, byLesson, grammarIds }
 }
 
 /** Bài nên học tiếp: bài sau bài đang học gần nhất, hoặc bài đầu tiên chưa xong. */

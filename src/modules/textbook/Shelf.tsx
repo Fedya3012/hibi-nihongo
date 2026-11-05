@@ -14,7 +14,7 @@ export function Shelf({ onOpen }: { onOpen: (bookId: string, lesson?: number) =>
   const [adding, setAdding] = useState(false)
   const { data } = useDbQuery(async () => {
     const [books, lessons] = await Promise.all([listBooks(), getAll<Lesson>('textbookLessons')])
-    const { byLesson } = await bookProgress(lessons)
+    const { byLesson } = await bookProgress(books, lessons)
     return books.map((b) => {
       const ls = lessons.filter((l) => l.bookId === b.id).sort((x, y) => x.number - y.number)
       const locked = lockedSet(b, ls, byLesson)
@@ -23,7 +23,7 @@ export function Shelf({ onOpen }: { onOpen: (bookId: string, lesson?: number) =>
       const resume = b.lastLesson != null && !locked.has(b.lastLesson) ? b.lastLesson : nextLesson(b, ls, locked)?.number
       return { book: b, done, ratio, resume }
     })
-  }, [], ['textbooks', 'textbookLessons', 'srsCards'])
+  }, [], ['textbooks', 'textbookLessons', 'srsCards', 'kv'])
 
   return (
     <>

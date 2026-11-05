@@ -5,6 +5,7 @@
  * Nhãn (vd "minna-5") dùng để tìm / ôn riêng từng bài trong Ôn tập.
  */
 import { addReviewCards, tagReviewCards, type ReviewCardInput } from '@/modules/review/api'
+import { addGrammarCards, getGrammarPoints } from '@/modules/grammar/api'
 import type { Lesson, LessonWord, Textbook } from '../types'
 
 export const lessonTag = (b: Textbook, n: number) => `${b.tagPrefix}-${n}`
@@ -18,9 +19,14 @@ export interface LearnResult {
   added: number // thẻ mới
   tagged: number // từ đã có thẻ, được gắn thêm nhãn bài
   skipped: string[] // từ chưa có nghĩa nào (cả tiếng Việt lẫn gợi ý tiếng Anh) nên chưa tạo thẻ
+  grammar: number // thẻ ngữ pháp mới
 }
 
-export async function learnLesson(b: Textbook, l: Lesson): Promise<LearnResult> {
+/**
+ * Đưa cả bài vào Ôn tập: từ vựng (như trên) + các mẫu ngữ pháp của bài.
+ * Thẻ ngữ pháp do module Ngữ pháp tạo (bộ "Ngữ pháp N5"…), giáo trình chỉ gắn thêm nhãn bài.
+ */
+export async function learnLesson(b: Textbook, l: Lesson, grammarIds: string[] = []): Promise<LearnResult> {
   const tag = lessonTag(b, l.number)
   const key = (s: { module: string; ref: string }) => `${s.module}:${s.ref}`
   const have = await tagReviewCards(l.words.map((w) => sourceOf(l, w)), tag)
@@ -38,5 +44,10 @@ export async function learnLesson(b: Textbook, l: Lesson): Promise<LearnResult> 
     })
   }
   const added = inputs.length ? await addReviewCards(inputs) : 0
-  return { added, tagged: have.size, skipped }
+  let grammar = 0
+  if (grammarIds.length) {
+    grammar = await addGrammarCards(await getGrammarPoints(grammarIds))
+    await tagReviewCards(grammarIds.map((id) => ({ module: 'grammar', ref: id })), tag)
+  }
+  return { added, tagged: have.size, skipped, grammar }
 }

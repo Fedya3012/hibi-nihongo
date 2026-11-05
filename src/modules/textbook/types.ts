@@ -55,6 +55,13 @@ export interface LessonWord {
   note?: string
 }
 
+/** Ghi chú và ví dụ riêng cho một mẫu ngữ pháp trong bài. */
+export interface GrammarExtra {
+  note?: string
+  /** Ví dụ trong sách: [câu tiếng Nhật, nghĩa]. */
+  examples?: [string, string][]
+}
+
 /** Một bài của giáo trình. Bảng `textbookLessons`, khóa `${bookId}:${number}`. */
 export interface Lesson {
   id: string
@@ -66,6 +73,8 @@ export interface Lesson {
   notes?: string
   /** Mã mẫu ngữ pháp của bài (module Ngữ pháp). Không có = tự lấy theo số bài của sách. */
   grammarIds?: string[]
+  /** Phần riêng của bạn cho từng mẫu ngữ pháp trong bài: ghi chú, ví dụ chép từ sách. Khóa = mã mẫu. */
+  grammarExtra?: Record<string, GrammarExtra>
   /** Kanji thêm tay (ngoài các chữ tự rút ra từ từ vựng). */
   kanjiExtra?: string
   updatedAt: number
