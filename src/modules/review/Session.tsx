@@ -17,6 +17,7 @@ import { choiceOptions, clozeAnswers, pickQuestion, QUESTION_LABEL } from './que
 import {
   buryCard, rateCard, restoreSnapshot, setSuspended, undoRating, type CardSnapshot, type UndoEntry,
 } from './store'
+import { hasMedia, useCardMedia } from './media'
 import { AnswerDetails, Example, Front, frontSize, kindLabel, playCardAudio, speakJa } from './CardFace'
 import type { QuestionType, Rating, ReviewSettings, SrsCard } from './types'
 import { actionFor, comboOf, formatCombo, hasModifier, keysFor, useKeymap } from '@/modules/shortcuts/keymap'
@@ -110,6 +111,8 @@ export function Session({
   const [now, setNow] = useState(() => Date.now())
   const [timeUp, setTimeUp] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // Ảnh/tiếng của thẻ nằm ở bảng riêng (media.ts): đọc khi thẻ hiện lên
+  const shown = useCardMedia(current?.card)
 
   // Đồng hồ cho chế độ ôn nhanh
   useEffect(() => {
@@ -256,7 +259,7 @@ export function Session({
       if (inInput) return // trong ô gõ: Enter do form tự xử lý
       if (id === 'review.bury') { void putAway('bury'); return }
       if (id === 'review.suspend') { void putAway('suspend'); return }
-      if (id === 'review.replay' && current && revealed && current.card.audio) { playCardAudio(current.card.audio); return }
+      if (id === 'review.replay' && current && revealed && shown?.audio) { playCardAudio(shown.audio); return }
       if (id === 'review.replay' && current) { speakJa(revealed && current.card.example && current.question === 'cloze' ? current.card.example : current.card.front); return }
       if (!revealed) {
         if (id === 'review.reveal') { e.preventDefault(); reveal(); return }
@@ -272,7 +275,7 @@ export function Session({
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [revealed, reveal, rate, undo, onExit, current, suggested, putAway, menu])
+  }, [revealed, reveal, rate, undo, onExit, current, shown, suggested, putAway, menu])
 
   // Vuốt thẻ
   const drag = useRef<{ x: number; y: number; id: number; long: boolean } | null>(null)
@@ -355,7 +358,8 @@ export function Session({
     )
   }
 
-  const { card, question } = current
+  const { question } = current
+  const card = shown ?? current.card
   const selfGraded = question === 'recognize' || question === 'recall'
 
   return (
@@ -418,13 +422,15 @@ export function Session({
         {/* ----- Câu hỏi ----- */}
         {!revealed && (
           <div className="flex min-h-56 flex-col items-center justify-center gap-4 text-center">
-            {question === 'recognize' && card.frontImage && (
+            {question === 'recognize' && hasMedia(card, 'frontImage') && (
               <>
-                <img src={card.frontImage} alt="Ảnh câu hỏi: đoán phần bị che" className="max-h-64 rounded-xl border border-border object-contain md:max-h-80" />
+                {card.frontImage
+                  ? <img src={card.frontImage} alt="Ảnh câu hỏi: đoán phần bị che" className="max-h-64 rounded-xl border border-border object-contain md:max-h-80" />
+                  : <div className="grid h-48 w-full max-w-sm place-items-center rounded-xl border border-border text-sm text-muted">Đang tải ảnh…</div>}
                 <p className="text-sm text-muted">Phần bị che nói gì? Nghĩ trong đầu rồi chạm vào thẻ hoặc bấm Space.</p>
               </>
             )}
-            {question === 'recognize' && !card.frontImage && (
+            {question === 'recognize' && !hasMedia(card, 'frontImage') && (
               <>
                 <Front card={card} withReading={false} className={`${frontSize(card.front)} font-semibold`} />
                 <p className="text-sm text-muted">Nghĩa là gì? Chạm vào thẻ hoặc bấm Space để xem đáp án.</p>

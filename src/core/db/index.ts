@@ -3,7 +3,10 @@
  * Mọi module chỉ import từ '@/core/db', không import thẳng từng file bên trong.
  * Hướng dẫn dùng chi tiết: src/core/db/README.md
  */
-export { STORES, DB_NAME, DB_VERSION, type StoreName, type Migration } from './schema'
+export {
+  STORES, DB_NAME, DB_VERSION, type StoreName, type Migration,
+  splitCardMedia, MEDIA_FIELDS, type MediaField, type CardMediaRecord,
+} from './schema'
 export {
   openDb, transaction, promisify,
   get, getAll, getAllByIndex, count, put, putMany, remove, clear,
@@ -18,5 +21,12 @@ export {
   type PackItem, type PackFileItem, type InstalledPack, type PackFull, type PackPatch,
   type PackManifest, type ManifestPack, type RemoteFile, type UpdatePlanItem, type Progress,
 } from './content'
-export { createBackup, downloadBackup, restoreBackup, lastBackupAt, markBackedUp, type BackupFile } from './backup'
+export {
+  createBackup, createBackupZip, downloadBackup, restoreBackup, inspectBackup, lastBackupAt, markBackedUp, saveBlob,
+  getRestoreSnapshot, undoLastRestore, deleteRestoreSnapshot, downloadRestoreSnapshot, SafetySnapshotError,
+  deviceId, lastLocalChangeAt,
+  type BackupFile, type BackupManifest, type BackupSummary, type BuiltBackup, type RestoreResult, type RestoreSnapshotInfo,
+} from './backup'
 export { requestPersistentStorage, getStorageInfo, formatBytes, type StorageInfo } from './storage'
+export { isQuotaError, reportQuotaError, onQuotaError, lastQuotaErrorAt, QUOTA_MESSAGE } from './quota'
+export { STORE_LABELS } from './labels'

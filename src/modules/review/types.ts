@@ -46,9 +46,14 @@ export interface SrsCard extends Schedule {
   example?: string
   exampleMeaning?: string
   notes?: string
-  /** Ảnh minh họa (vd ảnh panel manga), lưu dạng data URL JPEG để sao lưu được cùng file .json. */
+  /**
+   * Có ảnh / tiếng không. Bản thân ảnh, tiếng nằm ở bảng srsMedia (xem media.ts) và chỉ có trong
+   * thẻ sau khi đọc kèm bằng withMedia() / useCardMedia(). Thẻ đọc thẳng từ srsCards không có 3 trường dưới.
+   */
+  media?: { image?: boolean; audio?: boolean; frontImage?: boolean }
+  /** Ảnh minh họa (vd ảnh panel manga), dạng data URL JPEG. */
   image?: string
-  /** Tiếng nói gốc (vd đoạn thoại cắt từ anime), lưu dạng data URL (webm/opus hoặc mp4) để sao lưu được. */
+  /** Tiếng nói gốc (vd đoạn thoại cắt từ anime), dạng data URL (webm/opus hoặc mp4). */
   audio?: string
   /** Ảnh hiện ở MẶT HỎI thay cho chữ (vd panel manga đã che chữ để đoán: "image occlusion"). */
   frontImage?: string

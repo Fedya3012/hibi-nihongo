@@ -132,6 +132,7 @@ export default function AutoBackupPage() {
               {s.desktopDir != null && <Button variant="ghost" onClick={() => save({ desktopDir: null })}>{t('useDefault')}</Button>}
             </div>
             <p className="mt-3 text-sm text-muted">{t('cloudTip')}</p>
+            <p className="mt-2 text-sm text-muted">{t('syncTip')}</p>
           </>
         )}
         {where === 'folder' && (
@@ -145,6 +146,7 @@ export default function AutoBackupPage() {
               {dir && <Button variant="ghost" onClick={async () => { await folder.forget(); void reload() }}>{t('forget')}</Button>}
             </div>
             <p className="mt-3 text-sm text-muted">{t('cloudTip')}</p>
+            <p className="mt-2 text-sm text-muted">{t('syncTip')}</p>
           </>
         )}
         {where === 'download' && <p className="mt-1 text-sm text-muted">{t('whereDownload')}</p>}

@@ -4,10 +4,10 @@
  */
 import { useRef, useState } from 'react'
 import { Card } from '@/design/components/Card'
-import { Button } from '@/design/components/Button'
+import { Button, ButtonLink } from '@/design/components/Button'
 import { useDbQuery } from './useDbQuery'
 import { getStorageInfo, formatBytes } from './storage'
-import { downloadBackup, restoreBackup, lastBackupAt } from './backup'
+import { BackupSection } from './BackupSection'
 import {
   listPacks, removePack, installPackFile, fetchManifest, planUpdates, runUpdates,
   type UpdatePlanItem, type Progress,
@@ -16,16 +16,12 @@ import {
 type Notice = { kind: 'good' | 'bad' | 'info'; text: string } | null
 
 const errText = (e: unknown) => (e instanceof Error ? e.message : String(e))
-const dateText = (t: number) => new Date(t).toLocaleString('vi-VN', { dateStyle: 'medium', timeStyle: 'short' })
 
 export function DataPanel() {
   const [notice, setNotice] = useState<Notice>(null)
   const [busy, setBusy] = useState(false)
-  const [confirmRestore, setConfirmRestore] = useState<File | null>(null)
   const [plan, setPlan] = useState<UpdatePlanItem[] | null>(null)
   const [progress, setProgress] = useState<Progress | null>(null)
-  const [lastBackup, setLastBackup] = useState(lastBackupAt)
-  const restoreInput = useRef<HTMLInputElement>(null)
   const packInput = useRef<HTMLInputElement>(null)
 
   const { data: storage } = useDbQuery(getStorageInfo, [busy], ['kv', 'packItems'])
@@ -44,18 +40,6 @@ export function DataPanel() {
       setProgress(null)
     }
   }
-
-  const backup = () => run(async () => {
-    await downloadBackup()
-    setLastBackup(lastBackupAt())
-    return 'Đã tạo file sao lưu. Hãy cất file này ở nơi an toàn (USB, Google Drive...).'
-  })
-
-  const restore = (file: File) => run(async () => {
-    setConfirmRestore(null)
-    const { records } = await restoreBackup(file)
-    return `Đã khôi phục ${records.toLocaleString('vi-VN')} mục dữ liệu.`
-  })
 
   const checkUpdates = () => run(async () => {
     const p = await planUpdates(await fetchManifest(), { includeNew: true })
@@ -97,30 +81,10 @@ export function DataPanel() {
             Mẹo: cài app (biểu tượng ⊕ trên thanh địa chỉ) để trình duyệt không tự xóa dữ liệu khi máy đầy ổ.
           </p>
         )}
+        <ButtonLink to="/storage" variant="ghost" className="mt-2 min-h-9 text-sm">Xem từng phần chiếm bao nhiêu, dọn dẹp →</ButtonLink>
       </div>
 
-      {/* Sao lưu & khôi phục */}
-      <div className="mt-5 border-t border-border pt-4">
-        <p className="font-medium">Sao lưu</p>
-        <p className="text-sm text-muted">
-          {lastBackup ? `Lần sao lưu gần nhất: ${dateText(lastBackup)}` : 'Bạn chưa sao lưu lần nào.'}
-        </p>
-        <div className="mt-3 flex flex-wrap gap-2">
-          <Button onClick={backup} disabled={busy}>Tạo file sao lưu</Button>
-          <Button variant="soft" onClick={() => restoreInput.current?.click()} disabled={busy}>Khôi phục từ file</Button>
-          <input ref={restoreInput} type="file" accept=".json,application/json" hidden
-            onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ''; if (f) setConfirmRestore(f) }} />
-        </div>
-        {confirmRestore && (
-          <div className="mt-3 rounded-xl border border-border bg-surface-2 p-3 text-sm">
-            <p>Khôi phục từ <b>{confirmRestore.name}</b> sẽ <b>thay thế toàn bộ</b> dữ liệu học hiện tại trên máy. Tiếp tục?</p>
-            <div className="mt-2 flex gap-2">
-              <Button onClick={() => restore(confirmRestore)} disabled={busy}>Khôi phục</Button>
-              <Button variant="ghost" onClick={() => setConfirmRestore(null)}>Hủy</Button>
-            </div>
-          </div>
-        )}
-      </div>
+      <BackupSection />
 
       {/* Gói nội dung */}
       <div className="mt-5 border-t border-border pt-4">

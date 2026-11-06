@@ -3,6 +3,7 @@
  */
 import { useEffect } from 'react'
 import type { SrsCard } from './types'
+import { useCardMedia } from './media'
 
 const hasKanji = (s: string) => /[一-鿿々]/.test(s)
 
@@ -106,7 +107,8 @@ const KIND_LABEL = { vocab: 'Từ vựng', kanji: 'Kanji', grammar: 'Ngữ pháp
 export const kindLabel = (k: SrsCard['kind']) => KIND_LABEL[k]
 
 /** Toàn bộ đáp án, hiện sau khi lật thẻ. */
-export function AnswerDetails({ card }: { card: SrsCard }) {
+export function AnswerDetails({ card: light }: { card: SrsCard }) {
+  const card = useCardMedia(light) // ảnh/tiếng nằm ở bảng riêng, đọc khi lật thẻ
   return (
     <div className="space-y-3 text-center">
       <div>

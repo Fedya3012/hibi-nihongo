@@ -13,6 +13,7 @@ import {
   restoreSnapshot, setSuspended, unburyCard, updateCardContent, type CardSnapshot, type NewCardInput,
 } from './store'
 import { kindLabel } from './CardFace'
+import { hasMedia, useCardMedia, withMedia } from './media'
 import { CardState, type CardKind, type SrsCard } from './types'
 import { AnkiPanel } from './anki/AnkiPanel'
 
@@ -84,7 +85,7 @@ export function CardsTab({ initialQuery = '' }: { initialQuery?: string }) {
       {mode === 'add' && <AddCard decks={decks} />}
       {mode === 'import' && <ImportCards decks={decks} onDone={() => setMode('list')} />}
       {mode === 'anki' && <AnkiPanel decks={decks} />}
-      {mode === 'list' && <CardList cards={cards ?? []} decks={decks} onEdit={setEditing} track={track} initialQuery={initialQuery} />}
+      {mode === 'list' && <CardList cards={cards ?? []} decks={decks} onEdit={(c) => void withMedia(c).then(setEditing)} track={track} initialQuery={initialQuery} />}
       {undoBar}
     </div>
   )
@@ -163,6 +164,14 @@ function CardForm({
       </form>
     </Card>
   )
+}
+
+/** Ảnh nhỏ trong danh sách thẻ: ảnh nằm ở bảng riêng nên đọc khi dòng đó hiện ra. */
+function Thumb({ card }: { card: SrsCard }) {
+  const full = useCardMedia(card)
+  return full.image
+    ? <img src={full.image} alt="" className="size-12 shrink-0 rounded-lg border border-border object-cover" />
+    : <span aria-hidden className="size-12 shrink-0 rounded-lg border border-border bg-surface-2" />
 }
 
 /** Chọn ảnh từ máy, hoặc dán ảnh (Ctrl+V) vào ô. Ảnh được nén nhỏ trước khi lưu. */
@@ -274,7 +283,7 @@ function matchFilter(c: SrsCard, f: Filter, now: number) {
     case 'leech': return isLeech(c)
     case 'suspended': return !!c.suspended
     case 'buried': return isBuried(c, now)
-    case 'image': return !!c.image
+    case 'image': return hasMedia(c, 'image')
   }
 }
 
@@ -324,7 +333,7 @@ function CardList({
           return (
             <li key={c.id} className={`border-t border-border px-4 py-3 ${c.suspended ? 'opacity-60' : ''}`}>
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                {c.image && <img src={c.image} alt="" className="size-12 shrink-0 rounded-lg border border-border object-cover" />}
+                {hasMedia(c, 'image') && <Thumb card={c} />}
                 <div className="min-w-0 flex-1">
                   <p className="truncate">
                     <span className="jp text-lg font-medium">{c.front}</span>

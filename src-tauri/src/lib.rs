@@ -15,6 +15,8 @@ pub fn run() {
             backup::backup_list,
             backup::backup_prune,
             backup::backup_read,
+            backup::backup_write_bin,
+            backup::backup_read_bin,
         ])
         .run(tauri::generate_context!())
         .expect("Không mở được Hibi Nihongo");

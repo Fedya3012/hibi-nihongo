@@ -13,6 +13,7 @@ import { DAY } from '../fsrs'
 import { CardState, type SrsCard, type SrsLog } from '../types'
 import { getSql } from './sqlite'
 import { difficultyToFactor, HIBI_FIELDS, HIBI_NOTE_TYPE } from './convert'
+import { withMedia } from '../media'
 
 export interface ExportOptions {
   includeProgress: boolean
@@ -143,7 +144,9 @@ export async function exportApkg(cards: SrsCard[], logs: SrsLog[], opts: ExportO
   const insCard = db.prepare('INSERT INTO cards VALUES (?, ?, ?, 0, ?, -1, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, 0, ?)')
   db.exec('BEGIN')
   let pos = 0
-  for (const [i, c] of cards.entries()) {
+  for (const [i, light] of cards.entries()) {
+    // Ảnh/tiếng nằm ở bảng riêng: chỉ đọc khi cần xuất
+    const c = (opts.includeImages || opts.includeAudio) && light.media ? await withMedia(light) : light
     const id = now + i // id của ghi chú và thẻ là mốc thời gian (ms), phải khác nhau
     cardIds.set(c.id, id)
     // Mỗi file media: trong ZIP tên là "0", "1", …; file "media" ghi tên thật của chúng
