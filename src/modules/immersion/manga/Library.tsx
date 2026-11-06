@@ -1,26 +1,33 @@
 /** THƯ VIỆN MANGA: "Tiếp tục đọc", tìm kiếm trong mọi manga, yêu thích, lọc đang đọc/đã đọc. */
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { Card } from '@/design/components/Card'
 import { Button } from '@/design/components/Button'
 import { Segmented } from '@/design/components/Segmented'
-import { formatBytes, getStorageInfo, useDbQuery } from '@/core/db'
+import { formatBytes, getAll, getStorageInfo, useDbQuery } from '@/core/db'
+import type { SrsCard } from '@/modules/review/api'
 import { listAllChapters, listSeries, updateSeries } from './store'
 import { listAllNotes, normalizeSearch } from './notes'
 import { getMangaResume } from './api'
 import { chapterLabel } from './naming'
 import { ImportDialog } from './ImportDialog'
 import { Cover, ProgressBar } from './ui'
-import type { MangaChapter } from './types'
+import { isMangaCard, loadMangaStats, seriesStatus, suggestSeries, type Suggestion } from './stats'
+import { reviewPathForTags, seriesTags } from './study/mining'
+import { SFX_TAG, SLANG_TAG } from './study/sfx-data'
+import { LEVEL_LABEL, type MangaChapter, type MangaSeries, type SeriesLevel } from './types'
 
-type Filter = 'all' | 'reading' | 'fav' | 'done'
+type Filter = 'all' | 'reading' | 'want' | 'fav' | 'done'
 
-export function Library({ openSeries, openReader }: {
+export function Library({ openSeries, openReader, openSfx }: {
   openSeries: (id: string) => void
   openReader: (chapterId: string, page?: number) => void
+  openSfx: () => void
 }) {
   const [importing, setImporting] = useState(false)
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState<Filter>('all')
+  const [level, setLevel] = useState<SeriesLevel | 0>(0)
   const { data } = useDbQuery(async () => {
     const [series, chapters, resume] = await Promise.all([listSeries(), listAllChapters(), getMangaResume()])
     const bySeries = new Map<string, MangaChapter[]>()
@@ -29,6 +36,9 @@ export function Library({ openSeries, openReader }: {
   }, [], ['mangaSeries', 'mangaChapters'])
   const { data: notes = [] } = useDbQuery(listAllNotes, [], ['mangaNotes'])
   const { data: storage } = useDbQuery(getStorageInfo, [], ['mangaBlobs'])
+  const { data: stats } = useDbQuery(() => loadMangaStats(), [], ['mangaChapters', 'mangaNotes', 'srsCards'])
+  // Thẻ Ôn tập đã lưu từ manga (để tìm kiếm trong thẻ)
+  const { data: cards = [] } = useDbQuery(async () => (await getAll<SrsCard>('srsCards')).filter(isMangaCard), [], ['srsCards'])
 
   const series = data?.series ?? []
   const resume = data?.resume
@@ -36,10 +46,10 @@ export function Library({ openSeries, openReader }: {
   const shown = series
     .filter((s) => {
       const chs = data?.bySeries.get(s.id) ?? []
+      if (level && s.level !== level) return false
       if (filter === 'fav') return s.favorite
-      if (filter === 'done') return chs.length > 0 && chs.every((c) => c.finishedAt)
-      if (filter === 'reading') return chs.some((c) => c.lastReadAt) && !chs.every((c) => c.finishedAt)
-      return true
+      if (filter === 'all') return true
+      return seriesStatus(s, chs) === filter
     })
     .sort((a, b) => Number(!!b.favorite) - Number(!!a.favorite))
 
@@ -71,8 +81,16 @@ export function Library({ openSeries, openReader }: {
         go: () => openReader(c.id, n.page),
       })
     }
-    return out.slice(0, 80)
-  }, [query, data, notes, openSeries, openReader])
+    // Thẻ đã lưu vào Ôn tập (câu, từ, tượng thanh, khẩu ngữ)
+    for (const c of cards) {
+      if (!normalizeSearch(`${c.front} ${c.reading ?? ''} ${c.meaning} ${c.example ?? ''}`).includes(q)) continue
+      out.push({
+        key: `card-${c.id}`, title: c.deck, sub: 'Thẻ đã lưu', text: `${c.front}　${c.meaning.split('\n')[0]}`,
+        go: () => { window.location.hash = `#/review?tab=cards&q=${encodeURIComponent(c.front)}` },
+      })
+    }
+    return out.slice(0, 100)
+  }, [query, data, notes, cards, openSeries, openReader])
 
   return (
     <div className="grid gap-6">
@@ -81,7 +99,10 @@ export function Library({ openSeries, openReader }: {
           <h1 className="text-2xl font-bold">Đọc manga</h1>
           <p className="text-sm text-muted">Đọc manga tiếng Nhật từ file của bạn. Nhớ trang đang đọc cho từng chương.</p>
         </div>
-        <Button onClick={() => setImporting(true)}>+ Thêm manga</Button>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="soft" onClick={openSfx}>💥 Tượng thanh & khẩu ngữ</Button>
+          <Button onClick={() => setImporting(true)}>+ Thêm manga</Button>
+        </div>
       </div>
 
       {resume && !query && (
@@ -97,6 +118,12 @@ export function Library({ openSeries, openReader }: {
         </Card>
       )}
 
+      {stats && series.length > 0 && !query && <StatsRow stats={stats} />}
+
+      {series.length > 0 && !query && <Suggestions openSeries={openSeries} />}
+
+      {series.length > 0 && !query && <ReviewPicker series={series} cards={cards} />}
+
       {series.length > 0 && (
         <div className="flex flex-wrap items-center gap-3">
           <input type="search" value={query} onChange={(e) => setQuery(e.target.value)} aria-label="Tìm trong manga"
@@ -104,7 +131,14 @@ export function Library({ openSeries, openReader }: {
             className="min-h-10 min-w-0 flex-1 rounded-xl border border-border bg-surface px-4 text-sm outline-none focus:border-primary sm:max-w-md" />
           {!query && (
             <Segmented<Filter> label="Lọc" value={filter} onChange={setFilter}
-              options={[{ value: 'all', label: 'Tất cả' }, { value: 'reading', label: 'Đang đọc' }, { value: 'fav', label: '★ Yêu thích' }, { value: 'done', label: 'Đã đọc' }]} />
+              options={[{ value: 'all', label: 'Tất cả' }, { value: 'reading', label: 'Đang đọc' }, { value: 'want', label: 'Muốn đọc' }, { value: 'done', label: 'Đã xong' }, { value: 'fav', label: '★' }]} />
+          )}
+          {!query && (
+            <select value={level} onChange={(e) => setLevel(Number(e.target.value) as SeriesLevel | 0)} aria-label="Lọc theo độ khó"
+              className="min-h-10 rounded-xl border border-border bg-surface px-2 text-sm">
+              <option value={0}>Mọi độ khó</option>
+              {([5, 4, 3, 2, 1] as SeriesLevel[]).map((k) => <option key={k} value={k}>{LEVEL_LABEL[k]}</option>)}
+            </select>
           )}
         </div>
       )}
@@ -151,7 +185,10 @@ export function Library({ openSeries, openReader }: {
                     className="aspect-[2/3] w-full rounded-card border border-border transition group-hover:border-primary" />
                   <h3 className="mt-2 truncate font-semibold">{s.title}</h3>
                   {s.titleJp && <p className="jp truncate text-sm leading-normal text-muted">{s.titleJp}</p>}
-                  <p className="text-xs text-muted">{chs.length} chương · đã đọc {read}</p>
+                  <p className="text-xs text-muted">
+                    {chs.length} chương · đã đọc {read}{s.level ? ` · N${s.level}` : ''}
+                    {seriesStatus(s, chs) === 'want' ? ' · Muốn đọc' : ''}
+                  </p>
                   {chs.length > 0 && <ProgressBar className="mt-1 w-full" value={read / chs.length} />}
                 </button>
                 <button onClick={() => updateSeries(s.id, { favorite: !s.favorite })}
@@ -177,5 +214,110 @@ export function Library({ openSeries, openReader }: {
         <ImportDialog onClose={() => setImporting(false)} onDone={(id) => { setImporting(false); openSeries(id) }} />
       )}
     </div>
+  )
+}
+
+function Stat({ n, label }: { n: number; label: string }) {
+  return (
+    <div className="rounded-card border border-border bg-surface px-4 py-3">
+      <p className="text-2xl font-bold">{n.toLocaleString('vi-VN')}</p>
+      <p className="text-xs text-muted">{label}</p>
+    </div>
+  )
+}
+
+/** Thống kê tổng: trang đã đọc, câu và từ đã học qua manga. */
+function StatsRow({ stats }: { stats: Awaited<ReturnType<typeof loadMangaStats>> }) {
+  return (
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <Stat n={stats.pages} label="trang đã đọc" />
+      <Stat n={stats.chaptersDone} label="chương đã đọc xong" />
+      <Stat n={stats.sentencesSaved} label="câu đã lưu vào Ôn tập" />
+      <Stat n={stats.cardsLearned} label={`thẻ từ manga đã thuộc (trên ${stats.cards} thẻ)`} />
+    </div>
+  )
+}
+
+/** Gợi ý bộ nên đọc tiếp, theo vốn từ (kho từ đã biết) và cấp độ. */
+function Suggestions({ openSeries }: { openSeries: (id: string) => void }) {
+  const [list, setList] = useState<Suggestion[]>()
+  useEffect(() => { let alive = true; suggestSeries().then((l) => alive && setList(l), () => alive && setList([])); return () => { alive = false } }, [])
+  if (!list?.length) return null
+  return (
+    <Card className="grid gap-2">
+      <h2 className="font-semibold">Gợi ý cho bạn</h2>
+      <ul className="grid gap-1">
+        {list.map((sg) => (
+          <li key={sg.series.id}>
+            <button onClick={() => openSeries(sg.series.id)} className="flex w-full items-center gap-3 rounded-xl px-2 py-2 text-left hover:bg-surface-2">
+              <span className="min-w-0 flex-1">
+                <span className="font-medium">{sg.series.title}</span>
+                {sg.series.level && <span className="ml-2 rounded bg-surface-2 px-1.5 text-xs">N{sg.series.level}</span>}
+                <span className="block text-xs text-muted">{sg.reason}</span>
+              </span>
+              {sg.coverage != null && (
+                <span className="shrink-0 text-right">
+                  <span className="block text-lg font-semibold">{Math.round(sg.coverage * 100)}%</span>
+                  <span className="block text-xs text-muted">từ đã biết</span>
+                </span>
+              )}
+            </button>
+          </li>
+        ))}
+      </ul>
+      <p className="text-xs text-muted">Tính từ lời thoại bạn đã thêm, so với kho từ đã biết; và độ khó bạn đặt cho từng bộ (trong trang series).</p>
+    </Card>
+  )
+}
+
+/** Ôn tập chỉ thẻ của manga: một bộ, nhiều bộ cùng lúc, hoặc một nhóm (tượng thanh, khẩu ngữ, che chữ). */
+function ReviewPicker({ series, cards }: { series: MangaSeries[]; cards: SrsCard[] }) {
+  const [picked, setPicked] = useState<Set<string>>(new Set())
+  const countFor = (s: MangaSeries) => {
+    const tags = new Set(seriesTags(s.title))
+    return cards.filter((c) => c.deck === `Manga: ${s.title}` || c.tags?.some((t) => tags.has(t))).length
+  }
+  const withCards = series.map((s) => ({ s, n: countFor(s) })).filter((x) => x.n > 0)
+  const groups = [
+    { tag: SFX_TAG, label: '💥 Tượng thanh' },
+    { tag: SLANG_TAG, label: '🗣 Khẩu ngữ' },
+    { tag: 'che-chu', label: '🙈 Thẻ che chữ' },
+  ].map((g) => ({ ...g, n: cards.filter((c) => c.tags?.includes(g.tag)).length })).filter((g) => g.n > 0)
+  if (!cards.length) return null
+  const tags = [...picked].flatMap((id) => {
+    const s = series.find((x) => x.id === id)
+    if (s) return seriesTags(s.title)
+    return [id]
+  })
+  return (
+    <Card className="grid gap-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <h2 className="font-semibold">Ôn tập từ manga</h2>
+        <span className="text-sm text-muted">{cards.length} thẻ</span>
+        <Link to="/review?tab=cards" className="ml-auto text-xs text-primary underline" title="Tab Thẻ → Anki → Xuất, bật Kèm ảnh">Xuất Anki kèm ảnh khung tranh</Link>
+      </div>
+      <p className="text-sm text-muted">Chọn một hoặc nhiều bộ (hoặc nhóm), rồi bấm Ôn. Không chọn gì = ôn mọi thẻ từ manga.</p>
+      <div className="flex flex-wrap gap-2">
+        {withCards.map(({ s, n }) => <Chip key={s.id} on={picked.has(s.id)} onClick={() => setPicked(toggle(picked, s.id))}>{s.title} · {n}</Chip>)}
+        {groups.map((g) => <Chip key={g.tag} on={picked.has(g.tag)} onClick={() => setPicked(toggle(picked, g.tag))}>{g.label} · {g.n}</Chip>)}
+      </div>
+      <div>
+        <Link to={reviewPathForTags(tags.length ? tags : ['manga'])}
+          className="inline-flex min-h-10 items-center rounded-xl bg-primary px-4 text-sm font-medium text-on-primary">
+          Ôn {picked.size ? `${picked.size} mục đã chọn` : 'tất cả thẻ manga'}
+        </Link>
+      </div>
+    </Card>
+  )
+}
+
+const toggle = (set: Set<string>, id: string) => { const n = new Set(set); if (n.has(id)) n.delete(id); else n.add(id); return n }
+
+function Chip({ on, onClick, children }: { on: boolean; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button type="button" aria-pressed={on} onClick={onClick}
+      className={`min-h-9 rounded-full border px-3 text-sm ${on ? 'border-primary bg-primary-soft' : 'border-border text-muted hover:text-text'}`}>
+      {on ? '✓ ' : ''}{children}
+    </button>
   )
 }

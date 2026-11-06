@@ -6,15 +6,19 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Button } from '@/design/components/Button'
 import { getKanjiList, type KanjiData } from '@/modules/dictionary'
 import { saveNote } from '../notes'
+import { maskedPanel, cropPanel } from './mining'
 import { speakJa, stopSpeaking, useJaVoice } from './audio'
 import { downloadCsv, getLookupHistory, sourceLabel, wordsOf, type LookupEntry, type WordInfo } from './mining'
 import { Small } from './BubbleCard'
-import type { MangaBookmark, MangaBubble, MangaChapter, MangaSeries } from '../types'
+import type { MangaBookmark, MangaBubble, MangaChapter, MangaPin, MangaSeries } from '../types'
 
 // ---------- Bong bóng ----------
 
-export function BubblesTab({ bubbles, page, onOpen, onGo, rate }: {
+type BubbleFilter = { speaker?: string; mark?: 'good' | 'hard' | 'mined' }
+
+export function BubblesTab({ bubbles: allBubbles, series, page, onOpen, onGo, rate }: {
   bubbles: MangaBubble[]
+  series?: MangaSeries
   page: number
   onOpen: (b: MangaBubble) => void
   onGo: (page: number, highlight?: string) => void
@@ -22,22 +26,32 @@ export function BubblesTab({ bubbles, page, onOpen, onGo, rate }: {
 }) {
   const voice = useJaVoice()
   const [playing, setPlaying] = useState(false)
+  const [filter, setFilter] = useState<BubbleFilter>({})
   const stopRef = useRef(false)
   useEffect(() => () => { stopRef.current = true; stopSpeaking() }, [])
+  // Lọc lời thoại theo nhân vật / đánh dấu
+  const speakers = useMemo(() => {
+    const m = new Map<string, number>()
+    for (const b of allBubbles) if (b.speaker) m.set(b.speaker, (m.get(b.speaker) ?? 0) + 1)
+    return [...m.entries()].sort((a, b) => b[1] - a[1])
+  }, [allBubbles])
+  const bubbles = allBubbles.filter((b) => (!filter.speaker || (filter.speaker === '?' ? !b.speaker : b.speaker === filter.speaker))
+    && (!filter.mark || (filter.mark === 'mined' ? !!b.minedAt : b.mark === filter.mark)))
+  const voiceOf = (b: MangaBubble) => series?.characters?.find((c) => c.name === b.speaker)?.voice ?? 'auto'
 
   const playFrom = async (startIdx: number) => {
     stopRef.current = false
     setPlaying(true)
     for (let i = startIdx; i < bubbles.length && !stopRef.current; i++) {
       onGo(bubbles[i].page, bubbles[i].id)
-      await speakJa(bubbles[i].text, rate)
+      await speakJa(bubbles[i].text, rate, voiceOf(bubbles[i]))
       await new Promise((r) => setTimeout(r, 500))
     }
     setPlaying(false)
     onGo(bubbles[Math.min(bubbles.length - 1, startIdx)]?.page ?? page)
   }
 
-  if (!bubbles.length) {
+  if (!allBubbles.length) {
     return (
       <div className="grid gap-2 text-sm text-muted">
         <p>Chương này chưa có bong bóng nào có chữ.</p>
@@ -53,12 +67,24 @@ export function BubblesTab({ bubbles, page, onOpen, onGo, rate }: {
           ? <Button className="min-h-9" onClick={() => { stopRef.current = true; stopSpeaking(); setPlaying(false) }}>■ Dừng nghe</Button>
           : <Button className="min-h-9" disabled={!voice} onClick={() => void playFrom(firstHere)}>▶ Nghe liên tục từ trang này</Button>}
       </div>
+      <div className="flex flex-wrap gap-1" aria-label="Lọc lời thoại">
+        <Small active={!filter.speaker && !filter.mark} onClick={() => setFilter({})}>Tất cả {allBubbles.length}</Small>
+        {speakers.map(([name, n]) => (
+          <Small key={name} active={filter.speaker === name} onClick={() => setFilter((f) => ({ ...f, speaker: f.speaker === name ? undefined : name }))}>{name} {n}</Small>
+        ))}
+        {speakers.length > 0 && <Small active={filter.speaker === '?'} onClick={() => setFilter((f) => ({ ...f, speaker: f.speaker === '?' ? undefined : '?' }))}>Chưa rõ ai nói</Small>}
+        <Small active={filter.mark === 'good'} onClick={() => setFilter((f) => ({ ...f, mark: f.mark === 'good' ? undefined : 'good' }))}>⭐ Câu hay</Small>
+        <Small active={filter.mark === 'hard'} onClick={() => setFilter((f) => ({ ...f, mark: f.mark === 'hard' ? undefined : 'hard' }))}>⚠ Câu khó</Small>
+        <Small active={filter.mark === 'mined'} onClick={() => setFilter((f) => ({ ...f, mark: f.mark === 'mined' ? undefined : 'mined' }))}>★ Đã lưu</Small>
+      </div>
+      {!speakers.length && <p className="text-xs text-muted">Mẹo: điền "Nhân vật nói" khi sửa bong bóng để tách riêng lời thoại của từng nhân vật.</p>}
+      {bubbles.length === 0 && <p className="text-muted">Không có câu nào khớp bộ lọc.</p>}
       {!voice && <p className="text-xs text-muted">Máy chưa có giọng tiếng Nhật. Windows: Cài đặt → Thời gian và ngôn ngữ → Giọng nói → Thêm giọng → 日本語.</p>}
       <ol className="grid gap-1">
         {bubbles.map((b) => (
           <li key={b.id}>
             <button onClick={() => onOpen(b)} className={`w-full rounded-xl px-3 py-2 text-left hover:bg-surface-2 ${b.page === page ? 'bg-surface-2' : ''}`}>
-              <span className="text-xs text-muted">Tr.{b.page + 1}{b.speaker ? ` · ${b.speaker}` : ''}{b.minedAt ? ' · ★' : ''}</span>
+              <span className="text-xs text-muted">Tr.{b.page + 1}{b.speaker ? ` · ${b.speaker}` : ''}{b.minedAt ? ' · ★' : ''}{b.mark === 'good' ? ' · ⭐' : b.mark === 'hard' ? ' · ⚠' : ''}</span>
               <span className="jp block truncate">{b.text}</span>
             </button>
           </li>
@@ -161,8 +187,8 @@ export function WordsTab({ bubbles, chapter, series }: { bubbles: MangaBubble[];
 
 // ---------- Đánh dấu trang ----------
 
-export function MarksTab({ marks, page, onGo, onToggle }: {
-  marks: MangaBookmark[]; page: number; onGo: (p: number) => void; onToggle: () => void
+export function MarksTab({ marks, pins, page, onGo, onToggle, onOpenPin }: {
+  marks: MangaBookmark[]; pins: MangaPin[]; page: number; onGo: (p: number) => void; onToggle: () => void; onOpenPin: (p: MangaPin) => void
 }) {
   const here = marks.find((m) => m.page === page)
   return (
@@ -179,6 +205,40 @@ export function MarksTab({ marks, page, onGo, onToggle }: {
           </li>
         ))}
       </ul>
+      <h3 className="mt-2 font-semibold">📌 Ghi chú ghim trên khung tranh</h3>
+      {pins.length === 0 && <p className="text-muted">Bấm 📌 trên thanh công cụ rồi chạm vào khung tranh để ghim ghi chú ngay tại chỗ.</p>}
+      <ul className="grid gap-1">
+        {[...pins].sort((a, b) => a.page - b.page || a.y - b.y).map((p) => (
+          <li key={p.id}>
+            <button className="w-full rounded-xl px-3 py-2 text-left hover:bg-surface-2" onClick={() => onOpenPin(p)}>
+              <span className="text-xs text-muted">Trang {p.page + 1}</span>
+              <span className="block truncate">{p.note || <i className="text-muted">(chưa ghi gì)</i>}</span>
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+/** Sửa một ghi chú ghim (tự lưu). */
+export function PinCard({ pin, onClose, onDelete }: { pin: MangaPin; onClose: () => void; onDelete: () => void }) {
+  const [v, setV] = useState(pin.note)
+  useEffect(() => setV(pin.note), [pin.id]) // eslint-disable-line react-hooks/exhaustive-deps
+  return (
+    <div className="grid gap-2 text-sm">
+      <div className="flex items-center">
+        <span className="text-xs text-muted">📌 Ghi chú ghim · trang {pin.page + 1}</span>
+        <div className="ml-auto"><Small onClick={onClose} title="Đóng">✕</Small></div>
+      </div>
+      <textarea autoFocus rows={4} value={v} placeholder="Ghi chú ngay trên khung tranh này: ý nghĩa cảnh, câu hay, chỗ chưa hiểu…"
+        onChange={(e) => { setV(e.target.value); void saveNote({ ...pin, note: e.target.value }) }}
+        className="w-full rounded-xl border border-border bg-surface-2 p-2 outline-none focus:border-primary" />
+      <div className="flex justify-between">
+        <Button variant="ghost" className="text-bad" onClick={onDelete}>Xóa ghim</Button>
+        <Button onClick={onClose}>Xong</Button>
+      </div>
+      <p className="text-xs text-muted">Tự lưu. Ghi chú ghim cũng hiện trong Sổ tay của bộ truyện và tìm được ở ô tìm kiếm.</p>
     </div>
   )
 }
@@ -196,8 +256,8 @@ function NoteInput({ mark }: { mark: MangaBookmark }) {
 
 const strip = (s: string) => s.replace(/[\s、。！？!?「」『』…・ー〜~,.]/g, '')
 
-export function PracticeTab({ bubbles }: { bubbles: MangaBubble[] }) {
-  const [mode, setMode] = useState<'cloze' | 'dictation'>('cloze')
+export function PracticeTab({ bubbles, pageBlob }: { bubbles: MangaBubble[]; pageBlob?: (page: number) => Promise<Blob> }) {
+  const [mode, setMode] = useState<'cloze' | 'dictation' | 'occlusion'>('cloze')
   const pool = useMemo(() => bubbles.filter((b) => strip(b.text).length >= 3), [bubbles])
   if (pool.length < 2) {
     return <p className="text-sm text-muted">Cần ít nhất 2 bong bóng có chữ trong chương để luyện tập.</p>
@@ -207,8 +267,9 @@ export function PracticeTab({ bubbles }: { bubbles: MangaBubble[] }) {
       <div className="flex gap-1">
         <Small active={mode === 'cloze'} onClick={() => setMode('cloze')}>Điền khuyết</Small>
         <Small active={mode === 'dictation'} onClick={() => setMode('dictation')}>Nghe chép</Small>
+        {pageBlob && <Small active={mode === 'occlusion'} onClick={() => setMode('occlusion')}>Che chữ</Small>}
       </div>
-      {mode === 'cloze' ? <Cloze pool={pool} /> : <Dictation pool={pool} />}
+      {mode === 'cloze' ? <Cloze pool={pool} /> : mode === 'dictation' ? <Dictation pool={pool} /> : pageBlob && <Occlusion pool={pool} pageBlob={pageBlob} />}
     </div>
   )
 }
@@ -259,6 +320,41 @@ function Cloze({ pool }: { pool: MangaBubble[] }) {
           <p className="text-xs text-muted">{q.answer.base} ({q.answer.reading}): {q.answer.meaning}</p>
           <Button className="min-h-9" onClick={() => { setChosen(undefined); next() }}>Câu tiếp →</Button>
         </>
+      )}
+    </div>
+  )
+}
+
+/** Che chữ (image occlusion): nhìn khung tranh đã che bong bóng, nhớ lại câu, rồi lật xem. */
+function Occlusion({ pool, pageBlob }: { pool: MangaBubble[]; pageBlob: (page: number) => Promise<Blob> }) {
+  const [shown, setShown] = useState(false)
+  const [score, setScore] = useState({ ok: 0, all: 0 })
+  const { q, next } = useRound(async () => {
+    const b = pickRandom(pool)
+    const page = await pageBlob(b.page).catch(() => null)
+    if (!page) return null
+    const [masked, full] = await Promise.all([maskedPanel(page, b.box), cropPanel(page, b.box)])
+    if (!masked || !full) return null
+    return { b, masked: URL.createObjectURL(masked), full: URL.createObjectURL(full) }
+  })
+  useEffect(() => () => { if (q) { URL.revokeObjectURL(q.masked); URL.revokeObjectURL(q.full) } }, [q])
+  if (!q) return <p className="text-muted">Đang chuẩn bị ảnh…</p>
+  const grade = (ok: boolean) => { setScore((s) => ({ ok: s.ok + (ok ? 1 : 0), all: s.all + 1 })); setShown(false); next() }
+  return (
+    <div className="grid gap-2">
+      <p className="text-xs text-muted">Bong bóng bị che nói gì? Nhớ trong đầu (hoặc nói to) rồi lật · nhớ được {score.ok}/{score.all}</p>
+      <img src={shown ? q.full : q.masked} alt={shown ? 'Khung tranh gốc' : 'Khung tranh đã che bong bóng'} className="max-h-72 w-full rounded-xl border border-border object-contain" />
+      {shown ? (
+        <>
+          <p className="jp rounded-xl bg-surface-2 p-3 text-lg">{q.b.text}</p>
+          {q.b.translation && <p className="text-muted">“{q.b.translation}”</p>}
+          <div className="grid grid-cols-2 gap-2">
+            <Button variant="soft" className="min-h-10" onClick={() => grade(false)}>Chưa nhớ</Button>
+            <Button className="min-h-10" onClick={() => grade(true)}>Nhớ được</Button>
+          </div>
+        </>
+      ) : (
+        <Button className="min-h-10" onClick={() => setShown(true)}>Lật xem câu</Button>
       )}
     </div>
   )

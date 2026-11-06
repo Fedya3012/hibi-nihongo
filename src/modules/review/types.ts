@@ -50,6 +50,8 @@ export interface SrsCard extends Schedule {
   image?: string
   /** Tiếng nói gốc (vd đoạn thoại cắt từ anime), lưu dạng data URL (webm/opus hoặc mp4) để sao lưu được. */
   audio?: string
+  /** Ảnh hiện ở MẶT HỎI thay cho chữ (vd panel manga đã che chữ để đoán: "image occlusion"). */
+  frontImage?: string
   tags?: string[]
   /** Thẻ được tạo từ module khác (từ điển, anime...), để không tạo trùng. */
   source?: { module: string; ref: string }

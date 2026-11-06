@@ -10,6 +10,8 @@ export interface StudyNote {
   label: string
   /** Giải thích tiếng Việt. */
   vi: string
+  /** Mã bài trong module Ngữ pháp (mở bài đầy đủ), nếu có. */
+  gid?: string
   /** Cấp JLPT gần đúng (5 = N5). */
   jlpt?: number
   re: RegExp
@@ -17,36 +19,36 @@ export interface StudyNote {
 
 /** Mẫu ngữ pháp. */
 export const GRAMMAR: StudyNote[] = [
-  { label: '～てしまう / ～ちゃう', jlpt: 4, re: /(て|で)しま[うったい]|(ちゃ|じゃ)[うったっ]/, vi: 'Làm xong hẳn; hoặc lỡ làm (tiếc nuối). ～ちゃう là dạng nói.' },
-  { label: '～ている / ～てる', jlpt: 5, re: /(て|で)(い|)[るたま]/, vi: 'Đang làm; hoặc trạng thái kéo dài (đã kết hôn, đang biết...). ～てる là dạng nói.' },
-  { label: '～たい', jlpt: 5, re: /たい[!！。、?？よなねのか]|たい$|たかった|たくな/, vi: 'Muốn làm gì đó.' },
-  { label: '～そう', jlpt: 4, re: /そう[だです!！。、ねなに]|そう$/, vi: 'Trông có vẻ (sau gốc tính từ/động từ), hoặc nghe nói (sau thể thường).' },
-  { label: '～らしい', jlpt: 4, re: /らしい/, vi: 'Hình như, nghe nói; hoặc "đúng chất" (男らしい = đàn ông đúng nghĩa).' },
-  { label: '～みたい', jlpt: 4, re: /みたい/, vi: 'Giống như, có vẻ như (văn nói của ～ようだ).' },
-  { label: '～ようだ / ～ように', jlpt: 4, re: /よう(だ|です|に|な)/, vi: 'Có vẻ như; hoặc "để mà", "như là".' },
-  { label: '～なければならない / ～なきゃ', jlpt: 4, re: /なければ|なきゃ|なくちゃ|ないと/, vi: 'Phải làm. ～なきゃ / ～なくちゃ / ～ないと là dạng nói.' },
-  { label: '～てもいい', jlpt: 5, re: /(て|で)も(いい|いい|大丈夫|かまわ)/, vi: 'Làm ... cũng được (xin phép / cho phép).' },
-  { label: '～てはいけない / ～ちゃダメ', jlpt: 5, re: /(ては|では)いけな|(ちゃ|じゃ)(だめ|ダメ|いけな)/, vi: 'Không được làm.' },
-  { label: '～ても', jlpt: 4, re: /(て|で)も[、,]/, vi: 'Dù cho ... đi nữa.' },
-  { label: '～のに', jlpt: 4, re: /のに/, vi: 'Vậy mà, thế mà (bất mãn, tiếc); hoặc "để" (dùng cho mục đích).' },
-  { label: '～から / ～ので', jlpt: 5, re: /から[!！。、]|から$|ので/, vi: 'Vì ... nên. ～から mang tính chủ quan hơn ～ので.' },
-  { label: '～けど / ～が', jlpt: 5, re: /けど|けれど/, vi: 'Nhưng; hoặc để mở đầu câu nhẹ nhàng ("Tôi muốn hỏi chút, ...").' },
-  { label: '～たら', jlpt: 4, re: /[たっ]ら[、,]|たら$/, vi: 'Nếu / khi ... thì.' },
-  { label: '～ば', jlpt: 4, re: /[えけせてねべめれげ]ば[、,]/, vi: 'Nếu (điều kiện).' },
-  { label: '～う / ～よう (ý chí)', jlpt: 4, re: /[おこそとのもろごぼ]う[!！。よぜか]|よう[!！。よぜか]/, vi: 'Hãy cùng ...! / định làm ... (thể ý chí).' },
-  { label: '～られる (bị động / khả năng)', jlpt: 4, re: /られ[るたなま]|[わかさたなまらがば]れ[るたな]/, vi: 'Bị ... (bị động), được ..., hoặc có thể ... (khả năng).' },
-  { label: '～させる (sai khiến)', jlpt: 3, re: /させ[るたてらな]/, vi: 'Bắt / cho phép ai làm gì.' },
-  { label: '～はず', jlpt: 3, re: /はず/, vi: 'Chắc chắn là, lẽ ra là (dự đoán có cơ sở).' },
-  { label: '～わけ', jlpt: 3, re: /わけ/, vi: 'Lý do, nghĩa là; ～わけがない = không lẽ nào.' },
-  { label: '～かもしれない / ～かも', jlpt: 4, re: /かも/, vi: 'Có lẽ, không chừng.' },
-  { label: '～でしょう / ～だろう', jlpt: 5, re: /でしょ|だろ/, vi: 'Chắc là ...; cuối câu lên giọng = "đúng không?".' },
-  { label: '～んだ / ～のです', jlpt: 4, re: /んだ|んです|のです|のだ/, vi: 'Giải thích, nhấn mạnh lý do hay cảm xúc.' },
-  { label: '～ないで', jlpt: 5, re: /ないで/, vi: 'Đừng ... (yêu cầu), hoặc "mà không ...".' },
-  { label: '～ておく / ～とく', jlpt: 4, re: /(て|で)お[くいき]|[とど]く[!！。よね]/, vi: 'Làm sẵn, làm trước để chuẩn bị.' },
-  { label: '～てみる', jlpt: 4, re: /(て|で)み[るたよて]/, vi: 'Thử làm.' },
-  { label: '～ばかり', jlpt: 3, re: /ばかり|ばっか/, vi: 'Toàn là, chỉ toàn; ～たばかり = vừa mới.' },
-  { label: '～すぎる', jlpt: 4, re: /すぎ/, vi: 'Quá ... (quá nhiều, quá mức).' },
-  { label: '～ながら', jlpt: 4, re: /ながら/, vi: 'Vừa ... vừa ...' },
+  { gid: 'te-shimau', label: '～てしまう / ～ちゃう', jlpt: 4, re: /(て|で)しま[うったい]|(ちゃ|じゃ)[うったっ]/, vi: 'Làm xong hẳn; hoặc lỡ làm (tiếc nuối). ～ちゃう là dạng nói.' },
+  { gid: 'te-iru-progress', label: '～ている / ～てる', jlpt: 5, re: /(て|で)(い|)[るたま]/, vi: 'Đang làm; hoặc trạng thái kéo dài (đã kết hôn, đang biết...). ～てる là dạng nói.' },
+  { gid: 'tai', label: '～たい', jlpt: 5, re: /たい[!！。、?？よなねのか]|たい$|たかった|たくな/, vi: 'Muốn làm gì đó.' },
+  { gid: 'sou-desu-look', label: '～そう', jlpt: 4, re: /そう[だです!！。、ねなに]|そう$/, vi: 'Trông có vẻ (sau gốc tính từ/động từ), hoặc nghe nói (sau thể thường).' },
+  { gid: 'rashii-you', label: '～らしい', jlpt: 4, re: /らしい/, vi: 'Hình như, nghe nói; hoặc "đúng chất" (男らしい = đàn ông đúng nghĩa).' },
+  { gid: 'mitai', label: '～みたい', jlpt: 4, re: /みたい/, vi: 'Giống như, có vẻ như (văn nói của ～ようだ).' },
+  { gid: 'you-desu', label: '～ようだ / ～ように', jlpt: 4, re: /よう(だ|です|に|な)/, vi: 'Có vẻ như; hoặc "để mà", "như là".' },
+  { gid: 'nakereba', label: '～なければならない / ～なきゃ', jlpt: 4, re: /なければ|なきゃ|なくちゃ|ないと/, vi: 'Phải làm. ～なきゃ / ～なくちゃ / ～ないと là dạng nói.' },
+  { gid: 'te-mo-ii', label: '～てもいい', jlpt: 5, re: /(て|で)も(いい|いい|大丈夫|かまわ)/, vi: 'Làm ... cũng được (xin phép / cho phép).' },
+  { gid: 'te-wa-ikemasen', label: '～てはいけない / ～ちゃダメ', jlpt: 5, re: /(ては|では)いけな|(ちゃ|じゃ)(だめ|ダメ|いけな)/, vi: 'Không được làm.' },
+  { gid: 'temo', label: '～ても', jlpt: 4, re: /(て|で)も[、,]/, vi: 'Dù cho ... đi nữa.' },
+  { gid: 'noni', label: '～のに', jlpt: 4, re: /のに/, vi: 'Vậy mà, thế mà (bất mãn, tiếc); hoặc "để" (dùng cho mục đích).' },
+  { gid: 'kara-reason', label: '～から / ～ので', jlpt: 5, re: /から[!！。、]|から$|ので/, vi: 'Vì ... nên. ～から mang tính chủ quan hơn ～ので.' },
+  { gid: 'ga-but', label: '～けど / ～が', jlpt: 5, re: /けど|けれど/, vi: 'Nhưng; hoặc để mở đầu câu nhẹ nhàng ("Tôi muốn hỏi chút, ...").' },
+  { gid: 'tara', label: '～たら', jlpt: 4, re: /[たっ]ら[、,]|たら$/, vi: 'Nếu / khi ... thì.' },
+  { gid: 'ba-conditional', label: '～ば', jlpt: 4, re: /[えけせてねべめれげ]ば[、,]/, vi: 'Nếu (điều kiện).' },
+  { gid: 'volitional', label: '～う / ～よう (ý chí)', jlpt: 4, re: /[おこそとのもろごぼ]う[!！。よぜか]|よう[!！。よぜか]/, vi: 'Hãy cùng ...! / định làm ... (thể ý chí).' },
+  { gid: 'passive', label: '～られる (bị động / khả năng)', jlpt: 4, re: /られ[るたなま]|[わかさたなまらがば]れ[るたな]/, vi: 'Bị ... (bị động), được ..., hoặc có thể ... (khả năng).' },
+  { gid: 'causative', label: '～させる (sai khiến)', jlpt: 3, re: /させ[るたてらな]/, vi: 'Bắt / cho phép ai làm gì.' },
+  { gid: 'hazu', label: '～はず', jlpt: 3, re: /はず/, vi: 'Chắc chắn là, lẽ ra là (dự đoán có cơ sở).' },
+  { gid: 'wake-da', label: '～わけ', jlpt: 3, re: /わけ/, vi: 'Lý do, nghĩa là; ～わけがない = không lẽ nào.' },
+  { gid: 'kamoshirenai', label: '～かもしれない / ～かも', jlpt: 4, re: /かも/, vi: 'Có lẽ, không chừng.' },
+  { gid: 'deshou', label: '～でしょう / ～だろう', jlpt: 5, re: /でしょ|だろ/, vi: 'Chắc là ...; cuối câu lên giọng = "đúng không?".' },
+  { gid: 'n-desu', label: '～んだ / ～のです', jlpt: 4, re: /んだ|んです|のです|のだ/, vi: 'Giải thích, nhấn mạnh lý do hay cảm xúc.' },
+  { gid: 'nai-de-kudasai', label: '～ないで', jlpt: 5, re: /ないで/, vi: 'Đừng ... (yêu cầu), hoặc "mà không ...".' },
+  { gid: 'te-oku', label: '～ておく / ～とく', jlpt: 4, re: /(て|で)お[くいき]|[とど]く[!！。よね]/, vi: 'Làm sẵn, làm trước để chuẩn bị.' },
+  { gid: 'te-miru', label: '～てみる', jlpt: 4, re: /(て|で)み[るたよて]/, vi: 'Thử làm.' },
+  { gid: 'bakari', label: '～ばかり', jlpt: 3, re: /ばかり|ばっか/, vi: 'Toàn là, chỉ toàn; ～たばかり = vừa mới.' },
+  { gid: 'sugiru', label: '～すぎる', jlpt: 4, re: /すぎ/, vi: 'Quá ... (quá nhiều, quá mức).' },
+  { gid: 'nagara', label: '～ながら', jlpt: 4, re: /ながら/, vi: 'Vừa ... vừa ...' },
 ]
 
 /** Sắc thái giọng nói: lịch sự, thân mật, nam/nữ, cổ trang... */
@@ -62,7 +64,7 @@ export const STYLE: StudyNote[] = [
   { label: 'Dân anh chị (yakuza)', re: /おどれ|ワレ[!！]|じゃけえ|しばくぞ|兄貴|親分|組長|オヤジ/, vi: 'Từ ngữ giới giang hồ: 兄貴 = đại ca, 組長 = trùm, しばくぞ = tao đập mày.' },
 ]
 
-/** Chú thích văn hóa: hậu tố gọi tên, từ tượng thanh, tiếng lóng. */
+/** Chú thích văn hóa: hậu tố gọi tên, câu xã giao, chửi nhẹ. (Từ tượng thanh và khẩu ngữ: xem sfx-data.ts) */
 export const CULTURE: StudyNote[] = [
   { label: '～さん', re: /さん/, vi: 'Hậu tố gọi tên lịch sự phổ biến nhất (anh/chị/ông/bà).' },
   { label: '～くん', re: /くん|君[!！。、]/, vi: 'Gọi con trai, đàn em, hoặc cấp dưới; thân thiện.' },
@@ -74,29 +76,23 @@ export const CULTURE: StudyNote[] = [
   { label: 'いただきます / ごちそうさま', re: /いただきます|ごちそう/, vi: 'Câu nói trước và sau bữa ăn, cảm ơn người nấu và thức ăn.' },
   { label: 'ただいま / おかえり', re: /ただいま|おかえり/, vi: 'Con về rồi / Mừng về nhà: chào khi về đến nhà.' },
   { label: 'よろしく', re: /よろしく/, vi: 'Mong được giúp đỡ / nhờ cậy: câu xã giao rất Nhật, khó dịch sát.' },
-  { label: 'Từ tượng thanh ドキドキ', re: /ドキドキ|どきどき/, vi: 'Tim đập thình thịch (hồi hộp, rung động).' },
-  { label: 'Từ tượng thanh ゴゴゴ', re: /ゴゴゴ/, vi: 'Âm thanh "không khí đe dọa", nhân vật tỏa sát khí.' },
-  { label: 'Từ tượng thanh シーン', re: /シーン|しーん/, vi: 'Im phăng phắc (không khí lặng ngắt).' },
-  { label: 'Từ tượng thanh ニコニコ', re: /ニコニコ|にこにこ|ニコッ/, vi: 'Mỉm cười tươi.' },
-  { label: 'Từ tượng thanh ワクワク', re: /ワクワク|わくわく/, vi: 'Háo hức, phấn khích.' },
-  { label: 'Từ tượng thanh イライラ', re: /イライラ|いらいら/, vi: 'Bực bội, sốt ruột.' },
-  { label: 'Từ tượng thanh ペコペコ', re: /ペコペコ|ぺこぺこ/, vi: 'Đói meo; hoặc cúi đầu lia lịa.' },
-  { label: 'Từ tượng thanh ジー', re: /ジー[ッっ]|じーっ/, vi: 'Nhìn chằm chằm.' },
-  { label: 'Tiếng lóng マジ', re: /マジ|まじ/, vi: 'Thật á? / Nghiêm túc đấy. (= 本当, 本気)' },
-  { label: 'Tiếng lóng ヤバい', re: /ヤバ|やば/, vi: 'Toang rồi / nguy; giới trẻ còn dùng nghĩa "đỉnh quá".' },
-  { label: 'Tiếng lóng うざい', re: /うざ|ウザ/, vi: 'Phiền phức, khó chịu.' },
-  { label: 'Tiếng lóng ムカつく', re: /ムカつ|むかつ/, vi: 'Tức điên, bực mình.' },
   { label: 'バカ / アホ', re: /バカ|ばか|馬鹿|アホ|あほ/, vi: 'Đồ ngốc. バカ phổ biến ở Kanto; アホ ở Kansai (nghe nhẹ hơn ở đó).' },
   { label: 'くそ', re: /くそ|クソ|糞/, vi: 'Chết tiệt! (chửi thề nhẹ, rất hay gặp trong manga hành động).' },
 ]
 
 export interface FoundNote extends Omit<StudyNote, 're'> {
   group: 'grammar' | 'style' | 'culture'
+  /** Phần chữ khớp mẫu trong câu và vị trí của nó (để tô màu đúng chỗ trong câu đang đọc). */
+  match: string
+  index: number
 }
 
 /** Tìm mọi mẫu xuất hiện trong một câu. */
 export function findNotes(text: string): FoundNote[] {
   const pick = (list: StudyNote[], group: FoundNote['group']) =>
-    list.filter((n) => n.re.test(text)).map(({ re: _re, ...rest }) => ({ ...rest, group }))
+    list.flatMap(({ re, ...rest }) => {
+      const m = re.exec(text)
+      return m ? [{ ...rest, group, match: m[0].replace(/[!！。、,?？よねなかぜ]+$/, '') || m[0], index: m.index }] : []
+    })
   return [...pick(GRAMMAR, 'grammar'), ...pick(STYLE, 'style'), ...pick(CULTURE, 'culture')]
 }
