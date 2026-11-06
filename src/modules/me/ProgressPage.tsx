@@ -35,7 +35,10 @@ export default function ProgressPage() {
             {stats.firstDay ? `Bắt đầu học từ ${fmtDayLong(stats.firstDay)}` : 'Chưa có dữ liệu học. Học vài phút rồi quay lại nhé!'}
           </p>
         </div>
-        <Link to="/" className="text-sm text-primary hover:underline">← Hôm nay</Link>
+        <div className="flex gap-4">
+          <Link to="/achievements" className="text-sm text-primary hover:underline">🦊 Thành tích →</Link>
+          <Link to="/" className="text-sm text-primary hover:underline">← Hôm nay</Link>
+        </div>
       </div>
       <Overview stats={stats} />
       <Charts stats={stats} />
