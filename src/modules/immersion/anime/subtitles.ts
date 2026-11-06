@@ -35,7 +35,7 @@ function parseTime(s: string): number {
 }
 
 /** Bỏ thẻ HTML (<i>, <font>, <c.vang>...), giữ chữ gốc của furigana (<ruby>漢字<rt>かんじ</rt></ruby> → 漢字). */
-function stripHtml(t: string): string {
+export function stripHtml(t: string): string {
   return t
     .replace(/<rt>[\s\S]*?<\/rt>|<rp>[\s\S]*?<\/rp>/gi, '')
     .replace(/<[^>]+>/g, '')
@@ -43,7 +43,7 @@ function stripHtml(t: string): string {
     .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&nbsp;/g, ' ')
 }
 
-const clean = (t: string) => t.split('\n').map((l) => l.trim()).filter(Boolean).join('\n')
+export const clean = (t: string) => t.split('\n').map((l) => l.trim()).filter(Boolean).join('\n')
 
 /** SRT và VTT có cấu trúc gần giống nhau: các khối cách nhau một dòng trống, dòng thời gian có "-->". */
 function parseSrtVtt(text: string): Cue[] {
@@ -60,6 +60,12 @@ function parseSrtVtt(text: string): Cue[] {
     if (Number.isFinite(s) && Number.isFinite(e) && t) cues.push({ s, e, t })
   }
   return cues
+}
+
+/** Chữ của một dòng ASS: bỏ mã hiệu ứng {\\...}, \\N = xuống dòng. Trả về '' nếu là hình vẽ (\\p1). */
+export function assText(raw: string): string {
+  if (/\\p[1-9]/.test(raw)) return '' // hình vẽ (biển hiệu, logo), không phải lời thoại
+  return clean(raw.replace(/\{[^}]*\}/g, '').replace(/\\[Nn]/g, '\n').replace(/\\h/g, ' '))
 }
 
 /** ASS/SSA: đọc mục [Events], các dòng "Dialogue:". Bỏ mã hiệu ứng {\...} và hình vẽ (\p1). */
@@ -88,17 +94,11 @@ function parseAss(text: string): Cue[] {
     }
     parts.push(rest)
     const get = (f: string) => parts[fields.indexOf(f)] ?? ''
-    const rawText = get('text')
-    if (/\\p[1-9]/.test(rawText)) continue // hình vẽ (biển hiệu, logo), không phải lời thoại
-    const t = clean(
-      rawText
-        .replace(/\{[^}]*\}/g, '')
-        .replace(/\\[Nn]/g, '\n')
-        .replace(/\\h/g, ' '),
-    )
+    const t = assText(get('text'))
     const s = parseTime(get('start'))
     const e = parseTime(get('end'))
-    if (Number.isFinite(s) && Number.isFinite(e) && t) cues.push({ s, e, t })
+    const n = get('name').trim() || undefined
+    if (Number.isFinite(s) && Number.isFinite(e) && t) cues.push(n ? { s, e, t, n } : { s, e, t })
   }
   return cues
 }
@@ -108,7 +108,11 @@ export function parseSubtitles(text: string, fileName = ''): Cue[] {
   const ext = extOf(fileName)
   const isAss = ext === 'ass' || ext === 'ssa' || (!SUB_EXT.includes(ext) && /^\[script info\]/im.test(text))
   const cues = isAss ? parseAss(text) : parseSrtVtt(text)
-  // Sắp theo thời gian, bỏ dòng trùng hệt nhau (hiệu ứng karaoke hay tạo nhiều bản sao)
+  return tidyCues(cues)
+}
+
+/** Sắp theo thời gian, bỏ dòng trùng hệt nhau (hiệu ứng karaoke hay tạo nhiều bản sao). */
+export function tidyCues(cues: Cue[]): Cue[] {
   cues.sort((a, b) => a.s - b.s || a.e - b.e)
   const out: Cue[] = []
   const seen = new Set<string>()

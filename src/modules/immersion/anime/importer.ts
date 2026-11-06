@@ -8,12 +8,16 @@
  */
 import { baseName, guessChapter, guessSeriesTitle, naturalCompare, stripExt } from '../manga/naming'
 import { isSubName, isVideoName, looksJapanese, readSubtitleFile } from './subtitles'
+import { extractEmbeddedSubs, isJapaneseLang } from './mkv'
 import { makeMedia, type PickedFile } from './media'
 import { getEpisode, newId, saveEpisode } from './store'
 import type { AnimeEpisode, Cue } from './types'
 
 export interface ParsedSub {
-  file: File
+  /** Tên hiển thị: tên file phụ đề, hoặc "<video> · phụ đề nhúng #2 (jpn)". */
+  name: string
+  /** true = phụ đề lấy từ bên trong file video .mkv */
+  embedded?: boolean
   cues: Cue[]
   japanese: boolean
   error?: string
@@ -65,6 +69,7 @@ export function guessEpisode(name: string): { season: number | null; number: num
 export async function planImport(
   files: PickedFile[],
   existing: AnimeEpisode[] = [],
+  onStatus?: (msg: string, progress: number) => void,
 ): Promise<ImportPlan> {
   const videos = files.filter((f) => isVideoName(f.file.name)).sort((a, b) => naturalCompare(a.file.name, b.file.name))
   const subFiles = files.filter((f) => isSubName(f.file.name)).sort((a, b) => naturalCompare(a.file.name, b.file.name))
@@ -73,17 +78,17 @@ export async function planImport(
   const subs: ParsedSub[] = await Promise.all(subFiles.map(async ({ file }) => {
     try {
       const cues = await readSubtitleFile(file)
-      return { file, cues, japanese: looksJapanese(cues), error: cues.length ? undefined : 'Không đọc được dòng phụ đề nào' }
+      return { name: file.name, cues, japanese: looksJapanese(cues), error: cues.length ? undefined : 'Không đọc được dòng phụ đề nào' }
     } catch {
-      return { file, cues: [], japanese: false, error: 'Không đọc được file' }
+      return { name: file.name, cues: [], japanese: false, error: 'Không đọc được file' }
     }
   }))
 
   const used = new Set<number>()
   const findSub = (key: string, num: number | null, japanese: boolean): number => {
     const ok = (i: number) => !used.has(i) && !subs[i].error && subs[i].japanese === japanese
-    let i = subs.findIndex((s, k) => ok(k) && matchKey(s.file.name) === key)
-    if (i < 0 && num != null) i = subs.findIndex((s, k) => ok(k) && guessEpisode(s.file.name).number === num)
+    let i = subs.findIndex((s, k) => ok(k) && matchKey(s.name) === key)
+    if (i < 0 && num != null) i = subs.findIndex((s, k) => ok(k) && guessEpisode(s.name).number === num)
     if (i >= 0) used.add(i)
     return i
   }
@@ -99,18 +104,37 @@ export async function planImport(
     }
   })
 
+  // Video .mkv/.webm chưa có phụ đề tiếng Nhật rời → thử đọc phụ đề nhúng bên trong file
+  for (const d of drafts) {
+    if (d.jp >= 0 || !d.video || !/\.(mkv|mka|webm)$/i.test(d.video.file.name)) continue
+    onStatus?.(`Đang đọc phụ đề nhúng trong ${d.video.file.name}…`, 0)
+    try {
+      const tracks = await extractEmbeddedSubs(d.video.file, (p) => onStatus?.(`Đang đọc phụ đề nhúng trong ${d.video!.file.name}…`, p))
+      for (const t of tracks) {
+        if (!t.cues.length) continue
+        const japanese = isJapaneseLang(t.lang) || looksJapanese(t.cues)
+        const label = [t.name, t.lang].filter(Boolean).join(', ')
+        subs.push({ name: `${d.video.file.name} · phụ đề nhúng #${t.number}${label ? ` (${label})` : ''}`, embedded: true, cues: t.cues, japanese })
+        const i = subs.length - 1
+        used.add(i)
+        if (japanese && d.jp < 0) d.jp = i
+        else if (!japanese && d.tr < 0) d.tr = i
+      }
+    } catch { /* file không đọc được phụ đề nhúng: bỏ qua */ }
+  }
+
   // Phụ đề tiếng Nhật chưa ghép được với video nào → tập chỉ có phụ đề (gắn video sau),
   // hoặc thêm phụ đề cho tập đã có sẵn trong series (khớp theo số tập).
   subs.forEach((s, i) => {
     if (used.has(i) || s.error || !s.japanese) return
-    const { season, number } = guessEpisode(s.file.name)
-    const ex = existing.find((e) => matchKey(e.fileName) === matchKey(s.file.name)) ??
+    const { season, number } = guessEpisode(s.name)
+    const ex = existing.find((e) => matchKey(e.fileName) === matchKey(s.name)) ??
       (number != null ? existing.find((e) => e.number === number) : undefined)
     used.add(i)
     drafts.push({
-      key: s.file.name, number: ex?.number ?? number, season: ex?.season ?? season,
-      title: ex?.title ?? stripExt(baseName(s.file.name)).replace(LANG, ''),
-      existingId: ex?.id, jp: i, tr: findSub(matchKey(s.file.name), number, false),
+      key: s.name, number: ex?.number ?? number, season: ex?.season ?? season,
+      title: ex?.title ?? stripExt(baseName(s.name)).replace(LANG, ''),
+      existingId: ex?.id, jp: i, tr: findSub(matchKey(s.name), number, false),
     })
   })
 
@@ -159,8 +183,8 @@ export async function commitImport(
       lastWatchedAt: old?.lastWatchedAt,
       finishedAt: old?.finishedAt,
       subOffset: jp ? 0 : (old?.subOffset ?? 0), // phụ đề mới → đặt lại lệch phụ đề
-      subFile: jp?.file.name ?? old?.subFile,
-      trFile: tr?.file.name ?? old?.trFile,
+      subFile: jp?.name ?? old?.subFile,
+      trFile: tr?.name ?? old?.trFile,
       // Phụ đề mới → bỏ số liệu phân tích cũ, sẽ phân tích lại
       stats: jp ? undefined : old?.stats,
     }
@@ -168,8 +192,8 @@ export async function commitImport(
     await saveEpisode(ep, {
       media,
       subs: {
-        jp: jp ? { episodeId: id, track: 'jp', fileName: jp.file.name, cues: jp.cues } : undefined,
-        tr: tr ? { episodeId: id, track: 'tr', fileName: tr.file.name, cues: tr.cues } : undefined,
+        jp: jp ? { episodeId: id, track: 'jp', fileName: jp.name, cues: jp.cues } : undefined,
+        tr: tr ? { episodeId: id, track: 'tr', fileName: tr.name, cues: tr.cues } : undefined,
       },
     })
     ids.push(id)

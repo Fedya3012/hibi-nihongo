@@ -18,7 +18,7 @@ import {
 import { getSubs, putSubs, updateEpisode } from './store'
 import type { AnimeEpisode, Cue, SubAnalysis, WordStat } from './types'
 
-export const ANALYSIS_VERSION = 1
+export const ANALYSIS_VERSION = 2
 
 // Từ nào tính là "từ vựng" (bỏ trợ từ, dấu câu, số, tên riêng...): dùng chung với Kho từ
 export { isStudyWord }
@@ -48,9 +48,13 @@ export async function analyzeCues(cues: Cue[], onProgress?: (p: number) => void)
     for (const c of chunk) for (const ch of c.t) if (isKanji(ch)) kanji.set(ch, (kanji.get(ch) ?? 0) + 1)
     onProgress?.(Math.min(1, (i + BATCH) / cues.length))
   }
+  // Tốc độ nói: số chữ tiếng Nhật mỗi phút thoại (chỉ tính lúc có phụ đề)
+  let chars = 0, ms = 0
+  for (const c of cues) { chars += [...c.t].filter((ch) => /[぀-ヿ一-鿿]/.test(ch)).length; ms += Math.max(0, c.e - c.s) }
   return {
     v: ANALYSIS_VERSION,
     tokens,
+    cpm: ms > 0 ? Math.round(chars / (ms / 60000)) : undefined,
     words: [...words.values()].sort((a, b) => b.n - a.n),
     kanji: [...kanji].map(([k, n]) => ({ k, n })).sort((a, b) => b.n - a.n),
   }
@@ -63,7 +67,7 @@ export async function ensureAnalysis(ep: AnimeEpisode, onProgress?: (p: number) 
   if (subs.analysis?.v === ANALYSIS_VERSION) return subs.analysis
   const analysis = await analyzeCues(subs.cues, onProgress)
   await putSubs({ ...subs, analysis })
-  await updateEpisode(ep.id, { stats: { tokens: analysis.tokens, unique: analysis.words.length, lines: subs.cues.length } })
+  await updateEpisode(ep.id, { stats: { tokens: analysis.tokens, unique: analysis.words.length, lines: subs.cues.length, cpm: analysis.cpm } })
   return analysis
 }
 

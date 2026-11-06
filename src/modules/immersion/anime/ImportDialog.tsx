@@ -36,7 +36,7 @@ export function ImportDialog({ seriesId: fixedSeries, onClose, onDone }: {
     try {
       // Nhập vào series có sẵn: nhận ra tập đã có (cùng tên file / số tập) để giữ chỗ đang xem
       const existing = into !== 'new' ? await listEpisodes(into) : []
-      const p = await planImport(files, existing)
+      const p = await planImport(files, existing, (m, pr) => { setBusy(m); setProgress(pr) })
       if (!p.drafts.length) {
         setError(p.subs.length && !p.subs.some((s) => s.japanese)
           ? 'Chưa thấy phụ đề tiếng Nhật (phụ đề cần có chữ kana). Hãy chọn thêm video hoặc phụ đề tiếng Nhật.'
@@ -94,7 +94,7 @@ export function ImportDialog({ seriesId: fixedSeries, onClose, onDone }: {
             <p className="text-sm">Kéo thả file video và phụ đề vào đây, hoặc</p>
             <Button onClick={async () => load(await pickFiles('both'))} disabled={!!busy}>Chọn video và phụ đề</Button>
             <p className="text-xs text-muted">
-              Video: .mp4, .webm, .mkv · Phụ đề: .srt, .ass, .vtt. Chọn nhiều tập một lúc được, app tự ghép video với phụ đề cùng tên hoặc cùng số tập.
+              Video: .mp4, .webm, .mkv · Phụ đề: .srt, .ass, .vtt, hoặc phụ đề nhúng sẵn trong file .mkv. Chọn nhiều tập một lúc được, app tự ghép video với phụ đề cùng tên hoặc cùng số tập.
             </p>
           </div>
           <p className="text-xs text-muted">
@@ -103,7 +103,7 @@ export function ImportDialog({ seriesId: fixedSeries, onClose, onDone }: {
               : 'Trình duyệt này không nhớ được file trên máy: mỗi lần xem bạn chọn lại file video (hoặc chọn chép video vào app ở bước sau).'}
             {' '}App không kèm sẵn anime nào: bạn dùng file của chính mình.
           </p>
-          {busy && <p className="text-sm text-muted">{busy}</p>}
+          {busy && <div className="grid gap-1"><p className="text-sm text-muted">{busy}</p>{progress > 0 && <ProgressBar value={progress} />}</div>}
           {error && <p className="text-sm text-bad">{error}</p>}
         </div>
       ) : (
@@ -144,11 +144,11 @@ export function ImportDialog({ seriesId: fixedSeries, onClose, onDone }: {
                   <div className="grid gap-2 sm:grid-cols-2">
                     <select className={inputClass} value={d.jp} onChange={(e) => update(i, { jp: Number(e.target.value) })} aria-label="Phụ đề tiếng Nhật">
                       <option value={-1}>Không có phụ đề tiếng Nhật</option>
-                      {subOptions(true).map(({ s, i: k }) => <option key={k} value={k}>JP · {s.file.name} ({s.cues.length} dòng)</option>)}
+                      {subOptions(true).map(({ s, i: k }) => <option key={k} value={k}>JP · {s.name} ({s.cues.length} dòng)</option>)}
                     </select>
                     <select className={inputClass} value={d.tr} onChange={(e) => update(i, { tr: Number(e.target.value) })} aria-label="Phụ đề dịch">
                       <option value={-1}>Không có phụ đề dịch</option>
-                      {subOptions(false).map(({ s, i: k }) => <option key={k} value={k}>Dịch · {s.file.name}</option>)}
+                      {subOptions(false).map(({ s, i: k }) => <option key={k} value={k}>Dịch · {s.name}</option>)}
                     </select>
                   </div>
                 </div>
@@ -157,7 +157,7 @@ export function ImportDialog({ seriesId: fixedSeries, onClose, onDone }: {
           </div>
 
           {plan.subs.some((s) => s.error) && (
-            <p className="text-xs text-bad">Không đọc được: {plan.subs.filter((s) => s.error).map((s) => s.file.name).join(', ')}</p>
+            <p className="text-xs text-bad">Không đọc được: {plan.subs.filter((s) => s.error).map((s) => s.name).join(', ')}</p>
           )}
           {plan.ignored.length > 0 && <p className="text-xs text-muted">Bỏ qua {plan.ignored.length} file không phải video/phụ đề.</p>}
           {hints.map((h) => <p key={h} className="text-xs text-warn">{h}</p>)}

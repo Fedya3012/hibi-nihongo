@@ -20,6 +20,18 @@ export interface AnimeSeries {
   /** Lần xem gần nhất và tập đang xem dở: dùng cho "Xem tiếp" (Smart Resume). */
   lastWatchedAt?: number
   lastEpisodeId?: string
+  /** Đang xem / đã xem xong / muốn xem (tự đặt "đang xem" khi bắt đầu xem). */
+  status?: SeriesStatus
+  /** Ghi chú về nhân vật: cách nói, cách xưng hô... */
+  characters?: CharacterNote[]
+  note?: string
+}
+
+export type SeriesStatus = 'watching' | 'completed' | 'planned'
+
+export interface CharacterNote {
+  name: string
+  note: string
 }
 
 export interface AnimeEpisode {
@@ -44,8 +56,17 @@ export interface AnimeEpisode {
   /** Tên file phụ đề tiếng Nhật và phụ đề dịch (nếu có), chỉ để hiển thị. */
   subFile?: string
   trFile?: string
+  /** Đánh dấu "đã học" (đã học từ vựng / ôn lại tập này). */
+  studiedAt?: number
+  /** Tổng thời gian đã xem tập này (giây), để thống kê. */
+  watchSeconds?: number
+  /** Kết quả tự kiểm tra nghe (chế độ Kiểm tra nghe): số câu hiểu / một phần / không hiểu. */
+  listening?: { yes: number; partly: number; no: number }
+  /** Điểm chép chính tả (0..1) trung bình và số câu đã làm. */
+  dictation?: { score: number; count: number }
+  note?: string
   /** Tóm tắt phân tích phụ đề (để hiện nhanh trong danh sách, không cần đọc cả phụ đề). */
-  stats?: { tokens: number; unique: number; lines: number }
+  stats?: { tokens: number; unique: number; lines: number; cpm?: number }
 }
 
 /** Một dòng phụ đề. Thời gian bằng mili giây. Tên trường ngắn cho gọn dữ liệu. */
@@ -53,6 +74,7 @@ export interface Cue {
   s: number // bắt đầu
   e: number // kết thúc
   t: string // nội dung (có thể nhiều dòng, nối bằng \n)
+  n?: string // tên nhân vật nói (phụ đề ASS hay có)
 }
 
 /** 'jp' = phụ đề tiếng Nhật (bấm tra từ được), 'tr' = phụ đề dịch (tiếng Việt/Anh) để đối chiếu. */
@@ -64,6 +86,8 @@ export interface SubAnalysis {
   v: number
   /** Tổng số "từ có nghĩa" (đã bỏ trợ từ, dấu câu, tên riêng, số). */
   tokens: number
+  /** Tốc độ nói: số chữ tiếng Nhật mỗi phút thoại. */
+  cpm?: number
   words: WordStat[]
   kanji: { k: string; n: number }[]
 }
@@ -95,6 +119,73 @@ export interface AnimeMedia {
   size: number
 }
 
+/** Phân loại câu / từ lưu từ anime. */
+export type ClipCategory = 'normal' | 'slang' | 'casual' | 'character' | 'interjection' | 'onomatopoeia'
+
+export const CATEGORY_LABEL: Record<ClipCategory, string> = {
+  normal: 'Thông thường',
+  slang: 'Tiếng lóng',
+  casual: 'Khẩu ngữ / rút gọn',
+  character: 'Cách nói nhân vật',
+  interjection: 'Cảm thán',
+  onomatopoeia: 'Tượng thanh / tượng hình',
+}
+
+/**
+ * Một câu thoại bạn đã lưu (kèm thời điểm trong video). Ảnh và âm thanh nằm riêng trong animeClips
+ * (không sao lưu vì nặng; mất thì câu chữ và thời điểm vẫn còn).
+ */
+export interface SavedSentence {
+  id: string
+  seriesId: string
+  episodeId: string
+  /** Thời điểm trong video (mili giây, đã cộng lệch phụ đề). */
+  s: number
+  e: number
+  text: string
+  translation?: string
+  speaker?: string
+  category: ClipCategory
+  note?: string
+  savedAt: number
+  /** Có ảnh / âm thanh trong animeClips không. */
+  hasImage?: boolean
+  hasAudio?: boolean
+  /** Đã tạo thẻ ôn tập cho câu này chưa. */
+  carded?: boolean
+}
+
+export interface AnimeClip {
+  id: string // = id câu
+  image?: Blob
+  audio?: Blob
+}
+
+/**
+ * Liên kết thẻ ôn tập ↔ anime: thẻ nào đến từ tập nào, câu nào (để ôn theo tập/mùa và phát lại âm thanh).
+ * key = "<module>:<ref>" giống trường source của thẻ.
+ */
+export interface CardLink {
+  key: string
+  seriesId: string
+  episodeId: string
+  sentenceId?: string
+  category?: ClipCategory
+  addedAt: number
+}
+
+/** Chế độ xem. */
+export type WatchMode =
+  | 'assisted' // phụ đề Nhật + tra từ (mặc định)
+  | 'bilingual' // Nhật + dịch
+  | 'translation' // chỉ phụ đề dịch
+  | 'immersion' // Full Immersion: không phụ đề
+  | 'audio' // Chỉ nghe: ẩn hình và phụ đề
+  | 'listen-check' // Kiểm tra nghe: dừng sau mỗi câu, tự đánh giá rồi xem đáp án
+  | 'dictation' // Chép chính tả: nghe, gõ lại, so sánh
+  | 'shadowing' // phát câu → khoảng lặng để nhắc lại → phát lại bản gốc
+  | 'study' // Học theo đoạn: xem xong một đoạn → ôn từ vừa nghe
+
 /** Cách hiện phụ đề tiếng Nhật: hiện, làm mờ (di chuột mới rõ, để luyện nghe), ẩn. */
 export type SubMode = 'show' | 'blur' | 'hide'
 
@@ -112,6 +203,15 @@ export interface PlayerPrefs {
   /** Cỡ chữ phụ đề (rem). */
   subSize: number
   showTranscript: boolean
+  /** Tô màu từ: đã biết (mờ), đang học (vàng), mới (gạch chân). */
+  highlight: boolean
+  mode: WatchMode
+  /** Học theo đoạn: số câu mỗi đoạn. */
+  studyChunk: number
+  /** Shadowing: ghi âm giọng bạn trong khoảng lặng. */
+  shadowRecord: boolean
+  /** Shadowing: khoảng lặng = thời lượng câu × hệ số này. */
+  shadowGap: number
 }
 
 export const DEFAULT_PLAYER_PREFS: PlayerPrefs = {
@@ -123,4 +223,9 @@ export const DEFAULT_PLAYER_PREFS: PlayerPrefs = {
   rate: 1,
   subSize: 1.6,
   showTranscript: true,
+  highlight: true,
+  mode: 'assisted',
+  studyChunk: 20,
+  shadowRecord: false,
+  shadowGap: 1.3,
 }
