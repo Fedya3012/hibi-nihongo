@@ -1,7 +1,17 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "Quyền mặc định của cửa sổ chính",
-  "windows": ["main"],
-  "permissions": ["core:default", "notification:default", "dialog:default"]
+  "description": "Quyền mặc định của cửa sổ chính và cửa sổ tra nhanh",
+  "windows": [
+    "main",
+    "lookup"
+  ],
+  "permissions": [
+    "core:default",
+    "notification:default",
+    "dialog:default",
+    "updater:default",
+    "process:allow-restart",
+    "autostart:default"
+  ]
 }
