@@ -1,12 +1,13 @@
 /**
  * TRANG KANJI (module kanji) — đường dẫn /learn/kanji
- * Tab: Danh sách JLPT · Theo cấp (kiểu WaniKani) · Bộ thủ · Luyện viết. Bấm một chữ để mở trang chi tiết.
+ * Tab: Danh sách JLPT · Theo cấp (kiểu WaniKani) · Bộ thủ · Luyện viết · Tra chữ (bộ thủ / vẽ tay). Bấm một chữ để mở trang chi tiết.
  * Đường dẫn mở thẳng:
  *   /learn/kanji?lv=4            danh sách N4
  *   /learn/kanji?k=食            chi tiết chữ 食
  *   /learn/kanji?tab=radicals&r=9  các chữ thuộc bộ Nhân (亻)
  *   /learn/kanji?tab=write&k=食  luyện viết chữ 食
  *   /learn/kanji?tab=levels      học theo cấp: bộ thủ → Kanji → từ vựng, mở khóa dần
+ *   /learn/kanji?tab=lookup      tra chữ chưa biết cách đọc (theo bộ thủ hoặc vẽ tay)
  * Dữ liệu: gói `kanjidic` (module Từ điển) + gói `kanji-study` (module này), xem README.md.
  */
 import { useCallback, useRef } from 'react'
@@ -19,13 +20,14 @@ import { JlptList, LEVELS, RadicalList, type Level } from './KanjiBrowser'
 import { KanjiDetail } from './KanjiDetail'
 import { WriteTab } from './WriteTab'
 import { LevelsTab } from './levels/LevelsTab'
+import { KanjiLookup } from './KanjiLookup'
 
-type Tab = 'list' | 'levels' | 'radicals' | 'write'
+type Tab = 'list' | 'levels' | 'radicals' | 'write' | 'lookup'
 
 export default function KanjiPage() {
   const [params, setParams] = useSearchParams()
   const packs = useKanjiPacks()
-  const tab: Tab = (['list', 'levels', 'radicals', 'write'] as Tab[]).find((t) => t === params.get('tab')) ?? 'list'
+  const tab: Tab = (['list', 'levels', 'radicals', 'write', 'lookup'] as Tab[]).find((t) => t === params.get('tab')) ?? 'list'
   const lvParam = params.get('lv') as Level | null
   const level: Level = LEVELS.some((l) => l.value === lvParam) ? lvParam! : '5'
   const char = params.get('k') ?? undefined
@@ -57,8 +59,14 @@ export default function KanjiPage() {
     <div className="mx-auto max-w-5xl">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold">Kanji <span className="jp ml-1 text-lg font-normal text-muted">漢字</span></h1>
+        {/* 5 mục: trên điện thoại hẹp thì cuộn ngang, không làm tràn trang */}
+        <div className="max-w-full overflow-x-auto">
         <Segmented<Tab> label="Mục" value={tab} onChange={(t) => go({ tab: t, k: t === 'write' ? char : undefined, r: undefined })}
-          options={[{ value: 'list', label: 'JLPT' }, { value: 'levels', label: 'Theo cấp' }, { value: 'radicals', label: 'Bộ thủ' }, { value: 'write', label: 'Luyện viết' }]} />
+          options={[
+            { value: 'list', label: 'JLPT' }, { value: 'levels', label: 'Theo cấp' }, { value: 'radicals', label: 'Bộ thủ' },
+            { value: 'write', label: 'Luyện viết' }, { value: 'lookup', label: 'Tra chữ' },
+          ]} />
+        </div>
       </div>
 
       <KanjiSetup />
@@ -67,7 +75,7 @@ export default function KanjiPage() {
         showDetail ? (
           <>
             <Button variant="ghost" className="mb-2" onClick={() => go({ k: undefined })}>
-              ‹ {tab === 'radicals' && radical ? 'Về bộ thủ' : 'Về danh sách'}
+              ‹ {tab === 'radicals' && radical ? 'Về bộ thủ' : tab === 'lookup' ? 'Về tra chữ' : 'Về danh sách'}
             </Button>
             <KanjiDetail key={char} char={char!}
               onOpen={(c) => go({ k: c }, false)}
@@ -76,7 +84,7 @@ export default function KanjiPage() {
               prev={i > 0 ? list[i - 1] : undefined}
               next={i >= 0 && i < list.length - 1 ? list[i + 1] : undefined} />
           </>
-        ) : tab === 'list' ? (
+        ) : tab === 'lookup' ? null : tab === 'list' ? (
           <JlptList level={level} onLevel={(l) => go({ lv: l }, false)} onOpen={openDetail} />
         ) : tab === 'levels' ? (
           <LevelsTab onOpen={openDetail} onRadical={(n) => go({ tab: 'radicals', r: String(n) })} />
@@ -87,6 +95,12 @@ export default function KanjiPage() {
             onChar={(c) => go({ k: c }, false)} onLevel={(l) => go({ lv: l, k: undefined }, false)}
             onDetail={(c) => go({ tab: undefined, k: c })} />
         )
+      )}
+      {/* Tra chữ luôn giữ trong trang (chỉ ẩn khi xem chi tiết) để quay lại không mất bộ đã chọn / nét đã vẽ */}
+      {packs.ready && tab === 'lookup' && (
+        <div hidden={showDetail}>
+          <KanjiLookup pickHint="Bấm một chữ để xem chi tiết" onPick={(c) => go({ k: c })} />
+        </div>
       )}
 
       <p className="mt-8 text-xs text-muted">
