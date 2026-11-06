@@ -3,7 +3,7 @@
  * Ghép các bước: đọc gói (read.ts) → đổi ghi chú thành thẻ (convert.ts) → lưu vào bảng srsCards.
  */
 import { getAll, putMany } from '@/core/db'
-import { buildCard, imageToDataUrl } from '../store'
+import { blobToDataUrl, buildCard, imageToDataUrl } from '../store'
 import type { CardKind, SrsCard } from '../types'
 import { convertNote, convertSchedule, mainCard, HIBI_NOTE_TYPE, type ConvertedNote, type Target } from './convert'
 import type { AnkiNote, AnkiPackage } from './read'
@@ -22,6 +22,8 @@ export interface ImportOptions {
   /** Giữ tên bộ của Anki. Nếu điền, mọi thẻ vào bộ này. */
   deckName?: string
   includeImages: boolean
+  /** Nhập kèm tiếng ([sound:…]) để phát ở mặt đáp án. */
+  includeAudio?: boolean
   /** Giữ trạng thái "tạm ẩn" của Anki. */
   keepSuspended: boolean
 }
@@ -31,7 +33,11 @@ export interface ImportResult {
   duplicates: number
   empty: number // ghi chú thiếu chữ hoặc nghĩa nên bỏ qua
   images: number
+  audio: number
 }
+
+/** File tiếng lớn hơn mức này bị bỏ qua để bản sao lưu .json không quá nặng. */
+const MAX_AUDIO_BYTES = 2_000_000
 
 export const deckOf = (pkg: AnkiPackage, note: AnkiNote) => pkg.decks.get(mainCard(note).deckId) ?? 'Anki'
 
@@ -49,16 +55,18 @@ export async function importAnki(
   const seen = new Set(existing.map(dupKey))
   const seenSrc = new Set(existing.filter((c) => c.source).map((c) => `${c.source!.module}:${c.source!.ref}`))
   const now = Date.now()
-  const result: ImportResult = { added: 0, duplicates: 0, empty: 0, images: 0 }
+  const result: ImportResult = { added: 0, duplicates: 0, empty: 0, images: 0, audio: 0 }
   const notes = pkg.notes.filter((n) => opts.plans.get(n.typeId)?.include)
   const BATCH = 300 // lưu từng đợt để bộ thẻ lớn (hàng chục nghìn thẻ) không làm treo trang
 
   for (let start = 0; start < notes.length; start += BATCH) {
     const chunk = notes.slice(start, start + BATCH)
     const converted = chunk.map((n) => ({ note: n, plan: opts.plans.get(n.typeId)!, c: previewNote(pkg, n, opts.plans.get(n.typeId)!) }))
-    const media = opts.includeImages
-      ? pkg.readMedia(converted.map((x) => x.c.imageName).filter((x): x is string => !!x && pkg.mediaNames.has(x)))
-      : new Map<string, Blob>()
+    const names = converted.flatMap((x) => [
+      ...(opts.includeImages && x.c.imageName ? [x.c.imageName] : []),
+      ...(opts.includeAudio && x.c.audioName ? [x.c.audioName] : []),
+    ]).filter((x) => pkg.mediaNames.has(x))
+    const media = names.length ? pkg.readMedia(names) : new Map<string, Blob>()
     const fresh: SrsCard[] = []
     for (const [i, { note, plan, c }] of converted.entries()) {
       if (!c.front || !c.meaning) { result.empty++; continue }
@@ -77,9 +85,13 @@ export async function importAnki(
 
       if (opts.keepProgress) Object.assign(card, convertSchedule(mainCard(note), pkg.createdSec, now))
       if (opts.keepSuspended && note.cards.every((x) => x.queue === -1)) card.suspended = true
-      const blob = c.imageName ? media.get(c.imageName) : undefined
+      const blob = opts.includeImages && c.imageName ? media.get(c.imageName) : undefined
       if (blob && blob.type.startsWith('image/')) {
         try { card.image = await imageToDataUrl(blob); result.images++ } catch { /* ảnh hỏng: bỏ qua ảnh, vẫn giữ thẻ */ }
+      }
+      const sound = opts.includeAudio && c.audioName ? media.get(c.audioName) : undefined
+      if (sound && sound.type.startsWith('audio/') && sound.size <= MAX_AUDIO_BYTES) {
+        try { card.audio = await blobToDataUrl(sound); result.audio++ } catch { /* tiếng hỏng: bỏ qua, vẫn giữ thẻ */ }
       }
       fresh.push(card)
     }

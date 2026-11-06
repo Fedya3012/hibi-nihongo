@@ -40,6 +40,7 @@ function ImportSection() {
   const [keepProgress, setKeepProgress] = useState(true)
   const [keepSuspended, setKeepSuspended] = useState(true)
   const [includeImages, setIncludeImages] = useState(true)
+  const [includeAudio, setIncludeAudio] = useState(true)
   const [ownDeck, setOwnDeck] = useState(false)
   const [deckName, setDeckName] = useState('')
 
@@ -73,7 +74,7 @@ function ImportSection() {
     setError(''); setBusy('Đang nhập…')
     try {
       const r = await importAnki(pkg, {
-        plans, keepProgress, keepSuspended, includeImages, deckName: ownDeck ? deckName : undefined,
+        plans, keepProgress, keepSuspended, includeImages, includeAudio, deckName: ownDeck ? deckName : undefined,
       }, (done, all) => setBusy(`Đang nhập ${done.toLocaleString('vi-VN')}/${all.toLocaleString('vi-VN')}…`))
       setResult(r)
       setPkg(null)
@@ -106,7 +107,7 @@ function ImportSection() {
       {error && <p role="alert" className="text-sm text-bad">{error}</p>}
       {result && (
         <p role="status" className="text-sm text-good">
-          Đã nhập {result.added.toLocaleString('vi-VN')} thẻ{result.images ? ` (${result.images} ảnh)` : ''}.
+          Đã nhập {result.added.toLocaleString('vi-VN')} thẻ{mediaSummary(result)}.
           {result.duplicates > 0 && ` Bỏ qua ${result.duplicates} thẻ đã có.`}
           {result.empty > 0 && ` Bỏ qua ${result.empty} ghi chú thiếu chữ hoặc nghĩa (thử đổi cách ghép trường).`}
         </p>
@@ -130,7 +131,8 @@ function ImportSection() {
             <Check checked={keepProgress} onChange={setKeepProgress}
               label="Giữ tiến độ học từ Anki (hạn ôn, độ thuộc, số lần quên). Bỏ chọn = học lại từ đầu." />
             <Check checked={keepSuspended} onChange={setKeepSuspended} label="Giữ thẻ đang tạm ẩn trong Anki ở trạng thái tạm ẩn" />
-            <Check checked={includeImages} onChange={setIncludeImages} label="Nhập kèm ảnh (âm thanh chưa hỗ trợ, app đọc bằng giọng máy)" />
+            <Check checked={includeImages} onChange={setIncludeImages} label="Nhập kèm ảnh" />
+            <Check checked={includeAudio} onChange={setIncludeAudio} label="Nhập kèm âm thanh (tự phát khi lật thẻ; file trên 2 MB bị bỏ qua)" />
             <Check checked={ownDeck} onChange={setOwnDeck} label="Gộp tất cả vào một bộ (bỏ chọn = giữ tên bộ như trong Anki)" />
             {ownDeck && <input className={`${inputCls} max-w-80`} value={deckName} onChange={(e) => setDeckName(e.target.value)} aria-label="Tên bộ" />}
           </fieldset>
@@ -203,6 +205,7 @@ function TypePlanEditor({ pkg, typeId, plan, onChange }: { pkg: AnkiPackage; typ
                 {preview.exampleMeaning && <p className="text-muted">{preview.exampleMeaning}</p>}
                 {preview.notes && <p className="line-clamp-3 whitespace-pre-line text-xs text-muted">{preview.notes}</p>}
                 {preview.imageName && <p className="text-xs text-muted">🖼 {preview.imageName}</p>}
+                {preview.audioName && <p className="text-xs text-muted">🔊 {preview.audioName}</p>}
             </div>
           </div>
         </div>
@@ -220,12 +223,18 @@ function Check({ checked, onChange, label }: { checked: boolean; onChange: (v: b
   )
 }
 
+function mediaSummary(r: ImportResult): string {
+  const parts = [r.images && `${r.images} ảnh`, r.audio && `${r.audio} âm thanh`].filter(Boolean)
+  return parts.length ? ` (${parts.join(', ')})` : ''
+}
+
 // ---------------- Xuất ----------------
 
 function ExportSection({ decks }: { decks: string[] }) {
   const [deck, setDeck] = useState('')
   const [includeProgress, setIncludeProgress] = useState(true)
   const [includeImages, setIncludeImages] = useState(true)
+  const [includeAudio, setIncludeAudio] = useState(true)
   const [busy, setBusy] = useState(false)
   const [msg, setMsg] = useState('')
 
@@ -236,7 +245,7 @@ function ExportSection({ decks }: { decks: string[] }) {
       const ids = new Set(cards.map((c) => c.id))
       const logs = includeProgress ? (await getAll<SrsLog>('srsLogs')).filter((l) => ids.has(l.cardId)) : []
       const { exportApkg } = await import('./export')
-      const blob = await exportApkg(cards, logs, { includeProgress, includeImages })
+      const blob = await exportApkg(cards, logs, { includeProgress, includeImages, includeAudio })
       const safe = (deck || 'tat-ca').replace(/[\\/:*?"<>|]+/g, '-').slice(0, 60)
       const a = document.createElement('a')
       a.href = URL.createObjectURL(blob)
@@ -266,6 +275,7 @@ function ExportSection({ decks }: { decks: string[] }) {
       <div className="grid gap-2 text-sm">
         <Check checked={includeProgress} onChange={setIncludeProgress} label="Kèm tiến độ học (hạn ôn, độ thuộc, lịch sử ôn)" />
         <Check checked={includeImages} onChange={setIncludeImages} label="Kèm ảnh của thẻ" />
+        <Check checked={includeAudio} onChange={setIncludeAudio} label="Kèm âm thanh gốc của thẻ (vd thoại anime)" />
       </div>
       <div className="flex flex-wrap items-center gap-3">
         <Button disabled={busy || !decks.length} onClick={() => void run()}>{busy ? 'Đang tạo file…' : '⬇ Tải file .apkg'}</Button>
