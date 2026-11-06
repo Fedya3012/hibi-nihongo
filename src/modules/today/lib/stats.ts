@@ -8,16 +8,18 @@
  *
  * Thời gian Ôn tập của những ngày TRƯỚC khi có đồng hồ được ước tính từ thời gian suy nghĩ
  * ghi trong lịch sử ôn (durationMs), nên streak và heatmap có cả dữ liệu cũ.
+ * Tổng lịch sử ôn của các ngày đã qua được lưu sẵn (logDays.ts), nên mở trang không phải đọc lại cả lịch sử.
  */
 import { getAll, kvGet, useDbQuery } from '@/core/db'
-import type { SrsCard, SrsLog } from '@/modules/review/api'
+import type { SrsCard } from '@/modules/review/api'
 import { getProgress as getKanaProgress, levelOf } from '@/modules/kana/progress'
 import type { KanjiProgress } from '@/modules/kanji/lib/progress'
 import { CATEGORIES, type Category } from './categories'
-import { addDays, dayKey, getDayStartHour, monthOf } from './days'
+import { addDays, dayKey, getDayStartHour, HOUR, monthOf, parseDay } from './days'
+import { loadLogDays, type LearnedCounts } from './logDays'
 import { allStudyDays, getFreezes, getTodaySettings, saveFreezes, type StudySession, type TodaySettings } from './store'
 
-export interface LearnedCounts { vocab: number; kanji: number; grammar: number }
+export type { LearnedCounts }
 
 export interface DaySummary {
   day: string
@@ -74,11 +76,13 @@ export function isGoalMet(d: Pick<DaySummary, 'totalMin' | 'cards'>, s: TodaySet
 }
 
 export async function getStudyStats(now = Date.now()): Promise<StudyStats> {
-  const [startHour, settings, studyDays, logs, cards, freezes, kana, kanjiProg] = await Promise.all([
-    getDayStartHour(), getTodaySettings(), allStudyDays(), getAll<SrsLog>('srsLogs'), getAll<SrsCard>('srsCards'),
+  const [startHour, settings, studyDays, cards, freezes, kana, kanjiProg] = await Promise.all([
+    getDayStartHour(), getTodaySettings(), allStudyDays(), getAll<SrsCard>('srsCards'),
     getFreezes(), getKanaProgress(), kvGet<KanjiProgress>('kanji:progress', {}),
   ])
   const today = dayKey(now, startHour)
+  const cardById = new Map(cards.map((c) => [c.id, c]))
+  const logDays = await loadLogDays(startHour, parseDay(today).getTime() + startHour * HOUR, cardById)
   const days = new Map<string, DaySummary>()
   const dayOf = (d: string) => {
     let x = days.get(d)
@@ -93,26 +97,16 @@ export async function getStudyStats(now = Date.now()): Promise<StudyStats> {
     d.sessions = row.sessions
   }
 
-  // 2. Lịch sử ôn thẻ
-  const cardById = new Map(cards.map((c) => [c.id, c]))
-  const reviewMs = new Map<string, number>()
-  const learnedCard = new Set<string>()
-  for (const l of [...logs].sort((a, b) => a.reviewedAt - b.reviewedAt)) {
-    const key = dayKey(l.reviewedAt, startHour)
+  // 2. Lịch sử ôn thẻ (tổng theo ngày)
+  for (const [key, l] of logDays) {
     const d = dayOf(key)
-    d.cards++
-    if (l.rating > 1) d.correct++
-    reviewMs.set(key, (reviewMs.get(key) ?? 0) + Math.min(l.durationMs || 0, 120_000))
-    if (l.stateBefore === 0 && !learnedCard.has(l.cardId)) {
-      learnedCard.add(l.cardId)
-      d.newCards++
-      const card = cardById.get(l.cardId)
-      if (card && !isKanaCard(card)) d.learned[card.kind]++
-    }
-  }
-  for (const [key, ms] of reviewMs) {
-    const d = dayOf(key)
-    d.seconds.review = Math.max(d.seconds.review, ms / 1000)
+    d.cards += l.cards
+    d.correct += l.correct
+    d.newCards += l.newCards
+    d.learned.vocab += l.learned.vocab
+    d.learned.kanji += l.learned.kanji
+    d.learned.grammar += l.learned.grammar
+    d.seconds.review = Math.max(d.seconds.review, l.reviewMs / 1000)
   }
 
   // 3. Tổng hợp từng ngày
