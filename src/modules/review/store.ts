@@ -9,8 +9,10 @@ import {
   get, getAll, getAllByIndex, put, putMany, transaction, promisify, kvGet, kvSet,
 } from '@/core/db'
 import { cardsWithSources, possibleDuplicates } from './bySource'
-import { DAY, newSchedule, schedule } from './fsrs'
+import { DAY, newSchedule, schedule, type SchedulerOptions } from './fsrs'
 import { loadCardMedia, stripMedia, withMedia, writeCards } from './media'
+import { newPerDayToday, type DueLoad } from './load'
+import { activeVacation, dayKeyOf, getVacations } from './vacation'
 import {
   CardState, DEFAULT_SETTINGS, type CardKind, type QuestionType, type Rating,
   type ReviewSettings, type SrsCard, type SrsLog,
@@ -311,8 +313,10 @@ export interface Overview {
 
 /** Tổng quan cho trang Ôn tập và màn hình Hôm nay. */
 export async function getOverview(now = Date.now()): Promise<Overview> {
-  const [cards, settings] = await Promise.all([allCards(), getSettings()])
+  const [cards, settings, vacations] = await Promise.all([allCards(), getSettings(), getVacations()])
   const dayStart = startOfStudyDay(now, settings.dayStartHour)
+  // Thẻ mới hôm nay: giảm vào ngày học nhẹ, bằng 0 khi đang nghỉ
+  const newLimit = activeVacation(vacations, dayKeyOf(dayStart)) ? 0 : newPerDayToday(settings, dayStart)
   const todayLogs = await getAllByIndex<SrsLog>('srsLogs', 'by_time', IDBKeyRange.lowerBound(dayStart))
   const newToday = todayLogs.filter((l) => l.stateBefore === CardState.New).length
   const map = new Map<string, DeckStats>()
@@ -335,7 +339,7 @@ export async function getOverview(now = Date.now()): Promise<Overview> {
   return {
     decks: [...map.values()].sort((a, b) => a.deck.localeCompare(b.deck, 'vi')),
     dueNow,
-    newAvailable: Math.min(fresh, Math.max(0, settings.newPerDay - newToday)),
+    newAvailable: Math.min(fresh, Math.max(0, newLimit - newToday)),
     reviewedToday: todayLogs.length,
     newToday,
     dueTomorrow,
@@ -348,6 +352,8 @@ export async function getOverview(now = Date.now()): Promise<Overview> {
 /** Thông tin để hoàn tác một lần chấm. */
 export interface UndoEntry {
   before: SrsCard
+  /** Thẻ sau khi chấm (để bảng tải trong buổi ôn trả lại đúng ngày cũ khi hoàn tác). */
+  after?: SrsCard
   logId: number
 }
 
@@ -356,10 +362,11 @@ export interface UndoEntry {
  * (mất điện giữa chừng cũng không bị lệch giữa thẻ và lịch sử).
  */
 export async function rateCard(
-  card: SrsCard, rating: Rating, opts: { settings: ReviewSettings; durationMs: number; question: QuestionType },
+  card: SrsCard, rating: Rating,
+  opts: { settings: ReviewSettings; durationMs: number; question: QuestionType; load?: DueLoad | null },
 ): Promise<{ card: SrsCard; undo: UndoEntry; leech: boolean }> {
   const now = Date.now()
-  const sched = schedule(card, rating, now, opts.settings, card.id)
+  const sched = schedule(card, rating, now, schedulerOptions(opts.settings, opts.load), card.id)
   // Thẻ đang hiện có thể đã kèm ảnh/tiếng: không ghi chúng vào srsCards (chúng nằm ở srsMedia)
   const updated: SrsCard = stripMedia({ ...card, ...sched, buriedUntil: undefined })
   // Thẻ khó nhớ: vừa quên thêm lần nữa và đã chạm ngưỡng
@@ -382,7 +389,18 @@ export async function rateCard(
     tx.objectStore('srsCards').put(updated)
     return (await promisify(tx.objectStore('srsLogs').add(log))) as number
   })
-  return { card: updated, undo: { before: stripMedia(card), logId }, leech }
+  opts.load?.move(card, updated)
+  return { card: updated, undo: { before: stripMedia(card), after: updated, logId }, leech }
+}
+
+/** Tùy chọn cho FSRS từ cài đặt: tham số riêng (nếu đã tối ưu) và dàn đều thẻ (nếu bật và có bảng tải). */
+export function schedulerOptions(settings: ReviewSettings, load?: DueLoad | null): SchedulerOptions {
+  return {
+    retention: settings.retention,
+    maxInterval: settings.maxInterval,
+    weights: settings.weights,
+    pickDay: settings.loadBalance && load ? load.picker() : null,
+  }
 }
 
 /** Hoàn tác: trả thẻ về đúng như trước khi chấm và xóa dòng lịch sử. */

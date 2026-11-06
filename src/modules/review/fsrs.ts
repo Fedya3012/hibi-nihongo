@@ -13,10 +13,29 @@
  */
 import { CardState, type Rating, type Schedule } from './types'
 
-export const W = [
+/** Tham số mặc định của FSRS-5. Bấm "Tối ưu" trong Cài đặt để app học bộ tham số riêng từ lịch sử ôn của bạn. */
+export const DEFAULT_W: readonly number[] = [
   0.40255, 1.18385, 3.173, 15.69105, 7.1949, 0.5345, 1.4604, 0.0046, 1.54575, 0.1192, 1.01925,
   1.9395, 0.11, 0.29605, 2.2698, 0.2315, 2.9898, 0.51655, 0.6621,
-] as const
+]
+/** Tên cũ, giữ cho code khác. */
+export const W = DEFAULT_W
+
+/** Giới hạn hợp lệ của từng tham số (theo FSRS-5), dùng khi tối ưu và khi kiểm tra tham số đã lưu. */
+export const W_BOUNDS: readonly (readonly [number, number])[] = [
+  [0.01, 100], [0.01, 100], [0.01, 100], [0.01, 100], [1, 10], [0.001, 4], [0.001, 4], [0.001, 0.75],
+  [0, 4.5], [0, 0.8], [0.001, 3.5], [0.001, 5], [0.001, 0.25], [0.001, 0.9], [0, 4], [0, 1], [1, 6], [0, 2], [0, 2],
+]
+
+/** Bộ tham số dùng được: đủ 19 số, nằm trong giới hạn. Không hợp lệ thì dùng mặc định. */
+export function validWeights(w?: readonly number[] | null): readonly number[] {
+  if (!w || w.length !== DEFAULT_W.length) return DEFAULT_W
+  for (let i = 0; i < w.length; i++) {
+    const [lo, hi] = W_BOUNDS[i]
+    if (!Number.isFinite(w[i]) || w[i] < lo || w[i] > hi) return DEFAULT_W
+  }
+  return w
+}
 
 const DECAY = -0.5
 const FACTOR = 19 / 81 // chọn để R(S, S) = 0.9
@@ -41,32 +60,55 @@ function intervalFor(stability: number, retention: number, maxInterval: number):
   return clamp(Math.round(days), 1, maxInterval)
 }
 
-const initStability = (g: Rating) => Math.max(W[g - 1], 0.1)
-const initDifficulty = (g: Rating) => clamp(W[4] - Math.exp(W[5] * (g - 1)) + 1, 1, 10)
+type Ws = readonly number[]
 
-function nextDifficulty(d: number, g: Rating): number {
-  const delta = -W[6] * (g - 3)
+const initStability = (w: Ws, g: Rating) => Math.max(w[g - 1], 0.1)
+const initDifficulty = (w: Ws, g: Rating) => clamp(w[4] - Math.exp(w[5] * (g - 1)) + 1, 1, 10)
+
+function nextDifficulty(w: Ws, d: number, g: Rating): number {
+  const delta = -w[6] * (g - 3)
   const damped = d + (delta * (10 - d)) / 9 // càng gần 10 thì tăng càng chậm
-  const reverted = W[7] * initDifficulty(4) + (1 - W[7]) * damped // kéo nhẹ về mức trung bình
+  const reverted = w[7] * initDifficulty(w, 4) + (1 - w[7]) * damped // kéo nhẹ về mức trung bình
   return clamp(reverted, 1, 10)
 }
 
 /** Độ bền mới khi NHỚ được (Hard/Good/Easy) sau r xác suất. */
-function recallStability(d: number, s: number, r: number, g: Rating): number {
-  const hard = g === 2 ? W[15] : 1
-  const easy = g === 4 ? W[16] : 1
-  return s * (1 + Math.exp(W[8]) * (11 - d) * Math.pow(s, -W[9]) * (Math.exp(W[10] * (1 - r)) - 1) * hard * easy)
+function recallStability(w: Ws, d: number, s: number, r: number, g: Rating): number {
+  const hard = g === 2 ? w[15] : 1
+  const easy = g === 4 ? w[16] : 1
+  return s * (1 + Math.exp(w[8]) * (11 - d) * Math.pow(s, -w[9]) * (Math.exp(w[10] * (1 - r)) - 1) * hard * easy)
 }
 
 /** Độ bền mới khi QUÊN (Again). Không bao giờ lớn hơn độ bền cũ. */
-function forgetStability(d: number, s: number, r: number): number {
-  const sf = W[11] * Math.pow(d, -W[12]) * (Math.pow(s + 1, W[13]) - 1) * Math.exp(W[14] * (1 - r))
+function forgetStability(w: Ws, d: number, s: number, r: number): number {
+  const sf = w[11] * Math.pow(d, -w[12]) * (Math.pow(s + 1, w[13]) - 1) * Math.exp(w[14] * (1 - r))
   return Math.min(sf, s)
 }
 
 /** Ôn lại trong cùng một ngày (bước học ngắn): S thay đổi nhẹ. */
-function shortTermStability(s: number, g: Rating): number {
-  return Math.max(0.1, s * Math.exp(W[17] * (g - 3 + W[18])))
+function shortTermStability(w: Ws, s: number, g: Rating): number {
+  return Math.max(0.1, s * Math.exp(w[17] * (g - 3 + w[18])))
+}
+
+/** "Trí nhớ" về một thẻ: độ bền S (ngày) và độ khó D (1–10). */
+export interface Memory {
+  s: number
+  d: number
+}
+
+/**
+ * Cập nhật trí nhớ sau một lần ôn, ĐÚNG như schedule() làm. Bộ tối ưu (optimizer.ts) dùng hàm này
+ * để "chạy lại" lịch sử ôn với bộ tham số khác.
+ *   kind 'first': lần đầu học thẻ mới · 'short': ôn trong ngày / đang ở bước học · 'long': ôn theo ngày
+ */
+export function nextMemory(w: Ws, m: Memory | null, kind: 'first' | 'short' | 'long', g: Rating, elapsedDays: number): Memory {
+  if (!m || kind === 'first') return { s: initStability(w, g), d: initDifficulty(w, g) }
+  if (kind === 'short') return { s: shortTermStability(w, m.s, g), d: nextDifficulty(w, m.d, g) }
+  const r = retrievability(elapsedDays, m.s)
+  return {
+    s: g === 1 ? forgetStability(w, m.d, m.s, r) : recallStability(w, m.d, m.s, r, g),
+    d: nextDifficulty(w, m.d, g),
+  }
 }
 
 /**
@@ -82,9 +124,29 @@ function fuzz(days: number, seed: string): number {
   return days + Math.round((rand * 2 - 1) * spread)
 }
 
+/**
+ * Khoảng "rung" cho phép quanh một khoảng cách (ngày), giống Anki: thẻ có thể đến hạn sớm/muộn
+ * vài ngày trong khoảng này mà gần như không ảnh hưởng trí nhớ. Dàn đều thẻ (load.ts) chọn ngày trong khoảng này.
+ */
+export function fuzzRange(days: number, maxInterval: number): [number, number] {
+  if (days < 3) return [days, days]
+  const delta = 1 + 0.15 * Math.max(Math.min(days, 7) - 2.5, 0) + 0.1 * Math.max(Math.min(days, 20) - 7, 0)
+    + 0.05 * Math.max(days - 20, 0)
+  const lo = Math.max(2, Math.round(days - delta))
+  const hi = Math.min(maxInterval, Math.round(days + delta))
+  return [Math.min(lo, hi), hi]
+}
+
+/** Chọn ngày đến hạn trong khoảng [lo, hi] (tính bằng số ngày kể từ hôm nay). Xem load.ts. */
+export type DayPicker = (ideal: number, lo: number, hi: number, seed: string) => number
+
 export interface SchedulerOptions {
   retention: number
   maxInterval: number
+  /** Tham số FSRS riêng (sau khi bấm Tối ưu). Không có = mặc định. */
+  weights?: readonly number[] | null
+  /** Dàn đều thẻ: chọn ngày ít thẻ nhất trong khoảng rung. Không có = rung ngẫu nhiên ±5% như cũ. */
+  pickDay?: DayPicker | null
 }
 
 /**
@@ -94,11 +156,20 @@ export interface SchedulerOptions {
 export function schedule(card: Schedule, g: Rating, now: number, opt: SchedulerOptions, seed = ''): Schedule {
   const elapsedDays = card.lastReview ? Math.max(0, (now - card.lastReview) / DAY) : 0
   const next: Schedule = { ...card, reps: card.reps + 1, lastReview: now }
-  const days = (s: number) => fuzz(intervalFor(s, opt.retention, opt.maxInterval), seed + card.reps)
+  const w = validWeights(opt.weights)
+  // Khoảng cách cuối cùng: dàn đều theo số thẻ mỗi ngày nếu có, không thì rung ±5%
+  const spread = (ideal: number) => {
+    if (opt.pickDay && ideal >= 3) {
+      const [lo, hi] = fuzzRange(ideal, opt.maxInterval)
+      return clamp(opt.pickDay(ideal, lo, hi, seed + card.reps), 1, opt.maxInterval)
+    }
+    return Math.min(opt.maxInterval, fuzz(ideal, seed + card.reps))
+  }
+  const days = (s: number) => spread(intervalFor(s, opt.retention, opt.maxInterval))
 
   if (card.state === CardState.New) {
-    next.stability = initStability(g)
-    next.difficulty = initDifficulty(g)
+    next.stability = initStability(w, g)
+    next.difficulty = initDifficulty(w, g)
     if (g === 4) {
       next.state = CardState.Review
       next.due = now + days(next.stability) * DAY
@@ -111,8 +182,8 @@ export function schedule(card: Schedule, g: Rating, now: number, opt: SchedulerO
 
   // Ôn lại trong cùng ngày (đang ở bước học, hoặc ôn sớm < 1 ngày)
   if (card.state === CardState.Learning || card.state === CardState.Relearning || elapsedDays < 1) {
-    next.stability = shortTermStability(card.stability, g)
-    next.difficulty = nextDifficulty(card.difficulty, g)
+    next.stability = shortTermStability(w, card.stability, g)
+    next.difficulty = nextDifficulty(w, card.difficulty, g)
     if (card.state === CardState.Review && g !== 1) {
       // Ôn sớm một thẻ đã thuộc: giữ ở trạng thái Review
       next.due = now + days(Math.max(next.stability, card.stability)) * DAY
@@ -134,18 +205,18 @@ export function schedule(card: Schedule, g: Rating, now: number, opt: SchedulerO
 
   // Thẻ đã thuộc, đến lúc ôn theo ngày
   const r = retrievability(elapsedDays, card.stability)
-  next.difficulty = nextDifficulty(card.difficulty, g)
+  next.difficulty = nextDifficulty(w, card.difficulty, g)
   if (g === 1) {
-    next.stability = forgetStability(card.difficulty, card.stability, r)
+    next.stability = forgetStability(w, card.difficulty, card.stability, r)
     next.lapses = card.lapses + 1
     next.state = CardState.Relearning
     next.due = now + RELEARN_STEP * MINUTE
     return next
   }
   // Tính cả Hard/Good/Easy để bảo đảm thứ tự: Hard ≤ Good < Easy
-  const sHard = recallStability(card.difficulty, card.stability, r, 2)
-  const sGood = recallStability(card.difficulty, card.stability, r, 3)
-  const sEasy = recallStability(card.difficulty, card.stability, r, 4)
+  const sHard = recallStability(w, card.difficulty, card.stability, r, 2)
+  const sGood = recallStability(w, card.difficulty, card.stability, r, 3)
+  const sEasy = recallStability(w, card.difficulty, card.stability, r, 4)
   let iHard = intervalFor(sHard, opt.retention, opt.maxInterval)
   let iGood = intervalFor(sGood, opt.retention, opt.maxInterval)
   let iEasy = intervalFor(sEasy, opt.retention, opt.maxInterval)
@@ -156,7 +227,7 @@ export function schedule(card: Schedule, g: Rating, now: number, opt: SchedulerO
   const [s, interval] = pick[g as 2 | 3 | 4]
   next.stability = s
   next.state = CardState.Review
-  next.due = now + Math.min(opt.maxInterval, fuzz(interval, seed + card.reps)) * DAY
+  next.due = now + spread(interval) * DAY
   return next
 }
 

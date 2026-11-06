@@ -12,6 +12,19 @@ Trong lúc ôn: **Space** lật thẻ, **1–4** chấm Quên/Khó/Được/Dễ
 **S** tạm ẩn, **R** nghe đọc, **Esc** thoát.
 Trên màn cảm ứng: chạm để lật, vuốt ← Quên · → Được · ↑ Dễ · ↓ Khó, **nhấn giữ** thẻ để Chôn / Tạm ẩn.
 
+## Lịch ôn thông minh
+- **Tối ưu FSRS** (Cài đặt → Lịch ôn thông minh): app chạy lại lịch sử ôn của bạn và tìm 19 tham số FSRS
+  đoán đúng nhất lần nào bạn nhớ / quên (cần ≥ 300 lượt ôn thẻ đã thuộc). Hiện mức cải thiện, bấm *Dùng tham số mới*
+  để áp dụng, *Về tham số mặc định* để bỏ. Chạy trong Web Worker nên không làm đứng app. Code: `optimizer.ts`, `optimizer.worker.ts`.
+- **Dàn đều thẻ** (bật sẵn): mỗi lần chấm, trong khoảng vài ngày quanh ngày FSRS hẹn (`fuzzRange`), chọn ngày ít thẻ nhất. Code: `load.ts`.
+- **Ngày học nhẹ**: đặt từng thứ trong tuần là Thường / Nhẹ / Nghỉ. Ngày Nhẹ ít thẻ ôn hơn và nửa số thẻ mới;
+  ngày Nghỉ tránh hẹn thẻ và không có thẻ mới.
+- **Chế độ nghỉ** (tab Ôn tập): nghỉ từ hôm nay đến ngày chọn. Thẻ đến hạn trong kỳ nghỉ được dời và dàn đều sang
+  vài ngày sau đó, không mở thẻ mới, không đứt streak (module Hôm nay đọc `getVacationDays()`). Về sớm thì bấm kết thúc,
+  hủy trong ngày thì mọi thứ trở lại như cũ. Code: `vacation.ts`, kv `review:vacations`.
+- **Ôn thêm** (tab Ôn tập): ôn trước thẻ sắp đến hạn, thẻ vừa quên, thẻ khó nhất, ngẫu nhiên, xem trước thẻ mới;
+  lọc theo bộ / nhãn. Chấm trong buổi này không đổi lịch thật, không ghi lịch sử. Code: `buildCustomQueue` (queue.ts), `Session` với `practice`.
+
 ## Thống kê
 Tab **Thống kê** (hoặc mở thẳng `/review?tab=stats`). Chọn một bộ thẻ hoặc xem tất cả.
 - **Dự báo số thẻ đến hạn** 7 ngày / 30 ngày / 3 tháng tới (biểu đồ cột, chia thẻ đã thuộc và thẻ đang học),
@@ -72,7 +85,11 @@ Chế độ "Trộn" (mặc định): thẻ mới hỏi kiểu dễ nhất, th�
 | --- | --- |
 | `fsrs.ts` | Thuật toán FSRS (hàm thuần, không đọc/ghi dữ liệu) |
 | `store.ts` | Đọc/ghi thẻ, lịch sử, cài đặt; chấm thẻ + hoàn tác trong một giao dịch |
-| `queue.ts` | Xếp hàng đợi buổi ôn, chọn dạng câu hỏi |
+| `queue.ts` | Xếp hàng đợi buổi ôn, chọn dạng câu hỏi, hàng đợi ôn thêm |
+| `optimizer.ts`, `optimizer.worker.ts` | Tối ưu tham số FSRS từ lịch sử ôn |
+| `load.ts` | Dàn đều thẻ mỗi ngày, ngày học nhẹ |
+| `vacation.ts` | Chế độ nghỉ |
+| `SmartSchedule.tsx`, `StudyExtras.tsx` | Giao diện lịch ôn thông minh, ôn thêm, chế độ nghỉ |
 | `kana.ts` | Romaji → hiragana, so cách đọc |
 | `Session.tsx` | Màn hình ôn (nút, phím tắt, vuốt, hoàn tác, đồng hồ 5 phút) |
 | `stats.ts` | Tính thống kê: dự báo, tỉ lệ nhớ thật, thẻ khó nhất |

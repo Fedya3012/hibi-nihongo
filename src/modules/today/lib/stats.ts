@@ -11,7 +11,7 @@
  * Tổng lịch sử ôn của các ngày đã qua được lưu sẵn (logDays.ts), nên mở trang không phải đọc lại cả lịch sử.
  */
 import { getAll, kvGet, useDbQuery } from '@/core/db'
-import type { SrsCard } from '@/modules/review/api'
+import { getVacationDays, type SrsCard } from '@/modules/review/api'
 import { getProgress as getKanaProgress, levelOf } from '@/modules/kana/progress'
 import type { KanjiProgress } from '@/modules/kanji/lib/progress'
 import { CATEGORIES, type Category } from './categories'
@@ -45,6 +45,8 @@ export interface StreakInfo {
   freezesLeft: number
   /** Ngày đã dùng đóng băng (để hiện ❄ trên lịch). */
   frozenDays: Set<string>
+  /** Ngày bật chế độ nghỉ trong Ôn tập: giữ streak, không tốn lượt đóng băng. */
+  restDays: Set<string>
 }
 
 export interface StudyStats {
@@ -76,9 +78,9 @@ export function isGoalMet(d: Pick<DaySummary, 'totalMin' | 'cards'>, s: TodaySet
 }
 
 export async function getStudyStats(now = Date.now()): Promise<StudyStats> {
-  const [startHour, settings, studyDays, cards, freezes, kana, kanjiProg] = await Promise.all([
+  const [startHour, settings, studyDays, cards, freezes, kana, kanjiProg, restDays] = await Promise.all([
     getDayStartHour(), getTodaySettings(), allStudyDays(), getAll<SrsCard>('srsCards'),
-    getFreezes(), getKanaProgress(), kvGet<KanjiProgress>('kanji:progress', {}),
+    getFreezes(), getKanaProgress(), kvGet<KanjiProgress>('kanji:progress', {}), getVacationDays(),
   ])
   const today = dayKey(now, startHour)
   const cardById = new Map(cards.map((c) => [c.id, c]))
@@ -127,7 +129,7 @@ export async function getStudyStats(now = Date.now()): Promise<StudyStats> {
 
   const sortedDays = [...days.keys()].sort()
   const firstDay = sortedDays[0] ?? null
-  const streak = computeStreak(days, today, firstDay, settings, frozenDays)
+  const streak = computeStreak(days, today, firstDay, settings, frozenDays, restDays)
 
   // 4. Tổng đã học
   const learnedTotal = { vocab: 0, kanji: 0, grammar: 0, kana: 0 }
@@ -151,16 +153,17 @@ export async function getStudyStats(now = Date.now()): Promise<StudyStats> {
 
 function computeStreak(
   days: Map<string, DaySummary>, today: string, firstDay: string | null,
-  settings: TodaySettings, frozenDays: Set<string>,
+  settings: TodaySettings, frozenDays: Set<string>, restDays: Set<string> = new Set(),
 ): StreakInfo {
   const active = (d: string) => days.get(d)?.active ?? false
+  const kept = (d: string) => frozenDays.has(d) || restDays.has(d) // ngày không học mà không làm đứt streak
   const todayDone = active(today)
   // Streak hiện tại: đếm lùi từ hôm qua (hôm nay chưa học thì streak vẫn còn, chỉ chưa cộng)
   let current = todayDone ? 1 : 0
   if (firstDay) {
     for (let d = addDays(today, -1); d >= firstDay; d = addDays(d, -1)) {
       if (active(d)) current++
-      else if (!frozenDays.has(d)) break
+      else if (!kept(d)) break
     }
   }
   // Streak dài nhất
@@ -169,12 +172,12 @@ function computeStreak(
   if (firstDay) {
     for (let d = firstDay; d <= today; d = addDays(d, 1)) {
       if (active(d)) best = Math.max(best, ++run)
-      else if (!frozenDays.has(d)) run = 0
+      else if (!kept(d)) run = 0
     }
   }
   const thisMonth = monthOf(today)
   const used = [...frozenDays].filter((d) => monthOf(d) === thisMonth).length
-  return { current, best, todayDone, freezesLeft: Math.max(0, settings.freezesPerMonth - used), frozenDays }
+  return { current, best, todayDone, freezesLeft: Math.max(0, settings.freezesPerMonth - used), frozenDays, restDays }
 }
 
 /**
@@ -207,7 +210,7 @@ export async function autoFreeze(now = Date.now()): Promise<number> {
   for (let d = addDays(today, -1); d >= limit; d = addDays(d, -1)) {
     if (active(d)) {
       if (gap.length && !tryCover()) break
-    } else if (!streak.frozenDays.has(d)) {
+    } else if (!streak.frozenDays.has(d) && !streak.restDays.has(d)) {
       gap.push(d)
     }
   }

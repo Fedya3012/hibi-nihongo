@@ -12,10 +12,12 @@ import { Button } from '@/design/components/Button'
 import { Card } from '@/design/components/Card'
 import { useSettings } from '@/core/settings'
 import { formatInterval, schedule } from './fsrs'
+import { DueLoad } from './load'
 import { readingMatches, romajiToHiragana } from './kana'
 import { choiceOptions, clozeAnswers, pickQuestion, QUESTION_LABEL } from './queue'
 import {
-  buryCard, rateCard, restoreSnapshot, setSuspended, undoRating, type CardSnapshot, type UndoEntry,
+  buryCard, rateCard, restoreSnapshot, schedulerOptions, setSuspended, startOfStudyDay, undoRating,
+  type CardSnapshot, type UndoEntry,
 } from './store'
 import { hasMedia, useCardMedia } from './media'
 import { AnswerDetails, Example, Front, frontSize, kindLabel, playCardAudio, speakJa } from './CardFace'
@@ -43,6 +45,7 @@ interface Snapshot {
 /** Một bước có thể hoàn tác: chấm thẻ, hoặc đổi trạng thái (chôn / tạm ẩn). */
 type UndoItem =
   | { type: 'rate'; entry: UndoEntry; snap: Snapshot }
+  | { type: 'practice'; snap: Snapshot }
   | { type: 'state'; before: CardSnapshot; snap: Snapshot }
 
 const RATINGS: { g: Rating; label: string; key: string; cls: string }[] = [
@@ -83,9 +86,17 @@ function takeNext(queue: SrsCard[], pending: SrsCard[], now: number) {
 }
 
 export function Session({
-  initial, pool, settings, quick, onExit,
-}: { initial: SrsCard[]; pool: SrsCard[]; settings: ReviewSettings; quick: boolean; onExit: () => void }) {
+  initial, pool, settings, quick, practice = false, onExit,
+}: {
+  initial: SrsCard[]; pool: SrsCard[]; settings: ReviewSettings; quick: boolean
+  /** Ôn thêm (custom study): chấm không đổi lịch ôn thật, không ghi lịch sử. Thẻ bấm Quên quay lại sau ít phút. */
+  practice?: boolean
+  onExit: () => void
+}) {
   const haptics = useSettings((s) => s.haptics)
+  // Bảng số thẻ đến hạn mỗi ngày, để dàn đều thẻ (load.ts). Lập một lần từ mọi thẻ khi vào buổi ôn.
+  const [load] = useState(() => new DueLoad(pool, startOfStudyDay(Date.now(), settings.dayStartHour), settings.easyDays))
+  const schedOpts = useMemo(() => schedulerOptions(settings, load), [settings, load])
   const makeCurrent = useCallback(
     (card: SrsCard): Current => {
       const question = pickQuestion(card, settings.questionMode, pool)
@@ -166,13 +177,23 @@ export function Session({
       vibrate(10)
       try {
         const snap: Snapshot = { queue, pending, current, done, again }
-        const { card: updated, undo, leech } = await rateCard(current.card, g, {
-          settings, durationMs: Date.now() - current.shownAt, question: current.question,
-        })
+        let updated: SrsCard
+        let leech = false
+        if (practice) {
+          // Ôn thêm: không lưu gì. Quên thì gặp lại thẻ sau 1 phút.
+          updated = { ...current.card, due: g === 1 ? Date.now() + 60_000 : Infinity }
+          setUndoStack((s) => [...s.slice(-19), { type: 'practice', snap }])
+        } else {
+          const res = await rateCard(current.card, g, {
+            settings, durationMs: Date.now() - current.shownAt, question: current.question, load,
+          })
+          updated = res.card
+          leech = res.leech
+          setUndoStack((s) => [...s.slice(-19), { type: 'rate', entry: res.undo, snap }])
+        }
         const t = Date.now()
         const keep = !updated.suspended && updated.due - t <= LEARN_AHEAD
         const nextPending = keep ? [...pending, updated] : pending
-        setUndoStack((s) => [...s.slice(-19), { type: 'rate', entry: undo, snap }])
         setNotice(leech
           ? `“${current.card.front}” bị quên ${updated.lapses} lần nên được đánh dấu “khó nhớ”${updated.suspended ? ' và tạm ẩn' : ''}. Thử sửa thẻ: thêm mẹo nhớ, ảnh hoặc câu ví dụ.`
           : null)
@@ -191,7 +212,7 @@ export function Session({
         setBusy(false)
       }
     },
-    [current, revealed, busy, queue, pending, done, again, settings, quick, startedAt, makeCurrent],
+    [current, revealed, busy, queue, pending, done, again, settings, quick, startedAt, makeCurrent, practice, load],
   )
 
   /**
@@ -226,8 +247,10 @@ export function Session({
     if (!last || busy) return
     setBusy(true)
     try {
-      if (last.type === 'rate') await undoRating(last.entry)
-      else await restoreSnapshot(last.before)
+      if (last.type === 'rate') {
+        await undoRating(last.entry)
+        load.move(last.entry.after, last.entry.before)
+      } else if (last.type === 'state') await restoreSnapshot(last.before)
       setNotice(null)
       setUndoStack((s) => s.slice(0, -1))
       setQueue(last.snap.queue)
@@ -240,7 +263,7 @@ export function Session({
     } finally {
       setBusy(false)
     }
-  }, [undoStack, busy])
+  }, [undoStack, busy, load])
 
   // Phím tắt
   const suggested: Rating = correct === false ? 1 : 3
@@ -327,10 +350,10 @@ export function Session({
     offset.x > 40 ? 'Được' : offset.x < -40 ? 'Quên' : offset.y < -40 ? 'Dễ' : offset.y > 40 ? 'Khó' : null
 
   const previews = useMemo(() => {
-    if (!current) return null
+    if (!current || practice) return null
     const t = Date.now()
-    return RATINGS.map((r) => formatInterval(schedule(current.card, r.g, t, settings, current.card.id).due - t))
-  }, [current, settings])
+    return RATINGS.map((r) => formatInterval(schedule(current.card, r.g, t, schedOpts, current.card.id).due - t))
+  }, [current, schedOpts, practice])
 
   const left = queue.length + pending.length + (current ? 1 : 0)
   const mmss = `${Math.floor(remainingMs / 60000)}:${String(Math.floor((remainingMs % 60000) / 1000)).padStart(2, '0')}`
@@ -345,6 +368,7 @@ export function Session({
         <h2 className="mt-3 text-xl font-bold">
           {done === 0 ? 'Không có thẻ nào cần ôn' : quick && timeUp ? 'Hết 5 phút, giỏi lắm!' : 'Xong buổi ôn!'}
         </h2>
+        {practice && done > 0 && <p className="mt-2 text-sm text-muted">Buổi ôn thêm không làm thay đổi lịch ôn thật.</p>}
         {done > 0 && (
           <p className="mt-2 text-muted">
             Bạn đã ôn <b className="text-text">{done}</b> lượt trong khoảng {minutes} phút, nhớ đúng {pct}%.
@@ -370,6 +394,11 @@ export function Session({
         <span className="text-muted">
           Còn <b className="text-text">{left}</b> thẻ · đã ôn {done}
         </span>
+        {practice && (
+          <span className="rounded-lg bg-surface-2 px-2 py-1 text-xs" title="Chấm thẻ trong buổi này không đổi ngày ôn thật">
+            Ôn thêm · không đổi lịch
+          </span>
+        )}
         {quick && (
           <span className={`ml-2 rounded-lg px-2 py-1 font-mono ${timeUp ? 'bg-warn/15 text-warn' : 'bg-surface-2'}`}>
             ⏱ {timeUp ? 'hết giờ' : mmss}
