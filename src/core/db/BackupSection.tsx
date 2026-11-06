@@ -85,7 +85,7 @@ export function BackupSection() {
   })
 
   const s = preview?.summary
-  const rows = s ? PREVIEW_ORDER.filter((n) => s.counts[n] != null) : []
+  const rows = s ? PREVIEW_ORDER.filter((n) => (s.counts[n] ?? 0) > 0) : []
   const missing = s ? s.missing.filter((n) => PREVIEW_ORDER.includes(n)) : []
 
   return (
@@ -108,6 +108,7 @@ export function BackupSection() {
             <b>{preview.file.name}</b> ({formatBytes(s.size)}), tạo lúc <b>{dateText(s.createdAt)}</b>
             {s.deviceId && s.deviceId !== deviceId() && ' trên một máy khác'}.
           </p>
+          {rows.length === 0 && s.media === 0 && <p className="mt-2 text-muted">File này chưa có dữ liệu học nào.</p>}
           <ul className="mt-2 grid gap-x-4 sm:grid-cols-2">
             {rows.map((n) => (
               <li key={n} className="flex justify-between gap-2">

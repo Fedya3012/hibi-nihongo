@@ -14,6 +14,7 @@ import { SearchBar } from '@/modules/search/SearchBar'
 import { PomodoroHeaderButton } from '@/modules/pomodoro/HeaderTimer'
 import { ShortcutsHost } from '@/modules/shortcuts/Host'
 import { AutoBackupHost } from '@/modules/autobackup/Host'
+import { StorageHost } from '@/modules/storage/Host'
 import { APP } from './strings'
 import { Sidebar } from './Sidebar'
 import { moduleForPath } from './nav'
@@ -56,6 +57,7 @@ export function Layout() {
       <Sidebar />
       <ShortcutsHost />
       <AutoBackupHost />
+      <StorageHost />
 
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Thanh trên: tìm kiếm toàn cục (Ctrl+K), xem src/modules/search */}

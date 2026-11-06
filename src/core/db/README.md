@@ -17,7 +17,11 @@ import { kvGet, kvSet, useDbQuery, findByKey } from '@/core/db'
 | `idb.ts` | Mở kho, giao dịch, đọc/ghi từng bảng (`get`, `put`, `putMany`...). |
 | `kv.ts` | Lưu giá trị nhỏ theo khóa (`kvGet`, `kvSet`). |
 | `content.ts` | Gói nội dung có phiên bản: cài, tra cứu, cập nhật chỉ phần thay đổi. |
-| `backup.ts` | Sao lưu ra file `.json` và khôi phục. |
+| `backup.ts` | Sao lưu ra file `.zip` (đọc được cả `.json` cũ), khôi phục an toàn, hoàn tác khôi phục. |
+| `zipread.ts` | Đọc file `.zip` từng phần (không nạp cả file vào bộ nhớ). |
+| `BackupSection.tsx` | Phần "Sao lưu" trong Cài đặt: tạo file, xem trước, khôi phục, hoàn tác. |
+| `quota.ts` | Nhận ra lỗi "bộ nhớ đầy", đổi thành câu dễ hiểu, báo cho thanh cảnh báo chung. |
+| `labels.ts` | Tên dễ hiểu của từng bảng. |
 | `storage.ts` | Dung lượng đã dùng, xin lưu bền vững. |
 | `events.ts`, `useDbQuery.ts` | Báo thay đổi và hook React tự cập nhật. |
 | `DataPanel.tsx` | Khối "Dữ liệu trên máy" trong trang Cài đặt. |
@@ -170,13 +174,32 @@ Gỡ: `removePack(id)`.
 ## 5. Sao lưu và khôi phục
 
 ```ts
-await downloadBackup()            // tải file hibi-nihongo-sao-luu-YYYY-MM-DD.json về máy
-const backup = await createBackup() // hoặc lấy object để tự xử lý (đồng bộ sau này)
-await restoreBackup(file)          // THAY THẾ dữ liệu học hiện tại
+await downloadBackup()                    // tải file hibi-nihongo-sao-luu-YYYY-MM-DD.zip về máy
+const { blob, hash } = await createBackupZip() // lấy file .zip để tự ghi (sao lưu tự động)
+const info = await inspectBackup(file)    // xem trước: tạo lúc nào, mỗi bảng bao nhiêu dòng
+await restoreBackup(file)                 // thay các bảng CÓ trong file, tự chụp bản an toàn trước
+await undoLastRestore()                   // quay lại như trước lần khôi phục gần nhất
 ```
 
-File sao lưu gồm mọi bảng có `backup: true` và cài đặt giao diện. Gói nội dung không nằm trong file.
-File từ bản app mới hơn sẽ bị từ chối (tránh mất dữ liệu); file từ bản cũ hơn khôi phục được bình thường.
+File `.zip` gồm `hibi-backup.json` (thông tin file, cài đặt giao diện), `stores/<bảng>/0000.json`
+(mỗi phần tối đa 1000 dòng) và `media/<id thẻ>/image.jpg`... (ảnh, tiếng của thẻ, mỗi thứ một file).
+Ghi và đọc từng phần nên dữ liệu vài trăm MB không làm trình duyệt hết bộ nhớ.
+
+Khôi phục an toàn:
+- Trước khi thay, app chụp **bản an toàn** của dữ liệu hiện tại (bảng `backupSnapshots`, không sao lưu).
+  Lỗi giữa chừng thì tự trả lại dữ liệu cũ. Không đủ chỗ để chụp thì báo `SafetySnapshotError`
+  để giao diện hỏi "vẫn khôi phục?".
+- Bảng file không có (file cũ chưa có Kho từ chẳng hạn) thì **giữ nguyên**, không bị xóa trắng.
+- File từ bản app mới hơn bị từ chối (tránh mất dữ liệu); file từ bản cũ hơn khôi phục bình thường.
+
+Ảnh, tiếng của thẻ ôn tập nằm ở bảng `srsMedia` (khóa = id thẻ), thẻ trong `srsCards` chỉ giữ cờ `media`.
+Module khác cần ảnh/tiếng thì dùng `withCardMedia(card)` / `useCardMedia(card)` từ `@/modules/review/api`.
+
+## 5b. Bộ nhớ đầy và kết nối bị đóng
+
+- Mọi lần ghi hỏng vì hết chỗ đều ném lỗi `QuotaExceededError` với câu tiếng Việt dễ hiểu, và thanh cảnh báo
+  ở `src/modules/storage/Host.tsx` hiện nút "Dọn dữ liệu" ở mọi trang.
+- Trình duyệt tự đóng kết nối kho (thiếu RAM, tab ngủ lâu): lần đọc/ghi sau tự mở lại, không cần tải lại trang.
 
 ## 6. Dung lượng
 

@@ -131,14 +131,15 @@ async function dataUrlToFile(url: string): Promise<[string, Uint8Array]> {
   return ['dataurl', strToU8(url)]
 }
 
-function fileToDataUrl(ext: string, bytes: Uint8Array): Promise<string> {
-  if (ext === 'dataurl') return Promise.resolve(new TextDecoder().decode(bytes))
-  return new Promise((resolve, reject) => {
-    const r = new FileReader()
-    r.onload = () => resolve(String(r.result))
-    r.onerror = () => reject(r.error)
-    r.readAsDataURL(new Blob([bytes as BlobPart], { type: MIME[ext] ?? 'application/octet-stream' }))
-  })
+function bytesToBase64(b: Uint8Array): string {
+  let s = ''
+  for (let i = 0; i < b.length; i += 0x8000) s += String.fromCharCode(...b.subarray(i, i + 0x8000))
+  return btoa(s)
+}
+
+function fileToDataUrl(ext: string, bytes: Uint8Array): string {
+  if (ext === 'dataurl') return new TextDecoder().decode(bytes)
+  return `data:${MIME[ext] ?? 'application/octet-stream'};base64,${bytesToBase64(bytes)}`
 }
 
 // ---------- Dấu vân tay (để sao lưu tự động biết dữ liệu có đổi không) ----------
