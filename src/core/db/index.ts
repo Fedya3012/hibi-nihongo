@@ -18,5 +18,5 @@ export {
   type PackItem, type PackFileItem, type InstalledPack, type PackFull, type PackPatch,
   type PackManifest, type ManifestPack, type RemoteFile, type UpdatePlanItem, type Progress,
 } from './content'
-export { createBackup, downloadBackup, restoreBackup, lastBackupAt, type BackupFile } from './backup'
+export { createBackup, downloadBackup, restoreBackup, lastBackupAt, markBackedUp, type BackupFile } from './backup'
 export { requestPersistentStorage, getStorageInfo, formatBytes, type StorageInfo } from './storage'
