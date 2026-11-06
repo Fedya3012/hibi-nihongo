@@ -26,9 +26,30 @@ export default defineConfig({
         icons: [{ src: 'icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any maskable' }],
       },
       workbox: {
-        // Lưu sẵn font và code để mở app khi không có mạng
-        globPatterns: ['**/*.{js,css,html,svg,woff2}'],
+        // Lưu sẵn code để mở app khi không có mạng.
+        // Font tiếng Nhật được chia thành ~120 phần nhỏ theo nhóm chữ (tổng 11 MB). Chỉ lưu sẵn các phần
+        // chứa kana và kanji hay gặp nhất (số 100–119); phần còn lại trình duyệt tự tải khi trang thật sự
+        // cần chữ đó, rồi được giữ lại để dùng offline (xem runtimeCaching bên dưới).
+        globPatterns: [
+          '**/*.{js,css,html,svg}',
+          'assets/be-vietnam-pro-*.woff2',
+          'assets/noto-sans-jp-1[01][0-9]-400-normal-*.woff2',
+          'assets/noto-sans-jp-11[0-9]-700-normal-*.woff2',
+          'assets/noto-serif-jp-11[0-9]-400-normal-*.woff2',
+        ],
         maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
+        runtimeCaching: [
+          {
+            // Phần font tải sau: tải một lần, sau đó luôn lấy từ máy (kể cả khi offline)
+            urlPattern: ({ request }) => request.destination === 'font',
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'hibi-fonts',
+              expiration: { maxEntries: 600 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+        ],
       },
     }),
   ],

@@ -163,7 +163,7 @@ export function maturity(cards: SrsCard[]): Maturity {
 
 export interface HardCard {
   card: SrsCard
-  /** Số lần bấm Quên trong toàn bộ lịch sử ôn của thẻ (kể cả lúc mới học). */
+  /** Số lần bấm Quên trong lịch sử ôn được truyền vào (tab Thống kê truyền ~1 năm gần đây). */
   agains: number
   reviews: number
 }

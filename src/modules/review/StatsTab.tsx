@@ -7,7 +7,7 @@
  * Số liệu tính trong stats.ts. Biểu đồ dùng lại BarChart của module Hôm nay.
  */
 import { useMemo, useState } from 'react'
-import { getAll, useDbQuery } from '@/core/db'
+import { getAllByIndex, useDbQuery } from '@/core/db'
 import { Button } from '@/design/components/Button'
 import { Card } from '@/design/components/Card'
 import { Segmented } from '@/design/components/Segmented'
@@ -34,8 +34,12 @@ const dayTitle = (d: ForecastDay) =>
   d.offset === 0 ? 'Hôm nay' : d.offset === 1 ? 'Ngày mai' : `${WEEKDAY[new Date(d.start).getDay()]}, ${dm(d.start)}`
 const pct = (x: number | null) => (x === null ? '–' : `${Math.round(x * 1000) / 10}%`)
 
+/** Số liệu xa nhất trên tab này là tỉ lệ nhớ 1 năm, nên chỉ đọc lịch sử ôn của ~1 năm gần đây (không đọc từ ngày đầu). */
+const LOG_WINDOW = 366 * DAY
+
 async function loadAll() {
-  const [cards, logs, settings] = await Promise.all([allCards(), getAll<SrsLog>('srsLogs'), getSettings()])
+  const since = IDBKeyRange.lowerBound(Date.now() - LOG_WINDOW)
+  const [cards, logs, settings] = await Promise.all([allCards(), getAllByIndex<SrsLog>('srsLogs', 'by_time', since), getSettings()])
   return { cards, logs, settings }
 }
 
