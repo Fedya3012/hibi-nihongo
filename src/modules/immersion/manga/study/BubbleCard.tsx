@@ -6,9 +6,9 @@ import { useEffect, useMemo, useState } from 'react'
 import { JapaneseText } from '@/modules/dictionary'
 import { Button } from '@/design/components/Button'
 import { deleteNote, saveNote } from '../notes'
-import { findNotes } from './notes-data'
 import { speakJa, stopSpeaking, useJaVoice, useRecorder } from './audio'
-import { cropPanel, mineSentence, mineWords, recordLookup, shareBubble, sourceLabel, wordsOf, type WordInfo } from './mining'
+import { cropPanel, mineOcclusion, mineSentence, mineWords, recordLookup, shareBubble, sourceLabel, wordsOf, type WordInfo } from './mining'
+import { SentenceAnalysis } from './Analysis'
 import type { MangaBubble, MangaChapter, MangaSeries } from '../types'
 
 export function BubbleCard({ bubble, series, chapter, pageBlob, editing: startEditing, onClose, onDeleted, rate, setRate }: {
@@ -31,7 +31,9 @@ export function BubbleCard({ bubble, series, chapter, pageBlob, editing: startEd
   const [panelUrl, setPanelUrl] = useState<string>()
   const voice = useJaVoice()
   const rec = useRecorder()
-  const notes = useMemo(() => findNotes(b.text), [b.text])
+  const characters = useMemo(() => series?.characters ?? [], [series])
+  const voiceKind = characters.find((c) => c.name === b.speaker)?.voice ?? 'auto'
+  const speak = (t: string) => void speakJa(t, rate, voiceKind)
 
   useEffect(() => { setB(bubble); setEditing(startEditing || !bubble.text); setWords(null); setMsg(undefined) }, [bubble.id]) // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => () => stopSpeaking(), [])
@@ -58,7 +60,15 @@ export function BubbleCard({ bubble, series, chapter, pageBlob, editing: startEd
     const panel = await pageBlob().then((pb) => cropPanel(pb, b.box)).catch(() => null)
     const added = await mineSentence(b, series, chapter, panel)
     update({ minedAt: Date.now() })
-    flash(added ? '✓ Đã lưu câu vào Ôn tập' : 'Câu này đã có trong Ôn tập')
+    flash(added ? '✓ Đã lưu câu (kèm ảnh khung tranh) vào Ôn tập' : 'Câu này đã có trong Ôn tập')
+  }
+
+  const mineHidden = async () => {
+    const page = await pageBlob().catch(() => null)
+    if (!page) { flash('Chưa đọc được ảnh trang.'); return }
+    const added = await mineOcclusion(b, page, series, chapter)
+    update({ minedAt: b.minedAt ?? Date.now() })
+    flash(added ? '✓ Đã lưu thẻ che chữ: lúc ôn sẽ đoán câu trong ô bị che' : 'Thẻ che chữ của câu này đã có')
   }
 
   const openWords = async () => {
@@ -75,7 +85,10 @@ export function BubbleCard({ bubble, series, chapter, pageBlob, editing: startEd
   return (
     <div className="grid gap-3 text-sm">
       <div className="flex items-center gap-2">
-        <span className="text-xs text-muted">Trang {b.page + 1}{b.speaker ? ` · ${b.speaker}` : ''}{b.minedAt ? ' · ★ đã lưu' : ''}</span>
+        <span className="text-xs text-muted">
+          Trang {b.page + 1}{b.speaker ? ` · ${b.speaker}` : ''}{b.minedAt ? ' · ★ đã lưu' : ''}
+          {b.mark === 'good' ? ' · ⭐ câu hay' : b.mark === 'hard' ? ' · ⚠ câu khó' : ''}
+        </span>
         <div className="ml-auto flex gap-1">
           <Small onClick={() => setEditing((v) => !v)} active={editing}>{editing ? 'Xong' : 'Sửa'}</Small>
           <Small onClick={onClose}>✕</Small>
@@ -90,8 +103,9 @@ export function BubbleCard({ bubble, series, chapter, pageBlob, editing: startEd
           <input value={b.translation ?? ''} onChange={(e) => update({ translation: e.target.value })} placeholder="Bạn hiểu câu này là… (không bắt buộc)"
             className="min-h-9 rounded-xl border border-border bg-surface-2 px-3 outline-none focus:border-primary" />
           <div className="grid grid-cols-2 gap-2">
-            <input value={b.speaker ?? ''} onChange={(e) => update({ speaker: e.target.value })} placeholder="Nhân vật nói"
+            <input value={b.speaker ?? ''} onChange={(e) => update({ speaker: e.target.value })} placeholder="Nhân vật nói" list="manga-characters"
               className="min-h-9 rounded-xl border border-border bg-surface-2 px-3 outline-none focus:border-primary" />
+            <datalist id="manga-characters">{characters.map((c) => <option key={c.name} value={c.name} />)}</datalist>
             <input value={b.note ?? ''} onChange={(e) => update({ note: e.target.value })} placeholder="Ghi chú"
               className="min-h-9 rounded-xl border border-border bg-surface-2 px-3 outline-none focus:border-primary" />
           </div>
@@ -99,6 +113,14 @@ export function BubbleCard({ bubble, series, chapter, pageBlob, editing: startEd
             <Button variant="ghost" className="text-bad" onClick={async () => { await deleteNote(b.id); onDeleted(b) }}>Xóa bong bóng</Button>
             <Button onClick={() => setEditing(false)} disabled={!b.text.trim()}>Xong</Button>
           </div>
+          {characters.length > 0 && (
+            <div className="flex flex-wrap items-center gap-1">
+              <span className="text-xs text-muted">Người nói:</span>
+              {characters.map((c) => (
+                <Small key={c.name} active={b.speaker === c.name} onClick={() => update({ speaker: b.speaker === c.name ? undefined : c.name })}>{c.name}</Small>
+              ))}
+            </div>
+          )}
         </div>
       ) : (
         <>
@@ -113,16 +135,25 @@ export function BubbleCard({ bubble, series, chapter, pageBlob, editing: startEd
               }} />
           </div>
           {b.translation && <p className="text-muted">“{b.translation}”</p>}
+          {b.speaker && (
+            <p className="text-xs text-muted">
+              Nói: <b className="text-text">{b.speaker}</b>
+              {characters.find((c) => c.name === b.speaker)?.styles.map((st) => <span key={st} className="ml-1 rounded bg-surface-2 px-1">{st}</span>)}
+            </p>
+          )}
           {b.note && <p className="text-xs text-muted">Ghi chú: {b.note}</p>}
 
           {/* Hành động: tối đa 1-2 chạm */}
           <div className="flex flex-wrap gap-1.5">
             <Button className="min-h-9 px-3" onClick={mine}>{b.minedAt ? '★ Lưu lại câu' : '☆ Lưu câu'}</Button>
             <Button variant="soft" className="min-h-9 px-3" onClick={openWords}>Lưu từ…</Button>
+            <Button variant="soft" className="min-h-9 px-3" onClick={mineHidden} title="Thẻ ôn tập: ảnh khung tranh che mất bong bóng, bạn đoán câu">🙈 Che chữ</Button>
             <Button variant="soft" className="min-h-9 px-3" disabled={!voice} title={voice ? 'Nghe đọc' : 'Máy chưa có giọng tiếng Nhật'}
-              onClick={() => void speakJa(b.text, rate)}>🔊 Nghe</Button>
+              onClick={() => speak(b.text)}>🔊 Nghe</Button>
             <Small onClick={() => setRate(rate === 1 ? 0.7 : rate === 0.7 ? 0.5 : 1)} title="Tốc độ đọc">{rate}×</Small>
             <Small onClick={() => setFurigana((v) => !v)} active={furigana} title="Furigana">ふ</Small>
+            <Small onClick={() => update({ mark: b.mark === 'good' ? undefined : 'good' })} active={b.mark === 'good'} title="Đánh dấu câu hay">⭐</Small>
+            <Small onClick={() => update({ mark: b.mark === 'hard' ? undefined : 'hard' })} active={b.mark === 'hard'} title="Đánh dấu câu khó">⚠</Small>
             <Small onClick={async () => { await navigator.clipboard?.writeText(b.text); flash('Đã chép câu') }} title="Chép câu">⧉</Small>
             <Small title="Chia sẻ câu kèm ảnh panel" onClick={async () => {
               const r = await shareBubble(b.text, await pageBlob().then((pb) => cropPanel(pb, b.box)).catch(() => null), source)
@@ -134,7 +165,7 @@ export function BubbleCard({ bubble, series, chapter, pageBlob, editing: startEd
           {rec.supported && (
             <div className="flex flex-wrap items-center gap-1.5 rounded-xl border border-border p-2">
               <span className="text-xs text-muted">Shadowing:</span>
-              <Small onClick={() => void speakJa(b.text, rate)}>1. Nghe</Small>
+              <Small onClick={() => speak(b.text)}>1. Nghe</Small>
               {rec.state === 'recording'
                 ? <Small active onClick={rec.stop}>■ Dừng ghi</Small>
                 : <Small onClick={() => void rec.start()}>2. 🎙 Nói theo</Small>}
@@ -159,29 +190,16 @@ export function BubbleCard({ bubble, series, chapter, pageBlob, editing: startEd
               ))}
               {words.some((w) => w.id) && (
                 <Button className="min-h-9" disabled={!picked.size} onClick={async () => {
-                  const n = await mineWords(words.filter((w) => w.id && picked.has(w.id)))
-                  flash(`✓ Đã thêm ${n} từ mới vào Ôn tập`)
+                  const panel = await pageBlob().then((pb) => cropPanel(pb, b.box)).catch(() => null)
+                  const n = await mineWords(words.filter((w) => w.id && picked.has(w.id)), { sentence: b.text, series, panel })
+                  flash(`✓ Đã thêm ${n} từ mới vào Ôn tập (kèm câu và ảnh khung tranh)`)
                   setWords(null)
                 }}>Lưu {picked.size} từ đã chọn</Button>
               )}
             </div>
           )}
 
-          {notes.length > 0 && (
-            <div className="grid gap-1.5">
-              {notes.map((n) => (
-                <details key={n.label} className="rounded-xl bg-surface-2 px-3 py-2">
-                  <summary className="cursor-pointer">
-                    <span className={`mr-1 rounded px-1 text-xs ${n.group === 'grammar' ? 'bg-primary-soft' : n.group === 'style' ? 'bg-surface text-primary' : 'bg-surface'}`}>
-                      {n.group === 'grammar' ? 'Ngữ pháp' : n.group === 'style' ? 'Giọng nói' : 'Văn hóa'}
-                    </span>
-                    <span className="jp">{n.label}</span>{n.jlpt ? <span className="text-xs text-muted"> · N{n.jlpt}</span> : null}
-                  </summary>
-                  <p className="mt-1 text-muted">{n.vi}</p>
-                </details>
-              ))}
-            </div>
-          )}
+          <SentenceAnalysis text={b.text} onSpeak={speak} />
         </>
       )}
 

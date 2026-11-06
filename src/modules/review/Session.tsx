@@ -418,7 +418,13 @@ export function Session({
         {/* ----- Câu hỏi ----- */}
         {!revealed && (
           <div className="flex min-h-56 flex-col items-center justify-center gap-4 text-center">
-            {question === 'recognize' && (
+            {question === 'recognize' && card.frontImage && (
+              <>
+                <img src={card.frontImage} alt="Ảnh câu hỏi: đoán phần bị che" className="max-h-64 rounded-xl border border-border object-contain md:max-h-80" />
+                <p className="text-sm text-muted">Phần bị che nói gì? Nghĩ trong đầu rồi chạm vào thẻ hoặc bấm Space.</p>
+              </>
+            )}
+            {question === 'recognize' && !card.frontImage && (
               <>
                 <Front card={card} withReading={false} className={`${frontSize(card.front)} font-semibold`} />
                 <p className="text-sm text-muted">Nghĩa là gì? Chạm vào thẻ hoặc bấm Space để xem đáp án.</p>

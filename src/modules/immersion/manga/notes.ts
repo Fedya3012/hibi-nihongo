@@ -3,7 +3,7 @@
  */
 import { getAll, getAllByIndex, put, remove, get } from '@/core/db'
 import { newId } from './store'
-import type { Box, MangaBookmark, MangaBubble, MangaNote } from './types'
+import type { Box, MangaBookmark, MangaBubble, MangaNote, MangaPin } from './types'
 
 export const listChapterNotes = (chapterId: string) =>
   getAllByIndex<MangaNote>('mangaNotes', 'by_chapter', chapterId)
@@ -30,6 +30,17 @@ export async function toggleBookmark(seriesId: string, chapterId: string, page: 
   if (existing) return deleteNote(existing.id)
   const b: MangaBookmark = { id: newId(), kind: 'bookmark', seriesId, chapterId, page, note: '', createdAt: Date.now() }
   await put('mangaNotes', b)
+}
+
+export async function addPin(input: { seriesId: string; chapterId: string; page: number; x: number; y: number }): Promise<MangaPin> {
+  const p: MangaPin = { id: newId(), kind: 'pin', note: '', createdAt: Date.now(), ...input }
+  await put('mangaNotes', p)
+  return p
+}
+
+/** Mọi ghi chú của một series (sổ tay). */
+export async function listSeriesNotes(seriesId: string): Promise<MangaNote[]> {
+  return (await listAllNotes()).filter((n) => n.seriesId === seriesId)
 }
 
 /** Sắp bong bóng theo thứ tự đọc manga: trên xuống, rồi phải sang trái (hoặc trái sang phải). */

@@ -1,5 +1,6 @@
 /** TRANG MỘT SERIES: thông tin, cài đặt đọc riêng, danh sách chương. */
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { Card } from '@/design/components/Card'
 import { Button } from '@/design/components/Button'
 import { Segmented } from '@/design/components/Segmented'
@@ -12,18 +13,24 @@ import { ImportDialog } from './ImportDialog'
 import { Cover, Modal, ProgressBar, inputClass } from './ui'
 import { listChapterNotes, readingOrder } from './notes'
 import { PreStudyButton } from '@/modules/vocab/api'
-import type { MangaBubble, MangaChapter, ReadDirection } from './types'
+import { Notebook } from './Notebook'
+import { loadMangaStats, seriesStatus } from './stats'
+import { reviewPathForTags, seriesTags } from './study/mining'
+import { LEVEL_LABEL, STATUS_LABEL, type MangaBubble, type MangaChapter, type ReadDirection, type SeriesLevel, type SeriesStatus } from './types'
 
-export function SeriesView({ seriesId, back, openReader }: {
+export function SeriesView({ seriesId, back, openReader, tab = 'chapters', setTab }: {
   seriesId: string
   back: () => void
   openReader: (chapterId: string, page?: number) => void
+  tab?: 'chapters' | 'notebook'
+  setTab?: (t: 'chapters' | 'notebook') => void
 }) {
   const { data, loading } = useDbQuery(async () => {
     const [series, chapters] = await Promise.all([getSeries(seriesId), listChapters(seriesId)])
     const files = await Promise.all(chapters.map((c) => hasFiles(c.id)))
     return { series, chapters, files }
   }, [seriesId], ['mangaSeries', 'mangaChapters', 'mangaBlobs'])
+  const { data: stats } = useDbQuery(() => loadMangaStats(seriesId), [seriesId], ['mangaChapters', 'mangaNotes', 'srsCards'])
   const [importing, setImporting] = useState(false)
   const [editing, setEditing] = useState(false)
   const [editChapter, setEditChapter] = useState<MangaChapter>()
@@ -58,7 +65,30 @@ export function SeriesView({ seriesId, back, openReader }: {
           <h1 className="text-2xl font-bold">{s.title}</h1>
           {s.titleJp && <p className="jp text-lg text-muted">{s.titleJp}</p>}
           <p className="mt-1 text-sm text-muted">{chapters.length} chương · đã đọc {read}</p>
+          {stats && (
+            <p className="text-sm text-muted">
+              {stats.pages} trang đã đọc · {stats.bubbles} câu thoại · {stats.sentencesSaved} câu đã lưu · {stats.cards} thẻ ôn ({stats.cardsLearned} đã thuộc)
+            </p>
+          )}
           {chapters.length > 0 && <ProgressBar className="mt-2 max-w-xs" value={read / chapters.length} />}
+          <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
+            <label className="flex items-center gap-1">
+              <span className="text-muted">Trạng thái</span>
+              <select value={s.status ?? ''} onChange={(e) => updateSeries(s.id, { status: (e.target.value || undefined) as SeriesStatus | undefined })}
+                className="min-h-9 rounded-lg border border-border bg-surface px-2">
+                <option value="">Tự động ({STATUS_LABEL[seriesStatus({ ...s, status: undefined }, chapters) ?? 'want'] ?? ''})</option>
+                {(Object.keys(STATUS_LABEL) as SeriesStatus[]).map((k) => <option key={k} value={k}>{STATUS_LABEL[k]}</option>)}
+              </select>
+            </label>
+            <label className="flex items-center gap-1">
+              <span className="text-muted">Độ khó</span>
+              <select value={s.level ?? ''} onChange={(e) => updateSeries(s.id, { level: e.target.value ? (Number(e.target.value) as SeriesLevel) : undefined })}
+                className="min-h-9 rounded-lg border border-border bg-surface px-2">
+                <option value="">Chưa đặt</option>
+                {([5, 4, 3, 2, 1] as SeriesLevel[]).map((k) => <option key={k} value={k}>{LEVEL_LABEL[k]}</option>)}
+              </select>
+            </label>
+          </div>
           <div className="mt-4 flex flex-wrap gap-2">
             {next && (
               <Button onClick={() => openReader(next.id)}>
@@ -66,6 +96,11 @@ export function SeriesView({ seriesId, back, openReader }: {
               </Button>
             )}
             <Button variant="soft" onClick={() => setImporting(true)}>+ Thêm chương</Button>
+            {!!stats?.cards && (
+              <Link to={reviewPathForTags(seriesTags(s.title))} className="inline-flex min-h-10 items-center rounded-xl bg-surface-2 px-4 text-sm font-medium hover:text-primary">
+                Ôn {stats.cards} thẻ của bộ này
+              </Link>
+            )}
             <Button variant="ghost" onClick={() => setEditing(true)}>Sửa</Button>
           </div>
           <div className="mt-4 flex flex-wrap items-center gap-3 text-sm">
@@ -86,7 +121,12 @@ export function SeriesView({ seriesId, back, openReader }: {
         </Card>
       )}
 
-      {chapters.length === 0 ? (
+      {setTab && (
+        <Segmented<'chapters' | 'notebook'> label="Xem" value={tab} onChange={setTab}
+          options={[{ value: 'chapters', label: `Chương (${chapters.length})` }, { value: 'notebook', label: '📒 Sổ tay & nhân vật' }]} />
+      )}
+
+      {tab === 'notebook' ? <Notebook series={s} chapters={chapters} openReader={openReader} /> : chapters.length === 0 ? (
         <Card className="text-center text-muted">
           Series này chưa có chương nào. Bấm <b>Thêm chương</b> để chọn file.
         </Card>

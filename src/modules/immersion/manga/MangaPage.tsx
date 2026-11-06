@@ -4,11 +4,14 @@
  *   /immersion/manga                  → Thư viện
  *   /immersion/manga?series=<id>      → Một series
  *   /immersion/manga?read=<id>&page=N → Trình đọc (page không bắt buộc, mặc định là trang đang đọc dở)
+ *   /immersion/manga?series=<id>&tab=notebook → Sổ tay & nhân vật của series
+ *   /immersion/manga?view=sfx&tab=sfx|slang&q=… → Thư viện từ tượng thanh & khẩu ngữ
  */
 import { useSearchParams } from 'react-router-dom'
 import { Library } from './Library'
 import { SeriesView } from './SeriesView'
 import { Reader } from './Reader'
+import { SfxLibrary } from './SfxLibrary'
 import { getChapter } from './store'
 
 export default function MangaPage() {
@@ -35,6 +38,13 @@ export default function MangaPage() {
       />
     )
   }
-  if (seriesId) return <SeriesView seriesId={seriesId} back={() => setParams({})} openReader={openReader} />
-  return <Library openSeries={openSeries} openReader={openReader} />
+  if (params.get('view') === 'sfx') return <SfxLibrary back={() => setParams({})} openReader={openReader} />
+  if (seriesId) {
+    return (
+      <SeriesView seriesId={seriesId} back={() => setParams({})} openReader={openReader}
+        tab={params.get('tab') === 'notebook' ? 'notebook' : 'chapters'}
+        setTab={(t) => setParams(t === 'notebook' ? { series: seriesId, tab: t } : { series: seriesId }, { replace: true })} />
+    )
+  }
+  return <Library openSeries={openSeries} openReader={openReader} openSfx={() => setParams({ view: 'sfx' })} />
 }

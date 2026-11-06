@@ -237,8 +237,8 @@ const notes: SearchSource = {
       const c = chapters.get(n.chapterId)
       const where = [lib.byId.get(n.seriesId)?.title, c && chapterName(c), tr(lang, 'page', { n: n.page + 1 })].filter(Boolean).join(' · ')
       const to = `${mangaReaderPath(n.chapterId)}&page=${n.page}`
-      if (n.kind === 'bookmark') {
-        return { id: n.id, title: n.note ? snippet(n.note, q) : tr(lang, 'bookmark'), subtitle: `🔖 ${where}`, to,
+      if (n.kind === 'bookmark' || n.kind === 'pin') {
+        return { id: n.id, title: n.note ? snippet(n.note, q) : tr(lang, 'bookmark'), subtitle: `${n.kind === 'pin' ? '📌' : '🔖'} ${where}`, to,
           score: matchFields(q, n.note) }
       }
       const text = [n.text, n.translation, n.note, n.speaker].filter(Boolean).join(' — ')
