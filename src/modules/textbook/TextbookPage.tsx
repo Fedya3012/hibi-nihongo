@@ -8,13 +8,15 @@
  *   /learn/textbook?b=minna-1&read=<mã file>&p=12  đọc file sách gốc ở trang 13 (p đếm từ 0)
  * Xem README.md trong thư mục này.
  */
-import { useCallback } from 'react'
+import { lazy, Suspense, useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Shelf } from './Shelf'
 import { BookView, type BookTab } from './BookView'
 import { LessonView } from './LessonView'
-import { BookReader } from './reader/BookReader'
 import { SECTIONS, type Section } from './types'
+
+// Trình đọc sách gốc (kèm phần đọc PDF) chỉ tải khi thật sự mở một file sách
+const BookReader = lazy(() => import('./reader/BookReader').then((m) => ({ default: m.BookReader })))
 
 export default function TextbookPage() {
   const [params, setParams] = useSearchParams()
@@ -40,10 +42,12 @@ export default function TextbookPage() {
   return (
     <div className="mx-auto max-w-5xl">
       {bookId && read ? (
+        <Suspense fallback={<p className="text-muted">…</p>}>
         <BookReader key={read} bookId={bookId} fileId={read} page={page != null && !Number.isNaN(page) ? page : undefined}
           onPage={(p) => go({ p }, false)}
           onBack={() => go({ read: undefined, p: undefined, l: lesson })}
           onLesson={(n) => go({ read: undefined, p: undefined, l: n, s: undefined })} />
+        </Suspense>
       ) : !bookId ? (
         <Shelf onOpen={(b, l) => go({ b, l })} />
       ) : lesson == null || Number.isNaN(lesson) ? (

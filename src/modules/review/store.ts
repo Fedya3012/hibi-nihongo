@@ -8,6 +8,7 @@
 import {
   get, getAll, getAllByIndex, put, putMany, transaction, promisify, kvGet, kvSet,
 } from '@/core/db'
+import { cardsWithSources, possibleDuplicates } from './bySource'
 import { DAY, newSchedule, schedule } from './fsrs'
 import { loadCardMedia, stripMedia, withMedia, writeCards } from './media'
 import {
@@ -97,7 +98,7 @@ function cleanInput(input: CleanInput): CleanInput {
  * Trả về số thẻ thật sự được thêm.
  */
 export async function addCards(inputs: NewCardInput[]): Promise<number> {
-  const existing = await getAll<SrsCard>('srsCards')
+  const existing = await possibleDuplicates(inputs)
   const seen = new Set(existing.map(dupKey))
   const seenSrc = new Set(existing.filter((c) => c.source).map((c) => `${c.source!.module}:${c.source!.ref}`))
   const now = Date.now()
@@ -123,7 +124,7 @@ export async function tagCardsBySource(sources: { module: string; ref: string }[
   const want = new Set(sources.map((s) => `${s.module}:${s.ref}`))
   const found = new Set<string>()
   if (!want.size) return found
-  const existing = await getAll<SrsCard>('srsCards')
+  const existing = await cardsWithSources(sources)
   const changed: SrsCard[] = []
   for (const c of existing) {
     if (!c.source) continue
@@ -190,7 +191,7 @@ export async function attachMediaBySource(
   media: { image?: string | Blob; audio?: string | Blob },
 ): Promise<number> {
   const key = `${source.module}:${source.ref}`
-  const cards = (await getAll<SrsCard>('srsCards')).filter((c) => c.source && `${c.source.module}:${c.source.ref}` === key)
+  const cards = (await cardsWithSources([source])).filter((c) => c.source && `${c.source.module}:${c.source.ref}` === key)
   if (!cards.length) return 0
   const { image, audio } = await prepareImage({ deck: '', kind: 'vocab', front: '', meaning: '', ...media })
   const updated: SrsCard[] = []
