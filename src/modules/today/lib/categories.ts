@@ -34,6 +34,7 @@ const ROUTES: [string, Category][] = [
   ['/learn/roadmap', 'other'],
   ['/dictionary', 'other'],
   ['/assistant', 'other'],
+  ['/learn/listening', 'other'],
 ]
 
 export function categoryOfPath(path: string): Category | null {
