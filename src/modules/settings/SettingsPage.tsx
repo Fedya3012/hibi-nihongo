@@ -10,6 +10,7 @@ import { SET } from './strings'
 import { AccentPicker } from './AccentPicker'
 import { ReminderSettingsLink } from '@/modules/reminders/SettingsLink'
 import { ShortcutsSettingsLink } from '@/modules/shortcuts/SettingsLink'
+import { AutoBackupSettingsLink } from '@/modules/autobackup/SettingsLink'
 
 /** Các bảng chữ dùng chung, để tính "đã dịch bao nhiêu %". */
 const SHARED_TABLES = [SET, APP, SEARCH]
@@ -78,6 +79,7 @@ export default function SettingsPage() {
       </Card>
       <ReminderSettingsLink />
       <ShortcutsSettingsLink />
+      <AutoBackupSettingsLink />
       <DataPanel />
       <p className="jp mt-6 text-center text-muted">
         {t('preview')} <ruby>日本語<rt>にほんご</rt></ruby>を<ruby>毎日<rt>まいにち</rt></ruby><ruby>勉強<rt>べんきょう</rt></ruby>します。

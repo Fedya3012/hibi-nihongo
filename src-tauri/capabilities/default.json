@@ -3,5 +3,5 @@
   "identifier": "default",
   "description": "Quyền mặc định của cửa sổ chính",
   "windows": ["main"],
-  "permissions": ["core:default", "notification:default"]
+  "permissions": ["core:default", "notification:default", "dialog:default"]
 }
