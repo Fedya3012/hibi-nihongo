@@ -28,14 +28,34 @@ jobs:
         with: { node-version: 22, cache: npm }
       - uses: dtolnay/rust-toolchain@stable
       - run: npm ci
+      # Mỗi lần build có số phiên bản mới (0.1.<số lần chạy>), để app đã cài biết có bản mới mà tự cập nhật.
+      # Đẩy tag dạng v1.2.3 thì dùng đúng số đó. Chỉ đổi trong máy build, không sửa file trong repo.
+      - name: Đặt số phiên bản
+        shell: bash
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then V="${GITHUB_REF_NAME#v}"; else V="0.1.${{ github.run_number }}"; fi
+          echo "Phiên bản: $V"
+          node -e "const fs=require('fs');for(const f of ['src-tauri/tauri.conf.json','package.json']){const j=JSON.parse(fs.readFileSync(f,'utf8'));j.version=process.argv[1];fs.writeFileSync(f,JSON.stringify(j,null,2)+'\\n')}" "$V"
+      # Tự cập nhật cần chữ ký số (secret TAURI_SIGNING_PRIVATE_KEY, xem src/modules/desktop/README.md).
+      # Chưa có secret thì vẫn build .exe như cũ, chỉ là app chưa tự cập nhật được.
+      - name: Bật file tự cập nhật nếu đã có chữ ký
+        shell: bash
+        env:
+          HAS_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY != '' }}
+        run: |
+          if [ "$HAS_KEY" = "true" ]; then echo "TAURI_ARGS=--config src-tauri/tauri.updater.conf.json" >> "$GITHUB_ENV"
+          else echo "::warning::Chưa có secret TAURI_SIGNING_PRIVATE_KEY nên bản này chưa tự cập nhật được."; fi
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
           tagName: v__VERSION__
           releaseName: 'Hibi Nihongo v__VERSION__'
-          releaseBody: 'Tải file *-setup.exe bên dưới và mở nó để cài.'
+          releaseBody: 'Tải file *-setup.exe bên dưới và mở nó để cài. Đã cài bản có tự cập nhật thì app tự báo khi có bản mới.'
           releaseDraft: false
+          args: ${{ env.TAURI_ARGS }}
 
   web:
     runs-on: ubuntu-latest
