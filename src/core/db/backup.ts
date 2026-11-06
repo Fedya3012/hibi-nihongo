@@ -51,6 +51,11 @@ export async function downloadBackup(): Promise<void> {
   try { localStorage.setItem(LAST_BACKUP_KEY, String(backup.createdAt)) } catch { /* bỏ qua */ }
 }
 
+/** Ghi lại thời điểm vừa sao lưu (dùng cả cho sao lưu tự động: src/modules/autobackup). */
+export function markBackedUp(at: number = Date.now()): void {
+  try { localStorage.setItem(LAST_BACKUP_KEY, String(at)) } catch { /* bỏ qua */ }
+}
+
 export function lastBackupAt(): number | null {
   try {
     const v = Number(localStorage.getItem(LAST_BACKUP_KEY))
