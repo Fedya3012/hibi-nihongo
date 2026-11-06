@@ -11,9 +11,9 @@ export default defineModule({
   status: 'ready',
   phase: 1,
   order: 32,
-  description: 'Video + phụ đề .srt/.ass/.vtt, bấm tra từ, điểm hiểu, tạo thẻ từ phụ đề, lặp câu (shadowing)',
+  description: 'Video + phụ đề (cả phụ đề nhúng .mkv), bấm tra từ, lưu câu kèm ảnh + tiếng, shadowing, chép chính tả, ôn theo cảnh phim, xuất Anki',
   text: {
-    en: { title: 'Anime player', description: 'Video + .srt/.ass/.vtt subtitles, click to look up, comprehension score, cards from subtitles, shadowing' },
+    en: { title: 'Anime player', description: 'Video + subtitles (incl. embedded .mkv), click to look up, sentence mining with image + audio, shadowing, dictation, scene review, Anki export' },
     ja: { title: 'アニメプレーヤー', description: '動画＋字幕（.srt/.ass/.vtt）、クリックで辞書、理解度、字幕からカード作成' },
   },
   page: lazy(() => import('./AnimePage')),

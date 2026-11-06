@@ -8,11 +8,10 @@ import { useEffect, useMemo, useState } from 'react'
 import { Button } from '@/design/components/Button'
 import { Segmented } from '@/design/components/Segmented'
 import {
-  PackSetup, addKanjiToReview, getKanji, searchWords, useDictPacks, useTokenizerStatus,
+  PackSetup, addKanjiToReview, getKanji, useDictPacks, useTokenizerStatus,
   type KanjiData, type WordResult,
 } from '@/modules/dictionary'
 import { openLookup } from '@/modules/dictionary/api'
-import { addReviewCards, type ReviewCardInput } from '@/modules/review/api'
 import { ProgressBar } from '../manga/ui'
 import {
   comprehension, comprehensionLabel, ensureAnalysis, kanjiStatus, useKnowledge, wordStatus,
@@ -20,7 +19,9 @@ import {
 } from './analysis'
 import { getSubs } from './store'
 import { setWordStatus } from '@/modules/vocab/api'
-import type { AnimeEpisode, Cue, SubAnalysis, WordStat } from './types'
+import { addWordCards, animeDeck } from './cards'
+import { glossOf, guessWordCategory, lookupWord, styleNotes } from './dict'
+import { CATEGORY_LABEL, type AnimeEpisode, type AnimeSeries, type ClipCategory, type Cue, type SubAnalysis, type WordStat } from './types'
 
 const PAGE = 40
 
@@ -47,22 +48,6 @@ const STATUS_CLASS: Record<WordStatus, string> = {
   known: 'bg-surface-2 text-good', learning: 'bg-surface-2 text-warn', new: 'bg-primary-soft text-text',
 }
 
-/** Chọn kết quả từ điển khớp đúng thể từ điển (行く chứ không phải 行う). */
-function pickResult(results: WordResult[], w: string): WordResult | undefined {
-  return results.find((r) => (r.data.k ?? []).some((x) => x.t === w) || r.data.r.some((x) => x.t === w)) ?? results[0]
-}
-
-const meaningCache = new Map<string, Promise<WordResult | undefined>>()
-function lookupWord(w: string) {
-  let p = meaningCache.get(w)
-  if (!p) {
-    p = searchWords(w, 5).then((r) => pickResult(r, w), () => undefined)
-    meaningCache.set(w, p)
-  }
-  return p
-}
-const glossOf = (r: WordResult) => r.data.s.slice(0, 2).map((s) => s.g.slice(0, 3).join(', ')).join('; ')
-
 function Meaning({ w }: { w: string }) {
   const [r, setR] = useState<WordResult | null>()
   useEffect(() => {
@@ -73,7 +58,13 @@ function Meaning({ w }: { w: string }) {
   if (r === undefined) return <span className="text-muted">…</span>
   if (r === null) return <span className="text-muted">(không có trong từ điển)</span>
   const reading = r.data.r[0]?.t
-  return <span>{reading && reading !== w && <span className="jp mr-1 text-muted">{reading}</span>}{glossOf(r)}</span>
+  const notes = styleNotes(r)
+  return (
+    <span>
+      {reading && reading !== w && <span className="jp mr-1 text-muted">{reading}</span>}{glossOf(r)}
+      {notes.length > 0 && <span className="ml-1 rounded bg-surface-2 px-1 text-xs text-muted">{notes.join(', ')}</span>}
+    </span>
+  )
 }
 
 function KanjiMeaning({ ch }: { ch: string }) {
@@ -88,18 +79,16 @@ function KanjiMeaning({ ch }: { ch: string }) {
   return <span>{d.hv?.length ? <b className="mr-1">{d.hv.join(', ').toUpperCase()}</b> : null}{(d.m ?? []).slice(0, 3).join(', ')}</span>
 }
 
-/** Câu ví dụ dạng "điền vào chỗ trống" cho thẻ ôn tập: 水が{{飲みたい}}です。 */
-function clozeExample(cue: Cue | undefined, surface: string): string | undefined {
-  if (!cue) return undefined
-  const line = cue.t.replace(/\n/g, ' ')
-  return line.includes(surface) ? line.replace(surface, `{{${surface}}}`) : line
-}
+/** Lọc theo loại từ (đoán từ ghi chú của từ điển). */
+type CatFilter = 'all' | ClipCategory
 
-export function VocabPanel({ episode, seriesTitle, className = '' }: {
+export function VocabPanel({ episode, series, className = '' }: {
   episode: AnimeEpisode
-  seriesTitle: string
+  series: AnimeSeries
   className?: string
 }) {
+  const [cat, setCat] = useState<CatFilter>('all')
+  const [cats, setCats] = useState<Map<string, ClipCategory>>(new Map())
   const [analysis, setAnalysis] = useState<SubAnalysis | null>()
   const [cues, setCues] = useState<Cue[]>([])
   const [progress, setProgress] = useState(0)
@@ -135,14 +124,30 @@ export function VocabPanel({ episode, seriesTitle, className = '' }: {
 
   const words = useMemo(() => {
     if (!analysis || !k) return []
-    return analysis.words.filter((w) => filter === 'all' || wordStatus(w, k) === 'new')
-  }, [analysis, k, filter])
+    return analysis.words.filter((w) => (filter === 'all' || wordStatus(w, k) === 'new') && (cat === 'all' || cats.get(w.w) === cat))
+  }, [analysis, k, filter, cat, cats])
   const kanji = useMemo(() => {
     if (!analysis || !k) return []
     return analysis.kanji.filter((x) => filter === 'all' || kanjiStatus(x.k, k) === 'new')
   }, [analysis, k, filter])
 
-  useEffect(() => { setLimit(PAGE); setSelected(new Set()) }, [tab, filter])
+  useEffect(() => { setLimit(PAGE); setSelected(new Set()) }, [tab, filter, cat])
+
+  // Đoán loại của từng từ (lóng, khẩu ngữ, cảm thán...) khi người dùng bật bộ lọc loại
+  useEffect(() => {
+    if (cat === 'all' || !analysis) return
+    let alive = true
+    ;(async () => {
+      const m = new Map(cats)
+      for (const w of analysis.words) {
+        if (m.has(w.w)) continue
+        m.set(w.w, guessWordCategory(await lookupWord(w.w), w.p))
+      }
+      if (alive) setCats(m)
+    })()
+    return () => { alive = false }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cat, analysis])
 
   if (error) return <p className={`text-sm text-bad ${className}`}>{error}</p>
   if (analysis === null) return <p className={`text-sm text-muted ${className}`}>Tập này chưa có phụ đề tiếng Nhật nên chưa có danh sách từ.</p>
@@ -171,23 +176,12 @@ export function VocabPanel({ episode, seriesTitle, className = '' }: {
         }
         setMsg(`Đã thêm ${added} thẻ Kanji vào bộ "Kanji của tôi".`)
       } else {
-        const deck = `Anime · ${seriesTitle}`
-        const inputs: ReviewCardInput[] = []
-        let missing = 0
-        for (const w of selected) {
+        const deck = animeDeck(series)
+        const words = [...selected].map((w) => {
           const st = byWord.get(w) as WordStat
-          const r = await lookupWord(w)
-          if (!r) { missing++; continue }
-          const reading = r.data.r[0]?.t
-          inputs.push({
-            deck, kind: 'vocab', front: w, reading: reading && reading !== w ? reading : undefined,
-            meaning: glossOf(r), example: clozeExample(cues[st.c], st.s), tags: ['anime'],
-            // Cùng nguồn với nút "Thêm vào ôn tập" của Từ điển → không tạo trùng giữa hai nơi
-            source: { module: 'dictionary', ref: r.id },
-          })
-        }
-        const added = await addReviewCards(inputs)
-        const dup = inputs.length - added
+          return { w, s: st.s, pos: st.p, example: cues[st.c]?.t.replace(/\n/g, ' ') }
+        })
+        const { added, dup, missing } = await addWordCards(series, episode, undefined, words)
         setMsg(`Đã thêm ${added} thẻ vào bộ "${deck}".${dup ? ` ${dup} từ đã có thẻ.` : ''}${missing ? ` ${missing} từ không có trong từ điển nên bỏ qua.` : ''}`)
       }
       setSelected(new Set())
@@ -217,7 +211,15 @@ export function VocabPanel({ episode, seriesTitle, className = '' }: {
           options={[{ value: 'words', label: `Từ (${analysis.words.length})` }, { value: 'kanji', label: `Kanji (${analysis.kanji.length})` }]} />
         <Segmented label="Lọc" value={filter} onChange={setFilter}
           options={[{ value: 'new', label: 'Chưa có thẻ' }, { value: 'all', label: 'Tất cả' }]} />
+        {tab === 'words' && (
+          <select value={cat} onChange={(e) => setCat(e.target.value as CatFilter)} aria-label="Loại từ"
+            className="min-h-9 rounded-lg border border-border bg-surface-2 px-2 text-sm">
+            <option value="all">Mọi loại từ</option>
+            {(Object.keys(CATEGORY_LABEL) as ClipCategory[]).map((c) => <option key={c} value={c}>{CATEGORY_LABEL[c]}</option>)}
+          </select>
+        )}
       </div>
+      {cat !== 'all' && cats.size < analysis.words.length && <p className="text-xs text-muted">Đang phân loại từ…</p>}
 
       <div className="flex flex-wrap items-center gap-2 text-sm">
         <button className="text-primary hover:underline" onClick={() => setSelected(new Set(list.slice(0, 20).map((x) => x.key)))}>

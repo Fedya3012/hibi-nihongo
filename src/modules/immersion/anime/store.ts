@@ -4,7 +4,10 @@
  */
 import { get, getAll, getAllByIndex, put, transaction, promisify, kvGet, kvSet } from '@/core/db'
 import { naturalCompare } from '../manga/naming'
-import { DEFAULT_PLAYER_PREFS, type AnimeEpisode, type AnimeMedia, type AnimeSeries, type AnimeSubs, type PlayerPrefs, type SubTrack } from './types'
+import {
+  DEFAULT_PLAYER_PREFS, type AnimeClip, type AnimeEpisode, type AnimeMedia, type AnimeSeries, type AnimeSubs,
+  type CardLink, type PlayerPrefs, type SavedSentence, type SubTrack,
+} from './types'
 
 export const newId = () =>
   typeof crypto !== 'undefined' && 'randomUUID' in crypto
@@ -40,11 +43,16 @@ const subRange = (episodeId: string) => IDBKeyRange.bound([episodeId, ''], [epis
 /** Xóa series cùng mọi tập, phụ đề và video đã chép. (File gốc trên máy KHÔNG bị xóa.) */
 export async function deleteSeries(id: string): Promise<void> {
   const eps = await listEpisodes(id)
-  await transaction(['animeSeries', 'animeEpisodes', 'animeSubs', 'animeMedia'], 'readwrite', (tx) => {
+  const sentences = await listSentencesBySeries(id)
+  await transaction(['animeSeries', 'animeEpisodes', 'animeSubs', 'animeMedia', 'animeSentences', 'animeClips'], 'readwrite', (tx) => {
     for (const e of eps) {
       tx.objectStore('animeEpisodes').delete(e.id)
       tx.objectStore('animeSubs').delete(subRange(e.id))
       tx.objectStore('animeMedia').delete(e.id)
+    }
+    for (const x of sentences) {
+      tx.objectStore('animeSentences').delete(x.id)
+      tx.objectStore('animeClips').delete(x.id)
     }
     tx.objectStore('animeSeries').delete(id)
   })
@@ -99,7 +107,12 @@ export async function saveEpisode(
 }
 
 export async function deleteEpisode(id: string): Promise<void> {
-  await transaction(['animeEpisodes', 'animeSubs', 'animeMedia', 'animeSeries'], 'readwrite', async (tx) => {
+  const sentences = await listSentences(id)
+  await transaction(['animeEpisodes', 'animeSubs', 'animeMedia', 'animeSeries', 'animeSentences', 'animeClips'], 'readwrite', async (tx) => {
+    for (const x of sentences) {
+      tx.objectStore('animeSentences').delete(x.id)
+      tx.objectStore('animeClips').delete(x.id)
+    }
     const e = await promisify<AnimeEpisode | undefined>(tx.objectStore('animeEpisodes').get(id))
     tx.objectStore('animeEpisodes').delete(id)
     tx.objectStore('animeSubs').delete(subRange(id))
@@ -147,7 +160,17 @@ export async function saveProgress(episodeId: string, position: number, duration
     es.put({ ...e, position, duration: dur, lastWatchedAt: now, finishedAt: done ? (e.finishedAt ?? now) : e.finishedAt })
     const ss = tx.objectStore('animeSeries')
     const s = await promisify<AnimeSeries | undefined>(ss.get(e.seriesId))
-    if (s) ss.put({ ...s, lastWatchedAt: now, lastEpisodeId: episodeId })
+    if (s) ss.put({ ...s, lastWatchedAt: now, lastEpisodeId: episodeId, status: s.status === 'completed' ? s.status : 'watching' })
+  })
+}
+
+/** Cộng thời gian đã xem (giây) vào tập, để thống kê. */
+export async function addWatchTime(episodeId: string, seconds: number): Promise<void> {
+  if (seconds <= 0) return
+  await transaction('animeEpisodes', 'readwrite', async (tx) => {
+    const os = tx.objectStore('animeEpisodes')
+    const e = await promisify<AnimeEpisode | undefined>(os.get(episodeId))
+    if (e) os.put({ ...e, watchSeconds: (e.watchSeconds ?? 0) + seconds })
   })
 }
 
@@ -167,3 +190,64 @@ export const savePlayerPrefs = (p: PlayerPrefs) => kvSet(PREFS_KEY, p)
 // ----- Từ đã biết -----
 // Đã chuyển sang Kho từ dùng chung: '@/modules/vocab/api' (setWordStatus, useKnowledge...).
 // Danh sách cũ ở kv 'anime:known' được module vocab tự chuyển sang rồi xóa.
+
+// ----- Câu đã lưu + ảnh/âm thanh -----
+
+export const listSentences = (episodeId: string) => getAllByIndex<SavedSentence>('animeSentences', 'by_episode', episodeId)
+export const listSentencesBySeries = (seriesId: string) => getAllByIndex<SavedSentence>('animeSentences', 'by_series', seriesId)
+export const listAllSentences = () => getAll<SavedSentence>('animeSentences')
+export const getSentence = (id: string) => get<SavedSentence>('animeSentences', id)
+export const getClip = (id: string) => get<AnimeClip>('animeClips', id)
+
+export async function saveSentence(x: SavedSentence, clip?: AnimeClip): Promise<void> {
+  await transaction(['animeSentences', 'animeClips'], 'readwrite', (tx) => {
+    tx.objectStore('animeSentences').put({ ...x, hasImage: !!clip?.image || x.hasImage, hasAudio: !!clip?.audio || x.hasAudio })
+    if (clip) tx.objectStore('animeClips').put(clip)
+  })
+}
+
+export async function updateSentence(id: string, patch: Partial<Omit<SavedSentence, 'id'>>): Promise<void> {
+  await transaction('animeSentences', 'readwrite', async (tx) => {
+    const os = tx.objectStore('animeSentences')
+    const x = await promisify<SavedSentence | undefined>(os.get(id))
+    if (x) os.put({ ...x, ...patch })
+  })
+}
+
+/** Thêm ảnh / âm thanh cho câu đã lưu (ghi âm xong sau khi đã lưu câu). */
+export async function updateClip(id: string, patch: Partial<Omit<AnimeClip, 'id'>>): Promise<void> {
+  await transaction(['animeClips', 'animeSentences'], 'readwrite', async (tx) => {
+    const cs = tx.objectStore('animeClips')
+    const c = await promisify<AnimeClip | undefined>(cs.get(id))
+    cs.put({ ...(c ?? { id }), ...patch })
+    const ss = tx.objectStore('animeSentences')
+    const x = await promisify<SavedSentence | undefined>(ss.get(id))
+    if (x) ss.put({ ...x, hasImage: x.hasImage || !!patch.image, hasAudio: x.hasAudio || !!patch.audio })
+  })
+}
+
+export async function deleteSentence(id: string): Promise<void> {
+  await transaction(['animeSentences', 'animeClips'], 'readwrite', (tx) => {
+    tx.objectStore('animeSentences').delete(id)
+    tx.objectStore('animeClips').delete(id)
+  })
+}
+
+// ----- Liên kết thẻ ôn tập ↔ tập anime -----
+
+export const linkKey = (src: { module: string; ref: string }) => `${src.module}:${src.ref}`
+export const listLinks = () => getAll<CardLink>('animeLinks')
+export const listLinksBySeries = (seriesId: string) => getAllByIndex<CardLink>('animeLinks', 'by_series', seriesId)
+
+/** Ghi nhớ thẻ này đến từ tập nào. Thẻ đã có liên kết (từ tập trước) thì giữ nguyên tập đầu tiên. */
+export async function addLinks(links: CardLink[]): Promise<void> {
+  if (!links.length) return
+  await transaction('animeLinks', 'readwrite', async (tx) => {
+    const os = tx.objectStore('animeLinks')
+    for (const l of links) {
+      const old = await promisify<CardLink | undefined>(os.get(l.key))
+      if (!old) os.put(l)
+      else if (!old.sentenceId && l.sentenceId) os.put({ ...old, sentenceId: l.sentenceId, category: l.category ?? old.category })
+    }
+  })
+}

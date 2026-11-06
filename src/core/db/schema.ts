@@ -51,6 +51,12 @@ export const STORES = {
   textbookNotes: { backup: true },
   /** Kho từ dùng chung: từ bạn tự đánh dấu Đã biết / Đang học / Bỏ qua (module vocab). Có sao lưu. */
   knownWords: { backup: true },
+  /** Câu thoại anime đã lưu (chữ, thời điểm, phân loại, ghi chú). Có sao lưu. */
+  animeSentences: { backup: true },
+  /** Ảnh cảnh phim + đoạn âm thanh gốc của câu đã lưu. Nặng nên không sao lưu (thẻ ôn tập có bản riêng). */
+  animeClips: { backup: false },
+  /** Liên kết thẻ ôn tập ↔ tập anime (để ôn theo tập / mùa / bộ). Có sao lưu. */
+  animeLinks: { backup: true },
 } as const satisfies Record<string, { backup: boolean }>
 
 export type StoreName = keyof typeof STORES
@@ -129,6 +135,16 @@ export const migrations: Migration[] = [
     const known = db.createObjectStore('knownWords', { keyPath: 'w' })
     known.createIndex('by_status', 'status')
     known.createIndex('by_dict', 'id')
+  },
+  // Phiên bản tiếp theo (module Xem anime): câu đã lưu, ảnh/âm thanh của câu, liên kết thẻ ↔ tập
+  (db) => {
+    const sen = db.createObjectStore('animeSentences', { keyPath: 'id' })
+    sen.createIndex('by_episode', 'episodeId')
+    sen.createIndex('by_series', 'seriesId')
+    db.createObjectStore('animeClips', { keyPath: 'id' })
+    const links = db.createObjectStore('animeLinks', { keyPath: 'key' })
+    links.createIndex('by_episode', 'episodeId')
+    links.createIndex('by_series', 'seriesId')
   },
 ]
 

@@ -147,3 +147,74 @@ export async function recordClip(
   out.image = (shot ? await shot : null) ?? (await captureFrame(video))
   return out
 }
+
+// ================= Luyện nghe / shadowing (ghi âm giọng bạn, nhận diện giọng nói) =================
+/** Ghi âm giọng người dùng bằng micro trong `ms` mili giây (luyện shadowing). */
+export async function recordMic(ms: number, signal?: AbortSignal): Promise<Blob | undefined> {
+  if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === 'undefined') return undefined
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+  try {
+    const mime = pickMime()
+    const rec = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined)
+    const chunks: Blob[] = []
+    rec.ondataavailable = (e) => { if (e.data.size) chunks.push(e.data) }
+    const stopped = new Promise<void>((res) => { rec.onstop = () => res() })
+    rec.start()
+    await new Promise<void>((res) => {
+      const t = window.setTimeout(res, ms)
+      signal?.addEventListener('abort', () => { window.clearTimeout(t); res() })
+    })
+    rec.stop()
+    await stopped
+    return new Blob(chunks, { type: rec.mimeType || 'audio/webm' })
+  } finally {
+    stream.getTracks().forEach((t) => t.stop())
+  }
+}
+
+/** Phát một đoạn âm thanh (Blob). Trả về hàm dừng. */
+export function playBlob(b: Blob, onEnd?: () => void): () => void {
+  const url = URL.createObjectURL(b)
+  const a = new Audio(url)
+  const cleanup = () => { URL.revokeObjectURL(url); onEnd?.() }
+  a.onended = cleanup
+  a.onerror = cleanup
+  void a.play().catch(cleanup)
+  return () => { a.pause(); cleanup() }
+}
+
+// ---------- Nhận diện giọng nói (tùy chọn) ----------
+
+type Recognition = {
+  lang: string; interimResults: boolean; maxAlternatives: number
+  onresult: ((e: { results: ArrayLike<ArrayLike<{ transcript: string }>> }) => void) | null
+  onerror: ((e: unknown) => void) | null; onend: (() => void) | null
+  start: () => void; stop: () => void
+}
+type RecognitionCtor = new () => Recognition
+
+const getRecognition = (): RecognitionCtor | undefined => {
+  const w = window as unknown as { SpeechRecognition?: RecognitionCtor; webkitSpeechRecognition?: RecognitionCtor }
+  return w.SpeechRecognition ?? w.webkitSpeechRecognition
+}
+
+/** Trình duyệt có nhận diện giọng nói tiếng Nhật không (Chrome/Edge; thường cần mạng). */
+export const canRecognizeSpeech = () => typeof window !== 'undefined' && !!getRecognition()
+
+/** Nghe người dùng nói trong tối đa `ms` mili giây, trả về chữ nhận được (tiếng Nhật). */
+export function recognizeJapanese(ms: number): Promise<string> {
+  const Ctor = getRecognition()
+  if (!Ctor) return Promise.reject(new Error('Trình duyệt không hỗ trợ nhận diện giọng nói'))
+  return new Promise((resolve, reject) => {
+    const r = new Ctor()
+    r.lang = 'ja-JP'
+    r.interimResults = false
+    r.maxAlternatives = 1
+    let text = ''
+    r.onresult = (e) => { text = Array.from(e.results).map((x) => x[0].transcript).join('') }
+    r.onerror = (e) => reject(new Error(String((e as { error?: string }).error ?? 'lỗi nhận diện')))
+    r.onend = () => resolve(text)
+    r.start()
+    window.setTimeout(() => r.stop(), ms)
+  })
+}
