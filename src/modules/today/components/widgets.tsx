@@ -19,6 +19,7 @@ import { CATEGORY_SERIES, dailyMinuteRows, heatmapCells } from '../lib/chartData
 import { SENTENCES } from '../data/sentences'
 import { BarChart, Heatmap, Legend } from './charts'
 import TextbookWidget from '@/modules/textbook/TodayWidget'
+import AchievementsWidget from '@/modules/achievements/TodayWidget'
 
 export interface WidgetProps { stats: StudyStats; onOpenSettings: () => void }
 
@@ -362,6 +363,7 @@ export const WIDGETS: WidgetDef[] = [
   { id: 'learned', title: 'Đã học', span: 1, component: LearnedWidget },
   { id: 'heatmap', title: 'Lịch học (heatmap)', span: 3, component: HeatmapWidget },
   { id: 'textbook', title: 'Giáo trình', span: 1, component: TextbookWidget },
+  { id: 'level', title: 'Cấp độ', span: 1, component: AchievementsWidget },
 ]
 
 export const WIDGET_BY_ID = new Map(WIDGETS.map((w) => [w.id, w]))
