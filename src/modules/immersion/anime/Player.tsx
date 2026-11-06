@@ -23,6 +23,7 @@ import { activeCues, formatClock, lastStartedIndex, looksJapanese, readSubtitleF
 import { DEFAULT_PLAYER_PREFS, type AnimeEpisode, type AnimeSeries, type Cue, type PlayerPrefs, type SubMode } from './types'
 import { VocabPanel } from './VocabPanel'
 import { MineDialog, type MineTarget } from './MineDialog'
+import { actionFor } from '@/modules/shortcuts/keymap'
 
 type MediaState =
   | { state: 'loading' }
@@ -266,23 +267,25 @@ export function Player({ episodeId, onClose, onOpenEpisode }: {
   const keys = useRef<(e: KeyboardEvent) => void>(() => {})
   keys.current = (e: KeyboardEvent) => {
     const t = e.target as HTMLElement
-    if (t.closest('input, select, textarea, [contenteditable="true"]') || e.ctrlKey || e.metaKey || e.altKey) return
+    if (t.closest('input, select, textarea, [contenteditable="true"]')) return
     if (live.current.mining) return // hộp tạo thẻ đang mở
-    const k = e.key.length === 1 ? e.key.toLowerCase() : e.key
+    // Phím đổi được ở trang Phím tắt (src/modules/shortcuts/keymap.ts, nhóm "anime")
     const actions: Record<string, () => void> = {
-      ' ': togglePlay, k: togglePlay,
-      ArrowLeft: () => seek((v()?.currentTime ?? 0) - 5), ArrowRight: () => seek((v()?.currentTime ?? 0) + 5),
-      a: prevLine, d: nextLine, s: repeatLine, l: toggleLineLoop, b: cycleAB,
-      p: () => { setPrefs({ autoPause: !prefs.autoPause }); flash(prefs.autoPause ? 'Tắt tự dừng sau mỗi câu' : 'Bật tự dừng sau mỗi câu') },
-      h: cycleSubMode,
-      t: () => { if (tr.length) setPrefs({ showTranslation: !prefs.showTranslation }) },
-      r: () => setPrefs({ furigana: !prefs.furigana }),
-      z: () => changeOffset(-100), x: () => changeOffset(100),
-      '[': () => changeRate(-1), ']': () => changeRate(1),
-      f: toggleFullscreen,
-      c: () => openMine(),
+      'anime.play': togglePlay,
+      'anime.back5': () => seek((v()?.currentTime ?? 0) - 5), 'anime.fwd5': () => seek((v()?.currentTime ?? 0) + 5),
+      'anime.prevLine': prevLine, 'anime.nextLine': nextLine, 'anime.repeat': repeatLine,
+      'anime.loop': toggleLineLoop, 'anime.ab': cycleAB,
+      'anime.autoPause': () => { setPrefs({ autoPause: !prefs.autoPause }); flash(prefs.autoPause ? 'Tắt tự dừng sau mỗi câu' : 'Bật tự dừng sau mỗi câu') },
+      'anime.subMode': cycleSubMode,
+      'anime.translation': () => { if (tr.length) setPrefs({ showTranslation: !prefs.showTranslation }) },
+      'anime.furigana': () => setPrefs({ furigana: !prefs.furigana }),
+      'anime.offsetMinus': () => changeOffset(-100), 'anime.offsetPlus': () => changeOffset(100),
+      'anime.slower': () => changeRate(-1), 'anime.faster': () => changeRate(1),
+      'anime.fullscreen': toggleFullscreen,
+      'anime.mine': () => openMine(),
     }
-    const fn = actions[k]
+    const id = actionFor(e, 'anime')
+    const fn = id ? actions[id] : undefined
     if (fn) { e.preventDefault(); fn() }
   }
   useEffect(() => {
@@ -567,6 +570,7 @@ export function Player({ episodeId, onClose, onOpenEpisode }: {
           Z / X: phụ đề sớm / muộn 0,1 giây · [ ]: chậm / nhanh · F: toàn màn hình ·
           C: tạo thẻ ôn tập từ câu đang nói (kèm ảnh cảnh phim và tiếng nhân vật)
         </p>
+        <p className="mt-1">Đây là phím mặc định. <a href="#/shortcuts" className="underline hover:text-text">Đổi phím tắt</a> · bấm ? để xem phím đang dùng.</p>
       </details>
     </div>
   )

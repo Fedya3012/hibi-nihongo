@@ -31,6 +31,7 @@ import { BubblesTab, MarksTab, PracticeTab, WordsTab } from './study/Panels'
 import type {
   Box, FitMode, MangaBookmark, MangaBubble, MangaChapter, MangaSeries, PageLayout, ReadDirection, ReaderPrefs,
 } from './types'
+import { actionFor } from '@/modules/shortcuts/keymap'
 
 interface Props {
   chapterId: string
@@ -290,25 +291,25 @@ function ReaderView({
         if (e.key === 'Escape') t.blur() // Esc trong ô nhập: thoát ô nhập trước
         return
       }
-      if (e.ctrlKey || e.metaKey || e.altKey) return
       const scroll = layout === 'scroll'
-      switch (e.key) {
-        case 'ArrowLeft': left(); break
-        case 'ArrowRight': right(); break
-        case ' ': case 'PageDown': if (scroll) return; next(); break
-        case 'PageUp': if (scroll) return; prev(); break
-        case 'Home': goTo(0); break
-        case 'End': goTo(chapter.pageCount - 1); break
-        case '+': case '=': zoomAt(zoom * 1.25); break
-        case '-': case '_': zoomAt(zoom / 1.25); break
-        case '0': setZoom(1); break
-        case 'd': case 'D': changePrefs({ layout: layout === 'double' ? 'single' : 'double' }); break
-        case 'r': case 'R': changePrefs({ direction: rtl ? 'ltr' : 'rtl' }); break
-        case 'm': case 'M': changePrefs({ mode: study ? 'chill' : 'study' }); break
-        case 'n': case 'N': startBubble(); break
-        case 'b': case 'B': bookmark(); break
-        case 'f': case 'F': toggleFullscreen(); break
-        case 'Escape':
+      // Phím đổi được ở trang Phím tắt (src/modules/shortcuts/keymap.ts, nhóm "manga")
+      switch (actionFor(e, 'manga')) {
+        case 'manga.left': left(); break
+        case 'manga.right': right(); break
+        case 'manga.next': if (scroll) return; next(); break
+        case 'manga.prev': if (scroll) return; prev(); break
+        case 'manga.first': goTo(0); break
+        case 'manga.last': goTo(chapter.pageCount - 1); break
+        case 'manga.zoomIn': zoomAt(zoom * 1.25); break
+        case 'manga.zoomOut': zoomAt(zoom / 1.25); break
+        case 'manga.zoomReset': setZoom(1); break
+        case 'manga.double': changePrefs({ layout: layout === 'double' ? 'single' : 'double' }); break
+        case 'manga.direction': changePrefs({ direction: rtl ? 'ltr' : 'rtl' }); break
+        case 'manga.mode': changePrefs({ mode: study ? 'chill' : 'study' }); break
+        case 'manga.bubble': startBubble(); break
+        case 'manga.bookmark': bookmark(); break
+        case 'manga.fullscreen': toggleFullscreen(); break
+        case 'manga.close':
           if (draw) setDraw(null)
           else if (panel) setPanel(null)
           else if (document.fullscreenElement) return
@@ -853,6 +854,7 @@ function SettingsPanel({ prefs, change, onMakeDefault }: {
           <li>+ − zoom · 0 về 100% · Ctrl + lăn chuột · chạm 2 lần ở giữa để zoom</li>
           <li>N hoặc giữ trên trang: thêm bong bóng · B đánh dấu trang · M đổi Chill/Học</li>
           <li>D đổi 1/2 trang · R đổi chiều đọc · F toàn màn hình · Esc thoát</li>
+          <li>Đây là phím mặc định. <a href="#/shortcuts" className="underline hover:text-text">Đổi phím tắt</a> · bấm ? để xem phím đang dùng.</li>
         </ul>
       </details>
     </div>

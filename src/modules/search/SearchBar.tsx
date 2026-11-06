@@ -7,6 +7,7 @@ import { createPortal } from 'react-dom'
 import { useT } from '@/core/i18n'
 import { openSearch, useSearchUi } from './api'
 import { S } from './strings'
+import { ariaCombo, comboOf, formatCombo, hasModifier, keysFor, matches, useKeymap } from '@/modules/shortcuts/keymap'
 
 const loadPalette = () => import('./SearchPalette')
 const SearchPalette = lazy(loadPalette)
@@ -38,7 +39,9 @@ const isTyping = (el: EventTarget | null) =>
 export function SearchBar() {
   const t = useT(S)
   const { open, initial, n } = useSearchUi()
-  const mac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform)
+  // Phím hiện trên nút: ưu tiên phím có Ctrl/Alt (vd Ctrl K), không có thì lấy phím đầu tiên
+  const searchKeys = keysFor('global.search', useKeymap((s) => s.custom))
+  const shownKey = searchKeys.find(hasModifier) ?? searchKeys[0]
 
   // Tải sẵn hộp tìm kiếm khi máy rảnh, để lần bấm Ctrl+K đầu tiên mở ngay
   useEffect(() => {
@@ -48,11 +51,13 @@ export function SearchBar() {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && !e.altKey && e.key.toLowerCase() === 'k') {
+      // Phím mở tìm kiếm đổi được ở trang Phím tắt (mặc định Ctrl+K và "/")
+      if (!matches(e, 'global.search')) return
+      if (hasModifier(comboOf(e))) {
         e.preventDefault()
         if (useSearchUi.getState().open) useSearchUi.setState({ open: false })
         else openSearch(window.getSelection()?.toString().trim().slice(0, 40) ?? '')
-      } else if (e.key === '/' && !e.ctrlKey && !e.metaKey && !isTyping(e.target) && !useSearchUi.getState().open) {
+      } else if (!isTyping(e.target) && !useSearchUi.getState().open) {
         e.preventDefault()
         openSearch()
       }
@@ -68,12 +73,12 @@ export function SearchBar() {
         onClick={() => openSearch()}
         onMouseEnter={() => { void loadPalette() }}
         aria-label={t('label')}
-        aria-keyshortcuts="Control+K"
+        aria-keyshortcuts={shownKey ? ariaCombo(shownKey) : undefined}
         className="flex min-h-10 w-full max-w-xl items-center gap-2 rounded-xl border border-border bg-surface px-4 text-left text-sm text-muted transition hover:border-primary"
       >
         <span aria-hidden>⌕</span>
         <span className="min-w-0 flex-1 truncate">{t('trigger')}</span>
-        <kbd className="hidden shrink-0 rounded-md border border-border px-1.5 text-xs md:inline">{mac ? '⌘K' : 'Ctrl K'}</kbd>
+        {shownKey && <kbd className="hidden shrink-0 rounded-md border border-border px-1.5 text-xs md:inline">{formatCombo(shownKey)}</kbd>}
       </button>
       {/* Gắn thẳng vào <body>: thanh trên có hiệu ứng làm mờ nền, nếu đặt bên trong thì hộp nổi bị kẹt trong thanh đó */}
       {open && createPortal(
