@@ -4,6 +4,7 @@
  * - Chấm: 4 nút Quên/Khó/Được/Dễ, phím 1–4, hoặc vuốt (trái = Quên, phải = Được, lên = Dễ, xuống = Khó).
  * - Hoàn tác: nút ↶, phím Z hoặc Ctrl+Z (hoàn tác cả chấm, chôn, tạm ẩn).
  * - Chôn đến mai: phím B · Tạm ẩn thẻ: phím S · Nghe đọc: phím R. Trên cảm ứng: nhấn giữ thẻ để mở menu.
+ * - Các phím trên là mặc định, đổi được ở trang Phím tắt (/shortcuts).
  * - Ôn nhanh: đếm ngược 5 phút, hết giờ thì dừng sau thẻ đang làm.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -18,6 +19,7 @@ import {
 } from './store'
 import { AnswerDetails, Example, Front, frontSize, kindLabel, playCardAudio, speakJa } from './CardFace'
 import type { QuestionType, Rating, ReviewSettings, SrsCard } from './types'
+import { actionFor, comboOf, formatCombo, hasModifier, keysFor, useKeymap } from '@/modules/shortcuts/keymap'
 
 const LEARN_AHEAD = 20 * 60_000 // thẻ hẹn lại trong vòng 20 phút sẽ quay lại ngay trong buổi này
 const QUICK_MS = 5 * 60_000
@@ -48,6 +50,27 @@ const RATINGS: { g: Rating; label: string; key: string; cls: string }[] = [
   { g: 3, label: 'Được', key: '3', cls: 'bg-good/15 text-good ring-good' },
   { g: 4, label: 'Dễ', key: '4', cls: 'bg-primary/15 text-primary ring-primary' },
 ]
+
+/** Hành động phím tắt → mức chấm. */
+const RATING_OF: Record<string, Rating> = { 'review.again': 1, 'review.hard': 2, 'review.good': 3, 'review.easy': 4 }
+
+/** Dòng gợi ý phím tắt dưới thẻ, theo phím người dùng đã đặt. */
+function KeyHint() {
+  const custom = useKeymap((s) => s.custom)
+  const k = (id: string) => { const c = keysFor(id, custom)[0]; return c ? formatCombo(c) : '—' }
+  const items: [string, string][] = [
+    [k('review.reveal'), 'lật thẻ / chọn gợi ý'],
+    [[k('review.again'), k('review.hard'), k('review.good'), k('review.easy')].join(' '), 'chấm'],
+    [k('review.undo'), 'hoàn tác'], [k('review.bury'), 'chôn'], [k('review.suspend'), 'ẩn'],
+    [k('review.replay'), 'nghe'], [k('review.exit'), 'thoát'],
+  ]
+  return (
+    <p className="hidden text-center text-xs text-muted md:block">
+      Phím tắt: {items.map(([key, what]) => `${key} ${what}`).join(' · ')}
+      {' · '}<a href="#/shortcuts" className="underline hover:text-text">đổi phím</a>
+    </p>
+  )
+}
 
 /** Chọn thẻ kế tiếp: thẻ đang học đã đến giờ → thẻ trong hàng đợi → thẻ đang học sớm nhất. */
 function takeNext(queue: SrsCard[], pending: SrsCard[], now: number) {
@@ -220,29 +243,32 @@ export function Session({
   const suggested: Rating = correct === false ? 1 : 3
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      // Phím đổi được ở trang Phím tắt (src/modules/shortcuts/keymap.ts, nhóm "review")
       const inInput = (e.target as HTMLElement | null)?.tagName === 'INPUT'
-      if ((e.key === 'z' || e.key === 'Z') && (e.ctrlKey || e.metaKey || !inInput)) {
+      const combo = comboOf(e)
+      const id = actionFor(e, 'review')
+      if (id === 'review.undo' && (hasModifier(combo) || !inInput)) {
         e.preventDefault()
         void undo()
         return
       }
-      if (e.key === 'Escape') { if (menu) setMenu(false); else onExit(); return }
+      if (id === 'review.exit') { if (menu) setMenu(false); else onExit(); return }
       if (inInput) return // trong ô gõ: Enter do form tự xử lý
-      if (e.ctrlKey || e.metaKey || e.altKey) return
-      const k = e.key.toLowerCase()
-      if (k === 'b') { void putAway('bury'); return }
-      if (k === 's') { void putAway('suspend'); return }
-      if (k === 'r' && current && revealed && current.card.audio) { playCardAudio(current.card.audio); return }
-      if (k === 'r' && current) { speakJa(revealed && current.card.example && current.question === 'cloze' ? current.card.example : current.card.front); return }
+      if (id === 'review.bury') { void putAway('bury'); return }
+      if (id === 'review.suspend') { void putAway('suspend'); return }
+      if (id === 'review.replay' && current && revealed && current.card.audio) { playCardAudio(current.card.audio); return }
+      if (id === 'review.replay' && current) { speakJa(revealed && current.card.example && current.question === 'cloze' ? current.card.example : current.card.front); return }
       if (!revealed) {
-        if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); reveal() }
-        if (current?.question === 'choice' && current.options && /^[1-4]$/.test(e.key)) {
-          reveal(current.options[Number(e.key) - 1])
+        if (id === 'review.reveal') { e.preventDefault(); reveal(); return }
+        // Trắc nghiệm: chọn đáp án bằng phím 1–4 (cố định)
+        if (current?.question === 'choice' && current.options && /^[1-4]$/.test(combo)) {
+          reveal(current.options[Number(combo) - 1])
         }
         return
       }
-      if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); void rate(suggested) }
-      if (/^[1-4]$/.test(e.key)) void rate(Number(e.key) as Rating)
+      if (id === 'review.reveal') { e.preventDefault(); void rate(suggested); return }
+      const rating = RATING_OF[id ?? '']
+      if (rating) { e.preventDefault(); void rate(rating) }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
@@ -488,9 +514,7 @@ export function Session({
         <Button className="min-h-14 text-lg" onClick={() => reveal()}>Xem đáp án</Button>
       ) : null}
 
-      <p className="hidden text-center text-xs text-muted md:block">
-        Phím tắt: Space lật thẻ / chọn gợi ý · 1–4 chấm · Z hoàn tác · B chôn · S ẩn · R nghe · Esc thoát
-      </p>
+      <KeyHint />
       <p className="text-center text-xs text-muted md:hidden">
         Vuốt sau khi lật: ← Quên · → Được · ↑ Dễ · ↓ Khó · Nhấn giữ thẻ: Chôn / Ẩn
       </p>

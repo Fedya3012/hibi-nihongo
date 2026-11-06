@@ -11,6 +11,8 @@ import { mainNav } from '@/modules/registry'
 import { useT } from '@/core/i18n'
 import { useModuleText } from '@/core/i18n/modules'
 import { SearchBar } from '@/modules/search/SearchBar'
+import { PomodoroHeaderButton } from '@/modules/pomodoro/HeaderTimer'
+import { ShortcutsHost } from '@/modules/shortcuts/Host'
 import { APP } from './strings'
 import { Sidebar } from './Sidebar'
 import { moduleForPath } from './nav'
@@ -51,6 +53,7 @@ export function Layout() {
       </a>
 
       <Sidebar />
+      <ShortcutsHost />
 
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Thanh trên: tìm kiếm toàn cục (Ctrl+K), xem src/modules/search */}
@@ -63,6 +66,7 @@ export function Layout() {
             日
           </Link>
           <SearchBar />
+          <PomodoroHeaderButton />
           <NavLink
             to="/settings"
             aria-label={t('settings')}
