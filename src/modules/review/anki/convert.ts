@@ -11,7 +11,7 @@ import { CardState, type CardKind, type Schedule } from '../types'
 import type { AnkiCard, AnkiNote, AnkiNoteType } from './read'
 
 /** Ô của thẻ app mà một trường Anki được đổ vào. */
-export type Target = 'front' | 'reading' | 'meaning' | 'example' | 'exampleMeaning' | 'notes' | 'image' | 'cloze' | 'kind' | 'skip'
+export type Target = 'front' | 'reading' | 'meaning' | 'example' | 'exampleMeaning' | 'notes' | 'image' | 'audio' | 'cloze' | 'kind' | 'skip'
 
 export const TARGET_LABEL: Record<Target, string> = {
   front: 'Chữ Nhật',
@@ -21,6 +21,7 @@ export const TARGET_LABEL: Record<Target, string> = {
   exampleMeaning: 'Nghĩa câu ví dụ',
   notes: 'Ghi chú',
   image: 'Ảnh',
+  audio: 'Âm thanh',
   cloze: 'Câu đục lỗ (cloze)',
   kind: 'Loại thẻ',
   skip: '— Bỏ qua —',
@@ -28,12 +29,15 @@ export const TARGET_LABEL: Record<Target, string> = {
 
 /** Tên loại ghi chú khi xuất từ app, để nhập lại vào app thì khớp đúng 100%. */
 export const HIBI_NOTE_TYPE = 'Hibi Nihongo'
-export const HIBI_FIELDS = ['Front', 'Reading', 'Meaning', 'Example', 'ExampleMeaning', 'Notes', 'Image', 'Kind'] as const
-const HIBI_TARGETS: Target[] = ['front', 'reading', 'meaning', 'example', 'exampleMeaning', 'notes', 'image', 'kind']
+export const HIBI_FIELDS = ['Front', 'Reading', 'Meaning', 'Example', 'ExampleMeaning', 'Notes', 'Image', 'Kind', 'Audio'] as const
+const HIBI_TARGETS: Target[] = ['front', 'reading', 'meaning', 'example', 'exampleMeaning', 'notes', 'image', 'kind', 'audio']
+/** Bản xuất cũ của app chưa có trường Audio: 8 trường đầu khớp là đủ. */
+const HIBI_BASE = 8
 
 // Thứ tự kiểm tra quan trọng: "Sentence Meaning" phải bắt trước "Meaning" và "Sentence".
 const RULES: [Target, RegExp][] = [
-  ['skip', /audio|sound|âm thanh|音声|voice|pitch|frequency|freq|tần suất|sort|^id$|index|stroke/],
+  ['audio', /audio|sound|âm thanh|音声|voice|^tiếng$/],
+  ['skip', /pitch|frequency|freq|tần suất|sort|^id$|index|stroke/],
   ['exampleMeaning', /(sentence|example|câu|例文|ví dụ|sent).*(meaning|translat|english|nghĩa|dịch|eng|訳)|(meaning|translat|nghĩa|dịch|訳).*(sentence|example|câu|例文|ví dụ)/],
   ['example', /sentence|example|câu|例文|ví dụ|^sent/],
   ['image', /image|picture|^pic|ảnh|hình|画像|写真|screenshot/],
@@ -45,10 +49,12 @@ const RULES: [Target, RegExp][] = [
 
 /** Đoán ô cho từng trường của một loại ghi chú. */
 export function guessMapping(nt: AnkiNoteType): Target[] {
-  if (nt.name.startsWith(HIBI_NOTE_TYPE) && HIBI_FIELDS.every((f, i) => nt.fields[i] === f)) return [...HIBI_TARGETS]
+  if (nt.name.startsWith(HIBI_NOTE_TYPE) && HIBI_FIELDS.slice(0, HIBI_BASE).every((f, i) => nt.fields[i] === f)) {
+    return nt.fields.map((f, i) => (HIBI_FIELDS[i] === f ? HIBI_TARGETS[i] : 'skip'))
+  }
   const out: Target[] = nt.fields.map(() => 'skip')
   const used = new Set<Target>()
-  const single: Target[] = ['front', 'reading', 'meaning', 'example', 'exampleMeaning', 'image', 'cloze']
+  const single: Target[] = ['front', 'reading', 'meaning', 'example', 'exampleMeaning', 'image', 'audio', 'cloze']
   if (nt.cloze) {
     const i = Math.max(0, nt.fields.findIndex((f) => /^text$|văn bản/i.test(f)))
     out[i] = 'cloze'
@@ -123,6 +129,11 @@ export function imagesIn(html: string): string[] {
   })
 }
 
+/** Tên các file tiếng trong trường: [sound:abc.mp3]. */
+export function soundsIn(html: string): string[] {
+  return [...html.matchAll(/\[sound:([^\]]+)\]/g)].map((m) => decodeEntities(m[1]).trim()).filter(Boolean)
+}
+
 const KANJI = '㐀-鿿豈-﫿々〆ヶ'
 const FURI_RE = new RegExp(` ?([${KANJI}]+)\\[([^\\]]+)\\]`, 'g')
 
@@ -168,6 +179,8 @@ export interface ConvertedNote {
   exampleMeaning?: string
   notes?: string
   imageName?: string
+  /** Tên file tiếng ([sound:…]) trong gói, phát ở mặt đáp án. */
+  audioName?: string
   kind?: CardKind
 }
 
@@ -175,11 +188,14 @@ export function convertNote(note: AnkiNote, mapping: Target[], opts: { hibi: boo
   const parts: Partial<Record<Target, string[]>> = {}
   // Ảnh: ưu tiên trường được chọn là "Ảnh", nếu không có thì lấy ảnh đầu tiên trong các trường còn lại
   let imageName = note.fields.map((h, i) => (mapping[i] === 'image' ? imagesIn(h)[0] : undefined)).find(Boolean)
+  // Tiếng: tương tự, ưu tiên trường "Âm thanh", không có thì lấy [sound:…] đầu tiên ở trường khác
+  let audioName = note.fields.map((h, i) => (mapping[i] === 'audio' ? soundsIn(h)[0] : undefined)).find(Boolean)
   note.fields.forEach((html, i) => {
     const t = mapping[i] ?? 'skip'
     if (t === 'skip') return
     imageName ??= imagesIn(html)[0]
-    if (t === 'image') return
+    audioName ??= soundsIn(html)[0]
+    if (t === 'image' || t === 'audio') return
     const text = t === 'example' ? exampleText(html, opts.hibi) : htmlToText(html)
     if (text) (parts[t] ??= []).push(text)
   })
@@ -208,7 +224,7 @@ export function convertNote(note: AnkiNote, mapping: Target[], opts: { hibi: boo
 
   const kindRaw = join('kind')?.trim().toLowerCase()
   const kind = kindRaw === 'vocab' || kindRaw === 'kanji' || kindRaw === 'grammar' ? kindRaw : undefined
-  return { front, reading, meaning, example, exampleMeaning: join('exampleMeaning'), notes, imageName, kind }
+  return { front, reading, meaning, example, exampleMeaning: join('exampleMeaning'), notes, imageName, audioName, kind }
 }
 
 // ---------- Lịch ôn ----------

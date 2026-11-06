@@ -132,6 +132,8 @@ function mimeOf(name: string): string {
   const map: Record<string, string> = {
     jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', gif: 'image/gif', webp: 'image/webp', svg: 'image/svg+xml',
     bmp: 'image/bmp', avif: 'image/avif',
+    mp3: 'audio/mpeg', ogg: 'audio/ogg', oga: 'audio/ogg', opus: 'audio/ogg', wav: 'audio/wav', m4a: 'audio/mp4',
+    aac: 'audio/aac', flac: 'audio/flac', webm: 'audio/webm', weba: 'audio/webm', spx: 'audio/ogg',
   }
   return map[ext ?? ''] ?? 'application/octet-stream'
 }
