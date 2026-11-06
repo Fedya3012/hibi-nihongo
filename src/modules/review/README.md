@@ -33,11 +33,13 @@ Tab **Thẻ → Anki**.
   - Giữ tiến độ: hạn ôn, độ thuộc (nếu Anki bật FSRS thì lấy đúng số của FSRS), số lần quên, thẻ tạm ẩn.
   - Furigana kiểu `日本[にほん]` tách thành chữ + cách đọc. Từ tô đậm trong câu ví dụ thành chỗ trống `{{ }}`.
     Thẻ cloze `{{c1::…}}` thành câu điền chỗ trống.
-  - Ảnh được nhập kèm (nén lại). Âm thanh chưa nhập (app đọc bằng giọng máy).
+  - Ảnh được nhập kèm (nén lại). Âm thanh `[sound:…]` cũng được nhập (file ≤ 2 MB), tự phát khi lật thẻ.
+    Trường tên Audio / Sound / Âm thanh / 音声 tự được chọn là "Âm thanh"; không có thì lấy tiếng đầu tiên trong các trường khác.
   - Ghi chú có nhiều thẻ (vd Nhận diện + Viết lại) thành một thẻ (app tự đổi dạng câu hỏi), lấy lịch của thẻ ôn nhiều nhất.
   - Nhập lại cùng file không tạo trùng (theo mã ghi chú của Anki, hoặc cùng bộ + cùng chữ).
 - **Xuất**: tạo `.apkg` (kiểu 2.0, mọi bản Anki đều mở được), loại ghi chú "Hibi Nihongo", kèm tiến độ, lịch sử ôn,
-  ảnh nếu chọn. Nhập ngược file này vào app thì khớp đủ mọi ô.
+  ảnh và âm thanh gốc nếu chọn (trường `Audio`, Anki tự phát ở mặt đáp án). Nhập ngược file này vào app thì khớp đủ mọi ô
+  (file xuất bản cũ chưa có trường `Audio` vẫn nhập đúng).
 - Code: `anki/read.ts` (đọc gói), `anki/convert.ts` (đoán trường, làm sạch HTML, đổi lịch), `anki/import.ts`,
   `anki/export.ts`, `anki/AnkiPanel.tsx`. Đọc SQLite bằng `sql.js`, giải nén zstd bằng `fzstd`; phần này chỉ tải khi dùng.
 

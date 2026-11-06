@@ -5,7 +5,7 @@
  * (máy tính, AnkiDroid, AnkiMobile) đều nhập được.
  *
  * Mỗi thẻ của app thành một ghi chú loại "Hibi Nihongo" với các trường
- * Front / Reading / Meaning / Example / ExampleMeaning / Notes / Image / Kind.
+ * Front / Reading / Meaning / Example / ExampleMeaning / Notes / Image / Kind / Audio.
  * Nhập lại file này vào app thì mọi ô khớp đúng như cũ.
  */
 import { zipSync, strToU8 } from 'fflate'
@@ -17,6 +17,8 @@ import { difficultyToFactor, HIBI_FIELDS, HIBI_NOTE_TYPE } from './convert'
 export interface ExportOptions {
   includeProgress: boolean
   includeImages: boolean
+  /** Kèm tiếng nói gốc của thẻ (vd thoại anime), Anki tự phát ở mặt đáp án. */
+  includeAudio?: boolean
 }
 
 const SCHEMA = `
@@ -57,7 +59,8 @@ const AFMT = `{{FrontSide}}
 {{#Image}}<div>{{Image}}</div>{{/Image}}
 {{#Example}}<div class="example">{{Example}}</div>{{/Example}}
 {{#ExampleMeaning}}<div class="small">{{ExampleMeaning}}</div>{{/ExampleMeaning}}
-{{#Notes}}<div class="small">{{Notes}}</div>{{/Notes}}`
+{{#Notes}}<div class="small">{{Notes}}</div>{{/Notes}}
+{{Audio}}`
 
 const esc = (s = '') => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>')
 
@@ -67,13 +70,20 @@ async function checksum(s: string): Promise<number> {
   return ((hash[0] << 24) | (hash[1] << 16) | (hash[2] << 8) | hash[3]) >>> 0
 }
 
-function dataUrlToBytes(url: string): { bytes: Uint8Array; ext: string } | null {
-  const m = url.match(/^data:image\/([a-z0-9.+-]+);base64,(.*)$/i)
-  if (!m) return null
-  const bin = atob(m[2])
+const EXT: Record<string, string> = {
+  'image/jpeg': 'jpg', 'image/svg+xml': 'svg',
+  'audio/mpeg': 'mp3', 'audio/mp4': 'm4a', 'audio/x-m4a': 'm4a', 'audio/aac': 'aac', 'audio/x-wav': 'wav',
+}
+
+/** data URL ảnh/tiếng → byte + đuôi file. Tiếng ghi từ trình duyệt có dạng "data:audio/webm;codecs=opus;base64,…". */
+function dataUrlToBytes(url: string, kind: 'image' | 'audio'): { bytes: Uint8Array; ext: string } | null {
+  const m = url.match(/^data:([a-z]+)\/([a-z0-9.+-]+)(?:;[^;,]*)*?;base64,(.*)$/is)
+  if (!m || m[1].toLowerCase() !== kind) return null
+  const mime = `${m[1]}/${m[2]}`.toLowerCase()
+  const bin = atob(m[3])
   const bytes = new Uint8Array(bin.length)
   for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i)
-  return { bytes, ext: m[1].toLowerCase() === 'jpeg' ? 'jpg' : m[1].toLowerCase().replace('svg+xml', 'svg') }
+  return { bytes, ext: EXT[mime] ?? m[2].toLowerCase() }
 }
 
 /** Mã guid ngẫu nhiên kiểu Anki (10 ký tự). */
@@ -136,19 +146,22 @@ export async function exportApkg(cards: SrsCard[], logs: SrsLog[], opts: ExportO
   for (const [i, c] of cards.entries()) {
     const id = now + i // id của ghi chú và thẻ là mốc thời gian (ms), phải khác nhau
     cardIds.set(c.id, id)
-    let imageHtml = ''
-    if (opts.includeImages && c.image) {
-      const img = dataUrlToBytes(c.image)
-      if (img) {
-        const n = String(Object.keys(files).length)
-        const name = `hibi-${c.id.slice(0, 12)}.${img.ext}`
-        files[n] = img.bytes
-        media[n] = name
-        imageHtml = `<img src="${name}">`
-      }
+    // Mỗi file media: trong ZIP tên là "0", "1", …; file "media" ghi tên thật của chúng
+    const addFile = (f: { bytes: Uint8Array; ext: string }, base: string) => {
+      const n = String(Object.keys(files).length)
+      const name = `${base}.${f.ext}`
+      files[n] = f.bytes
+      media[n] = name
+      return name
     }
+    let imageHtml = ''
+    const img = opts.includeImages && c.image ? dataUrlToBytes(c.image, 'image') : null
+    if (img) imageHtml = `<img src="${addFile(img, `hibi-${c.id.slice(0, 12)}`)}">`
+    let audioField = ''
+    const snd = opts.includeAudio && c.audio ? dataUrlToBytes(c.audio, 'audio') : null
+    if (snd) audioField = `[sound:${addFile(snd, `hibi-${c.id.slice(0, 12)}-audio`)}]`
     const example = c.example ? esc(c.example).replace(/\{\{(.+?)\}\}/g, '<u>$1</u>') : ''
-    const fields = [esc(c.front), esc(c.reading), esc(c.meaning), example, esc(c.exampleMeaning), esc(c.notes), imageHtml, c.kind]
+    const fields = [esc(c.front), esc(c.reading), esc(c.meaning), example, esc(c.exampleMeaning), esc(c.notes), imageHtml, c.kind, audioField]
     const tags = (c.tags ?? []).map((t) => t.replace(/\s+/g, '_')).filter((t) => t !== 'anki')
     const guid = c.source?.module === 'anki' ? c.source.ref : guidFrom(c.id)
     insNote.run([id, guid, modelId, nowSec, tags.length ? ` ${tags.join(' ')} ` : '', fields.join('\x1f'), c.front, await checksum(c.front)])
