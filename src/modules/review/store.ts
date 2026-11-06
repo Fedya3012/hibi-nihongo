@@ -2,6 +2,7 @@
  * LƯU VÀ ĐỌC DỮ LIỆU ÔN TẬP (qua kho dữ liệu chung @/core/db)
  * - Bảng srsCards: mọi thẻ. Bảng srsLogs: lịch sử từng lần ôn.
  * - Cài đặt ôn tập lưu trong kv với khóa "review:settings".
+ * - Bảng srsMedia: ảnh, tiếng của thẻ, tách riêng để đọc thẻ nhanh (xem media.ts).
  * Mọi thứ được sao lưu cùng file sao lưu của app.
  */
 import {
@@ -9,6 +10,7 @@ import {
 } from '@/core/db'
 import { cardsWithSources, possibleDuplicates } from './bySource'
 import { DAY, newSchedule, schedule } from './fsrs'
+import { loadCardMedia, stripMedia, withMedia, writeCards } from './media'
 import {
   CardState, DEFAULT_SETTINGS, type CardKind, type QuestionType, type Rating,
   type ReviewSettings, type SrsCard, type SrsLog,
@@ -110,7 +112,7 @@ export async function addCards(inputs: NewCardInput[]): Promise<number> {
     if (src) seenSrc.add(src)
     fresh.push(card)
   })
-  if (fresh.length) await putMany('srsCards', fresh)
+  if (fresh.length) await writeCards(fresh)
   return fresh.length
 }
 
@@ -192,7 +194,12 @@ export async function attachMediaBySource(
   const cards = (await cardsWithSources([source])).filter((c) => c.source && `${c.source.module}:${c.source.ref}` === key)
   if (!cards.length) return 0
   const { image, audio } = await prepareImage({ deck: '', kind: 'vocab', front: '', meaning: '', ...media })
-  await putMany('srsCards', cards.map((c) => ({ ...c, ...(image && { image }), ...(audio && { audio }) })))
+  const updated: SrsCard[] = []
+  for (const c of cards) {
+    const old = await loadCardMedia(c.id)
+    updated.push({ ...c, image: image || old?.image, audio: audio || old?.audio, frontImage: old?.frontImage })
+  }
+  await writeCards(updated)
   return cards.length
 }
 
@@ -213,14 +220,21 @@ export interface CardSnapshot {
 async function change(id: string, fn: (c: SrsCard) => SrsCard): Promise<CardSnapshot | undefined> {
   const card = await get<SrsCard>('srsCards', id)
   if (!card) return undefined
-  await put('srsCards', fn(card))
+  await put('srsCards', stripMedia(fn(card)))
   return { card }
 }
 
-/** Sửa nội dung thẻ (không đổi lịch ôn). */
+/**
+ * Sửa nội dung thẻ (không đổi lịch ôn). `input` là toàn bộ nội dung mới, kể cả ảnh/tiếng:
+ * thiếu image/audio/frontImage nghĩa là bỏ ảnh/tiếng đó (form sửa thẻ đọc kèm ảnh/tiếng có sẵn).
+ */
 export async function updateCardContent(id: string, input: NewCardInput) {
   const clean = cleanInput(await prepareImage(input))
-  return change(id, (c) => ({ ...c, ...clean }))
+  const card = await get<SrsCard>('srsCards', id)
+  if (!card) return undefined
+  const before = await withMedia(card) // bản chụp đủ ảnh/tiếng, để hoàn tác trả lại đúng
+  await writeCards([{ ...card, ...clean }])
+  return { card: before }
 }
 
 export const setSuspended = (id: string, suspended: boolean) => change(id, (c) => ({ ...c, suspended }))
@@ -242,25 +256,29 @@ export const clearLeech = (id: string) =>
 export const resetCard = (id: string) =>
   change(id, (c) => ({ ...c, ...newSchedule(Date.now()), lastReview: undefined, buriedUntil: undefined }))
 
-/** Xóa thẻ và lịch sử ôn của nó. Trả về bản chụp để hoàn tác. */
+/** Xóa thẻ, ảnh/tiếng và lịch sử ôn của nó. Trả về bản chụp để hoàn tác. */
 export async function deleteCard(id: string): Promise<CardSnapshot | undefined> {
-  return transaction(['srsCards', 'srsLogs'], 'readwrite', async (tx) => {
+  return transaction(['srsCards', 'srsLogs', 'srsMedia'], 'readwrite', async (tx) => {
     const card = await promisify<SrsCard | undefined>(tx.objectStore('srsCards').get(id))
     if (!card) return undefined
+    const media = await promisify<{ image?: string; audio?: string; frontImage?: string } | undefined>(tx.objectStore('srsMedia').get(id))
     const logs = tx.objectStore('srsLogs')
     const old = await promisify<SrsLog[]>(logs.index('by_card').getAll(id))
     tx.objectStore('srsCards').delete(id)
+    tx.objectStore('srsMedia').delete(id)
     for (const l of old) logs.delete(l.id!)
-    return { card, logs: old }
+    return { card: { ...card, image: media?.image, audio: media?.audio, frontImage: media?.frontImage }, logs: old }
   })
 }
 
-/** Hoàn tác: ghi lại thẻ (và lịch sử nếu thẻ đã bị xóa) đúng như bản chụp. */
+/** Hoàn tác: ghi lại thẻ (kèm ảnh/tiếng, và lịch sử nếu thẻ đã bị xóa) đúng như bản chụp. */
 export async function restoreSnapshot(snap: CardSnapshot) {
-  await transaction(['srsCards', 'srsLogs'], 'readwrite', (tx) => {
-    tx.objectStore('srsCards').put(snap.card)
-    for (const l of snap.logs ?? []) tx.objectStore('srsLogs').put(l)
-  })
+  await writeCards([snap.card])
+  if (snap.logs?.length) {
+    await transaction('srsLogs', 'readwrite', (tx) => {
+      for (const l of snap.logs ?? []) tx.objectStore('srsLogs').put(l)
+    })
+  }
 }
 
 export const isBuried = (c: SrsCard, now = Date.now()) => !!c.buriedUntil && c.buriedUntil > now
@@ -342,7 +360,8 @@ export async function rateCard(
 ): Promise<{ card: SrsCard; undo: UndoEntry; leech: boolean }> {
   const now = Date.now()
   const sched = schedule(card, rating, now, opts.settings, card.id)
-  const updated: SrsCard = { ...card, ...sched, buriedUntil: undefined }
+  // Thẻ đang hiện có thể đã kèm ảnh/tiếng: không ghi chúng vào srsCards (chúng nằm ở srsMedia)
+  const updated: SrsCard = stripMedia({ ...card, ...sched, buriedUntil: undefined })
   // Thẻ khó nhớ: vừa quên thêm lần nữa và đã chạm ngưỡng
   const leech = sched.lapses > card.lapses && sched.lapses >= opts.settings.leechThreshold
   if (leech) {
@@ -363,7 +382,7 @@ export async function rateCard(
     tx.objectStore('srsCards').put(updated)
     return (await promisify(tx.objectStore('srsLogs').add(log))) as number
   })
-  return { card: updated, undo: { before: card, logId }, leech }
+  return { card: updated, undo: { before: stripMedia(card), logId }, leech }
 }
 
 /** Hoàn tác: trả thẻ về đúng như trước khi chấm và xóa dòng lịch sử. */

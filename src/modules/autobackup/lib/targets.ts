@@ -4,6 +4,7 @@
  */
 import { platform } from './platform'
 import { getDirHandle, setDirHandle } from './handles'
+import { deviceId } from '@/core/db'
 
 export const PREFIX = 'hibi-nihongo-tu-dong-'
 
@@ -15,26 +16,46 @@ export interface BackupEntry {
 }
 
 const pad = (n: number) => String(n).padStart(2, '0')
-/** hibi-nihongo-tu-dong-2026-11-06_093015.json (giờ máy, có cả giây để hai lần lưu liền nhau không đè nhau). Xếp theo tên = xếp theo thời gian. */
-export function fileName(at = new Date()): string {
-  return `${PREFIX}${at.getFullYear()}-${pad(at.getMonth() + 1)}-${pad(at.getDate())}_${pad(at.getHours())}${pad(at.getMinutes())}${pad(at.getSeconds())}.json`
+/**
+ * hibi-nihongo-tu-dong-2026-11-06_093015-k3x9qa.zip
+ * (giờ máy, có cả giây để hai lần lưu liền nhau không đè nhau; cuối tên là mã của máy tạo file,
+ * để máy khác dùng chung thư mục biết đây là bản từ máy khác). Xếp theo tên = xếp theo thời gian.
+ * File cũ dạng .json (không có mã máy) vẫn được liệt kê và khôi phục được.
+ */
+export function fileName(at = new Date(), device = deviceId()): string {
+  return `${PREFIX}${at.getFullYear()}-${pad(at.getMonth() + 1)}-${pad(at.getDate())}_${pad(at.getHours())}${pad(at.getMinutes())}${pad(at.getSeconds())}-${device}.zip`
 }
 
-const isOurs = (name: string) => name.startsWith(PREFIX) && name.endsWith('.json')
+/** Đọc thời điểm tạo và mã máy từ tên file. */
+export function parseName(name: string): { at: number | null; device: string | null } {
+  const m = /^hibi-nihongo-tu-dong-(\d{4})-(\d{2})-(\d{2})_(\d{2})(\d{2})(\d{2})(?:-([a-z0-9]+))?\.(?:json|zip)$/.exec(name)
+  if (!m) return { at: null, device: null }
+  const at = new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +m[6]).getTime()
+  return { at, device: m[7] ?? null }
+}
+
+const isOurs = (name: string) => name.startsWith(PREFIX) && (name.endsWith('.json') || name.endsWith('.zip'))
 
 // ---------- Bản Windows: gọi các lệnh trong src-tauri/src/backup.rs ----------
 
-async function invoke<T>(cmd: string, args?: Record<string, unknown>): Promise<T> {
+async function invoke<T>(cmd: string, args?: Record<string, unknown> | Uint8Array, headers?: Record<string, string>): Promise<T> {
   const { invoke } = await import('@tauri-apps/api/core')
-  return invoke<T>(cmd, args)
+  return invoke<T>(cmd, args, headers ? { headers } : undefined)
 }
 
 export const desktop = {
   defaultDir: () => invoke<string>('backup_default_dir'),
-  write: (dir: string, name: string, contents: string) => invoke<string>('backup_write', { dir, name, contents }),
+  /** Ghi file nhị phân (.zip): gửi thẳng các byte, tên thư mục và tên file đi kèm trong "header". */
+  async write(dir: string, name: string, contents: Blob): Promise<string> {
+    const bytes = new Uint8Array(await contents.arrayBuffer())
+    return invoke<string>('backup_write_bin', bytes, { 'x-dir': encodeURIComponent(dir), 'x-name': encodeURIComponent(name) })
+  },
   list: (dir: string) => invoke<BackupEntry[]>('backup_list', { dir }),
   prune: (dir: string, keep: number) => invoke<number>('backup_prune', { dir, keep }),
-  read: (dir: string, name: string) => invoke<string>('backup_read', { dir, name }),
+  async read(dir: string, name: string): Promise<Blob> {
+    const buf = await invoke<ArrayBuffer>('backup_read_bin', { dir, name })
+    return new Blob([buf], { type: name.endsWith('.zip') ? 'application/zip' : 'application/json' })
+  },
   /** Mở hộp thoại chọn thư mục của Windows. null = bấm Hủy. */
   async pick(current: string): Promise<string | null> {
     const { open } = await import('@tauri-apps/plugin-dialog')
@@ -77,7 +98,7 @@ export const folder = {
     if (p === 'prompt' && interactive) p = await h.requestPermission({ mode: 'readwrite' })
     return p
   },
-  async write(name: string, contents: string): Promise<string> {
+  async write(name: string, contents: Blob): Promise<string> {
     const h = await folder.handle()
     if (!h) throw new Error('no-folder')
     const f = await h.getFileHandle(name, { create: true })
@@ -104,24 +125,24 @@ export const folder = {
       try { await h.removeEntry(e.name) } catch { /* bỏ qua */ }
     }
   },
-  async read(name: string): Promise<string> {
+  async read(name: string): Promise<Blob> {
     const h = await folder.handle()
     if (!h) throw new Error('no-folder')
-    return (await (await h.getFileHandle(name)).getFile()).text()
+    return (await h.getFileHandle(name)).getFile()
   },
 }
 
 // ---------- Không ghi được vào thư mục: tải file về ----------
 
-export function downloadFile(name: string, contents: string) {
-  const url = URL.createObjectURL(new Blob([contents], { type: 'application/json' }))
+export function downloadFile(name: string, contents: Blob) {
+  const url = URL.createObjectURL(contents)
   const a = document.createElement('a')
   a.href = url
   a.download = name
   document.body.appendChild(a)
   a.click()
   a.remove()
-  setTimeout(() => URL.revokeObjectURL(url), 10_000)
+  setTimeout(() => URL.revokeObjectURL(url), 60_000)
 }
 
 export { platform }

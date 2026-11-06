@@ -1,4 +1,4 @@
-//! SAO LƯU TỰ ĐỘNG (bản Windows): ghi file sao lưu .json vào thư mục người dùng chọn.
+//! SAO LƯU TỰ ĐỘNG (bản Windows): ghi file sao lưu (.zip, bản cũ .json) vào thư mục người dùng chọn.
 //! Phần giao diện và lịch chạy nằm ở src/modules/autobackup. Ở đây chỉ có vài lệnh đọc/ghi file
 //! đơn giản, và chỉ đụng tới file có tên bắt đầu bằng PREFIX để không bao giờ xóa nhầm file khác.
 
@@ -18,7 +18,47 @@ pub struct BackupEntry {
 }
 
 fn is_ours(name: &str) -> bool {
-    name.starts_with(PREFIX) && name.ends_with(".json") && !name.contains('/') && !name.contains('\\')
+    name.starts_with(PREFIX)
+        && (name.ends_with(".json") || name.ends_with(".zip"))
+        && !name.contains('/')
+        && !name.contains('\\')
+}
+
+/// Ghi ra file tạm rồi đổi tên, để mất điện giữa chừng không để lại file hỏng.
+fn write_file(dir: &str, name: &str, contents: &[u8]) -> Result<String, String> {
+    if !is_ours(name) {
+        return Err("Tên file sao lưu không hợp lệ".into());
+    }
+    let dir = PathBuf::from(dir);
+    fs::create_dir_all(&dir).map_err(|e| format!("Không tạo được thư mục: {e}"))?;
+    let path = dir.join(name);
+    let tmp = dir.join(format!("{name}.tmp"));
+    fs::write(&tmp, contents).map_err(|e| format!("Không ghi được file: {e}"))?;
+    fs::rename(&tmp, &path).map_err(|e| {
+        let _ = fs::remove_file(&tmp);
+        format!("Không ghi được file: {e}")
+    })?;
+    Ok(path.to_string_lossy().into_owned())
+}
+
+/// Giải mã chữ dạng %E1%BA%A1 (encodeURIComponent của JavaScript) về chữ thường.
+fn pct_decode(s: &str) -> String {
+    let b = s.as_bytes();
+    let mut out = Vec::with_capacity(b.len());
+    let mut i = 0;
+    while i < b.len() {
+        if b[i] == b'%' && i + 2 < b.len() {
+            let hex = std::str::from_utf8(&b[i + 1..i + 3]).unwrap_or("");
+            if let Ok(v) = u8::from_str_radix(hex, 16) {
+                out.push(v);
+                i += 3;
+                continue;
+            }
+        }
+        out.push(b[i]);
+        i += 1;
+    }
+    String::from_utf8_lossy(&out).into_owned()
 }
 
 /// Thư mục mặc định: Tài liệu (Documents) / Hibi Nihongo / Sao lưu
@@ -28,22 +68,30 @@ pub fn backup_default_dir(app: tauri::AppHandle) -> Result<String, String> {
     Ok(docs.join("Hibi Nihongo").join("Sao lưu").to_string_lossy().into_owned())
 }
 
-/// Ghi một file sao lưu. Ghi ra file tạm rồi đổi tên, để mất điện giữa chừng không để lại file hỏng.
+/// Ghi một file sao lưu dạng chữ (.json, bản cũ).
 #[tauri::command]
 pub fn backup_write(dir: String, name: String, contents: String) -> Result<String, String> {
-    if !is_ours(&name) {
-        return Err("Tên file sao lưu không hợp lệ".into());
-    }
-    let dir = PathBuf::from(dir);
-    fs::create_dir_all(&dir).map_err(|e| format!("Không tạo được thư mục: {e}"))?;
-    let path = dir.join(&name);
-    let tmp = dir.join(format!("{name}.tmp"));
-    fs::write(&tmp, contents).map_err(|e| format!("Không ghi được file: {e}"))?;
-    fs::rename(&tmp, &path).map_err(|e| {
-        let _ = fs::remove_file(&tmp);
-        format!("Không ghi được file: {e}")
-    })?;
-    Ok(path.to_string_lossy().into_owned())
+    write_file(&dir, &name, contents.as_bytes())
+}
+
+/// Ghi một file sao lưu nhị phân (.zip). Các byte được gửi thẳng (không đổi sang chữ), tên thư mục
+/// và tên file nằm trong header x-dir / x-name (đã mã hóa bằng encodeURIComponent).
+#[tauri::command]
+pub fn backup_write_bin(request: tauri::ipc::Request<'_>) -> Result<String, String> {
+    let tauri::ipc::InvokeBody::Raw(data) = request.body() else {
+        return Err("Thiếu nội dung file sao lưu".into());
+    };
+    let header = |k: &str| {
+        request
+            .headers()
+            .get(k)
+            .and_then(|v| v.to_str().ok())
+            .map(pct_decode)
+            .ok_or_else(|| format!("Thiếu {k}"))
+    };
+    let dir = header("x-dir")?;
+    let name = header("x-name")?;
+    write_file(&dir, &name, data)
 }
 
 /// Liệt kê các file sao lưu tự động trong thư mục, mới nhất trước.
@@ -90,11 +138,21 @@ pub fn backup_prune(dir: String, keep: usize) -> Result<usize, String> {
     Ok(removed)
 }
 
-/// Đọc nội dung một file sao lưu tự động (để khôi phục).
+/// Đọc nội dung một file sao lưu tự động dạng chữ (.json, bản cũ).
 #[tauri::command]
 pub fn backup_read(dir: String, name: String) -> Result<String, String> {
     if !is_ours(&name) {
         return Err("Tên file sao lưu không hợp lệ".into());
     }
     fs::read_to_string(Path::new(&dir).join(name)).map_err(|e| format!("Không đọc được file: {e}"))
+}
+
+/// Đọc nội dung một file sao lưu tự động (.zip hoặc .json) dạng byte, để khôi phục.
+#[tauri::command]
+pub fn backup_read_bin(dir: String, name: String) -> Result<tauri::ipc::Response, String> {
+    if !is_ours(&name) {
+        return Err("Tên file sao lưu không hợp lệ".into());
+    }
+    let data = fs::read(Path::new(&dir).join(name)).map_err(|e| format!("Không đọc được file: {e}"))?;
+    Ok(tauri::ipc::Response::new(data))
 }

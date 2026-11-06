@@ -59,10 +59,14 @@ export interface AutoBackupState {
   lastError: string | null
   /** Bấm "Để sau" trên thanh nhắc: không nhắc lại trước thời điểm này. */
   snoozeUntil: number | null
+  /** Bản sao lưu từ máy khác mới nhất đã lấy về hoặc đã bấm "Bỏ qua" (thời điểm tạo của bản đó). */
+  remoteSeenAt: number | null
 }
 
 const STATE_KEY = 'hibi-autobackup-state'
-const EMPTY: AutoBackupState = { lastRunAt: null, lastWrittenAt: null, lastFile: null, lastHash: null, lastError: null, snoozeUntil: null }
+const EMPTY: AutoBackupState = {
+  lastRunAt: null, lastWrittenAt: null, lastFile: null, lastHash: null, lastError: null, snoozeUntil: null, remoteSeenAt: null,
+}
 
 let cache: AutoBackupState | null = null
 const listeners = new Set<() => void>()

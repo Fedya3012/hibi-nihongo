@@ -26,6 +26,15 @@ import { addCards, attachMediaBySource, getOverview, tagCardsBySource, type NewC
 export type { NewCardInput as ReviewCardInput, Overview as ReviewOverview } from './store'
 export type { CardKind, SrsCard, SrsLog, Rating } from './types'
 
+/*
+ * Ảnh/tiếng của thẻ nằm ở bảng riêng (srsMedia), thẻ đọc từ srsCards chỉ có cờ `media`.
+ * Cần ảnh/tiếng thì đọc kèm:
+ *   const full = await withCardMedia(card)   // full.image, full.audio, full.frontImage
+ *   const shown = useCardMedia(card)         // hook React
+ *   hasCardMedia(card, 'audio')              // có tiếng không, không cần đọc
+ */
+export { withMedia as withCardMedia, useCardMedia, hasMedia as hasCardMedia } from './media'
+
 /** Thêm thẻ vào SRS. Trả về số thẻ được thêm (thẻ trùng bị bỏ qua). */
 export const addReviewCards = (cards: NewCardInput[]) => addCards(cards)
 

@@ -57,6 +57,13 @@ export const STORES = {
   animeClips: { backup: false },
   /** Liên kết thẻ ôn tập ↔ tập anime (để ôn theo tập / mùa / bộ). Có sao lưu. */
   animeLinks: { backup: true },
+  /**
+   * Ảnh / tiếng nói của thẻ ôn tập, tách khỏi srsCards để mỗi lần đọc thẻ không phải kéo theo
+   * hàng MB ảnh, tiếng. Khóa = id thẻ. Có sao lưu (trong file .zip là các file ảnh, tiếng riêng).
+   */
+  srsMedia: { backup: true },
+  /** Bản an toàn tự chụp trước khi khôi phục, để "Hoàn tác khôi phục". Không sao lưu. */
+  backupSnapshots: { backup: false },
 } as const satisfies Record<string, { backup: boolean }>
 
 export type StoreName = keyof typeof STORES
@@ -146,7 +153,57 @@ export const migrations: Migration[] = [
     links.createIndex('by_episode', 'episodeId')
     links.createIndex('by_series', 'seriesId')
   },
+  // Phiên bản tiếp theo (An toàn dữ liệu): tách ảnh/tiếng khỏi thẻ, bản an toàn trước khi khôi phục
+  (db, tx) => {
+    db.createObjectStore('srsMedia', { keyPath: 'id' })
+    db.createObjectStore('backupSnapshots', { keyPath: 'id' })
+    const cards = tx.objectStore('srsCards')
+    // Tra nhanh thẻ theo nguồn và theo mặt trước (chống tạo thẻ trùng)
+    cards.createIndex('by_source', ['source.module', 'source.ref'])
+    cards.createIndex('by_front', 'front')
+    // Chuyển ảnh/tiếng đang nằm trong thẻ sang bảng srsMedia
+    const media = tx.objectStore('srsMedia')
+    cards.openCursor().onsuccess = (e) => {
+      const cur = (e.target as IDBRequest<IDBCursorWithValue | null>).result
+      if (!cur) return
+      const split = splitCardMedia(cur.value)
+      if (split.changed) {
+        if (split.media) media.put(split.media)
+        cur.update(split.card)
+      }
+      cur.continue()
+    }
+  },
 ]
+
+/**
+ * Tách ảnh / tiếng của một thẻ ôn tập ra khỏi thẻ.
+ * Thẻ còn lại giữ cờ `media` (có ảnh? có tiếng?) để biết khi nào cần đọc srsMedia.
+ * Dùng ở bước nâng cấp kho, khi khôi phục file sao lưu cũ, và trong module Ôn tập.
+ */
+export const MEDIA_FIELDS = ['image', 'audio', 'frontImage'] as const
+export type MediaField = (typeof MEDIA_FIELDS)[number]
+export type CardMediaRecord = { id: string } & Partial<Record<MediaField, string>>
+
+export function splitCardMedia<C extends { id: string; media?: Partial<Record<MediaField, boolean>> }>(
+  card: C,
+): { card: C; media: CardMediaRecord | null; changed: boolean } {
+  const raw = card as C & Partial<Record<MediaField, unknown>>
+  // Thẻ không chứa trường ảnh/tiếng nào: giữ nguyên (kể cả cờ media có sẵn)
+  if (!MEDIA_FIELDS.some((f) => f in raw)) return { card, media: null, changed: false }
+  const light = { ...raw } as C & Partial<Record<MediaField, unknown>>
+  const media: CardMediaRecord = { id: card.id }
+  const flags: Partial<Record<MediaField, boolean>> = {}
+  for (const f of MEDIA_FIELDS) {
+    const v = raw[f]
+    delete light[f]
+    if (typeof v === 'string' && v) { media[f] = v; flags[f] = true }
+  }
+  const has = Object.keys(flags).length > 0
+  if (has) light.media = flags
+  else delete light.media
+  return { card: light, media: has ? media : null, changed: true }
+}
 
 export const DB_VERSION = migrations.length
 

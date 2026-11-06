@@ -25,6 +25,7 @@ import { formatClock } from './subtitles'
 import { SubtitleLine } from './SubtitleLine'
 import { useKnowledge } from './analysis'
 import { inputClass } from '../manga/ui'
+import { hasCardMedia, useCardMedia, withCardMedia } from '@/modules/review/api'
 
 type ReviewMode = 'full' | 'listen' | 'cloze'
 const MODE_LABEL: Record<ReviewMode, string> = { full: 'Đầy đủ', listen: 'Nghe hiểu (che chữ)', cloze: 'Che từ trong câu' }
@@ -102,6 +103,8 @@ export function AnimeReview({ initial, onClose, openAt }: {
   }
 
   const cur = queue?.[pos]
+  // Ảnh/tiếng của thẻ ôn tập nằm ở bảng riêng: đọc khi thẻ hiện ra
+  const curCard = useCardMedia(cur?.card)
 
   // Phát âm thanh gốc của cảnh khi mở thẻ (trừ kiểu không có âm thanh)
   const play = async (x = cur) => {
@@ -110,8 +113,9 @@ export function AnimeReview({ initial, onClose, openAt }: {
     const clip = id ? await getClip(id) : undefined
     if (clip?.audio) { stopAudio.current = playBlob(clip.audio); return }
     // Không có bản ghi trong máy (vd. khôi phục từ sao lưu): dùng âm thanh lưu sẵn trong thẻ
-    if (x?.card.audio) {
-      const a = new Audio(x.card.audio)
+    const audio = x?.card.media?.audio ? (await withCardMedia(x.card)).audio : x?.card.audio
+    if (audio) {
+      const a = new Audio(audio)
       void a.play().catch(() => {})
       stopAudio.current = () => a.pause()
     }
@@ -227,8 +231,8 @@ export function AnimeReview({ initial, onClose, openAt }: {
   const isSentence = cur.card.source?.module === 'anime'
   const line = cur.sentence?.text ?? (isSentence ? cur.card.front : plainExample(cur.card.example))
   const cloze = clozeOf(cur)
-  const hasAudio = !!cur.sentence?.hasAudio || !!cur.card.audio
-  const image = cur.card.image
+  const hasAudio = !!cur.sentence?.hasAudio || hasCardMedia(cur.card, 'audio')
+  const image = curCard?.image
 
   return (
     <div className="mx-auto grid w-full max-w-2xl gap-4">

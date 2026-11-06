@@ -50,7 +50,7 @@ export const clozeAnswers = (example: string) => [...example.matchAll(/\{\{(.+?)
 
 /** Các dạng câu hỏi dùng được cho thẻ này. */
 export function availableQuestions(card: SrsCard, pool: SrsCard[]): QuestionType[] {
-  if (card.frontImage) return ['recognize'] // thẻ ảnh che chữ: chỉ hỏi kiểu nhìn ảnh → nhớ câu
+  if (card.frontImage || card.media?.frontImage) return ['recognize'] // thẻ ảnh che chữ: chỉ hỏi kiểu nhìn ảnh → nhớ câu
   const list: QuestionType[] = ['recognize', 'recall']
   const others = new Set(pool.filter((c) => c.kind === card.kind && c.meaning !== card.meaning).map((c) => c.meaning))
   if (others.size >= 3) list.push('choice')

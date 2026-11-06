@@ -12,6 +12,7 @@ import { episodeLabel } from './importer'
 import type { AnimeCardItem, AnimeData } from './progress'
 import { getClip } from './store'
 import { formatClock } from './subtitles'
+import { withCardMedia } from '@/modules/review/api'
 
 const esc = (s = '') => s.replace(/\t/g, ' ').replace(/\r?\n/g, '<br>')
 const html = (s = '') => esc(s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'))
@@ -65,7 +66,8 @@ export async function exportAnki(items: AnimeCardItem[], data: AnimeData, deckNa
       files[`media/${name}`] ??= await blobBytes(clip.audio)
       audio = `[sound:${name}]`
     }
-    const img = c.image ? dataUrlBytes(c.image) : clip?.image ? await blobBytes(clip.image) : undefined
+    const cardImage = c.media?.image ? (await withCardMedia(c)).image : c.image
+    const img = cardImage ? dataUrlBytes(cardImage) : clip?.image ? await blobBytes(clip.image) : undefined
     if (img) {
       const name = `${base}.jpg`
       files[`media/${name}`] ??= img

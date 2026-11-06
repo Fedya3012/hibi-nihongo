@@ -1,10 +1,10 @@
 /**
  * CHẠY MỘT LẦN SAO LƯU TỰ ĐỘNG
- * 1. Gom dữ liệu học (dùng đúng hàm của nút "Tạo file sao lưu": createBackup).
+ * 1. Gom dữ liệu học thành file .zip (dùng đúng hàm của nút "Tạo file sao lưu": createBackupZip).
  * 2. Dữ liệu không đổi so với lần trước → không ghi file mới (tránh 30 file giống hệt nhau).
  * 3. Ghi file vào thư mục đã chọn, xóa file tự động cũ quá số lượng cần giữ.
  */
-import { createBackup, markBackedUp, restoreBackup } from '@/core/db'
+import { SafetySnapshotError, createBackupZip, markBackedUp, restoreBackup } from '@/core/db'
 import { getAutoBackupSettings, getState, setState } from './settings'
 import { desktop, downloadFile, fileName, folder, platform } from './targets'
 
@@ -15,18 +15,6 @@ export type RunResult =
   /** Cần bạn bấm nút: trình duyệt cần hỏi quyền, hoặc chưa chọn thư mục. */
   | { kind: 'needs-action' }
   | { kind: 'error'; message: string }
-
-/** Dấu vân tay ngắn của dữ liệu (SHA-256; máy không có thì dùng cách đơn giản hơn). */
-async function fingerprint(text: string): Promise<string> {
-  try {
-    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text))
-    return Array.from(new Uint8Array(buf), (b) => b.toString(16).padStart(2, '0')).join('')
-  } catch {
-    let h = 0x811c9dc5
-    for (let i = 0; i < text.length; i++) h = Math.imul(h ^ text.charCodeAt(i), 0x01000193)
-    return `fnv-${(h >>> 0).toString(16)}-${text.length}`
-  }
-}
 
 export async function desktopDir(): Promise<string> {
   const s = await getAutoBackupSettings()
@@ -51,13 +39,12 @@ export async function runAutoBackup({ interactive = false, force = false } = {})
       if (p === 'prompt' || p === 'denied') return { kind: 'needs-action' }
     }
 
-    const backup = await createBackup()
-    const hasData = Object.values(backup.stores).some((rows) => rows && rows.length > 0)
-    if (!hasData && !force) {
+    const backup = await createBackupZip()
+    if (backup.rows === 0 && !force) {
       setState({ lastRunAt: now, lastError: null })
       return { kind: 'empty' }
     }
-    const hash = await fingerprint(JSON.stringify({ ...backup, createdAt: 0 }))
+    const hash = backup.hash
     const st = getState()
     if (!force && hash === st.lastHash && st.lastWrittenAt) {
       setState({ lastRunAt: now, lastError: null, snoozeUntil: null })
@@ -65,19 +52,18 @@ export async function runAutoBackup({ interactive = false, force = false } = {})
     }
 
     const name = fileName(new Date(now))
-    const text = JSON.stringify(backup)
     let file: string
     if (where === 'desktop') {
       const dir = await desktopDir()
-      file = await desktop.write(dir, name, text)
+      file = await desktop.write(dir, name, backup.blob)
       await desktop.prune(dir, s.keep)
     } else if (where === 'folder' && (await folder.handle())) {
-      file = await folder.write(name, text)
+      file = await folder.write(name, backup.blob)
       await folder.prune(s.keep)
     } else {
       // Firefox / Safari / điện thoại, hoặc Chrome chưa chọn thư mục: tải file về
       if (!interactive) return { kind: 'needs-action' }
-      downloadFile(name, text)
+      downloadFile(name, backup.blob)
       file = name
     }
     markBackedUp(now)
@@ -90,14 +76,30 @@ export async function runAutoBackup({ interactive = false, force = false } = {})
   }
 }
 
-/** Khôi phục từ một file sao lưu tự động trong thư mục. */
+/** Đọc một file sao lưu tự động trong thư mục. */
+export async function readBackupFile(name: string): Promise<Blob> {
+  return platform() === 'desktop' ? desktop.read(await desktopDir(), name) : folder.read(name)
+}
+
+/**
+ * Khôi phục từ một file sao lưu tự động trong thư mục.
+ * restoreBackup tự chụp bản an toàn trước (hoàn tác được trong Cài đặt). Nếu máy không đủ chỗ để
+ * chụp bản an toàn thì lưu dữ liệu hiện tại thành một file mới trong thư mục thay cho bản an toàn.
+ */
 export async function restoreFrom(name: string): Promise<number> {
-  const text = platform() === 'desktop' ? await desktop.read(await desktopDir(), name) : await folder.read(name)
-  // Lưu dữ liệu hiện tại thành một file mới trước khi thay thế, để lỡ chọn nhầm vẫn quay lại được.
-  // (Đọc file cần khôi phục TRƯỚC, vì ghi thêm file có thể làm file cũ nhất bị dọn đi.)
-  const safety = await runAutoBackup({ force: true })
-  if (safety.kind === 'error') throw new Error(safety.message)
-  const { records } = await restoreBackup(new Blob([text], { type: 'application/json' }))
+  // Đọc file cần khôi phục TRƯỚC, vì ghi thêm file có thể làm file cũ nhất bị dọn đi.
+  let blob = await readBackupFile(name)
+  let records: number
+  try {
+    records = (await restoreBackup(blob, { label: name })).records
+  } catch (e) {
+    if (!(e instanceof SafetySnapshotError)) throw e
+    // Trên web, file trong thư mục có thể bị dọn khi ghi thêm file: giữ một bản trong bộ nhớ trước
+    if (platform() === 'folder') blob = new Blob([await blob.arrayBuffer()], { type: blob.type })
+    const safety = await runAutoBackup({ force: true })
+    if (safety.kind === 'error') throw new Error(safety.message)
+    records = (await restoreBackup(blob, { safety: false, label: name })).records
+  }
   // Dữ liệu vừa đổi: lần tới so sánh lại từ đầu
   setState({ lastHash: null })
   return records

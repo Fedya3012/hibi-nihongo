@@ -56,6 +56,13 @@ export const S = defineStrings({
     linkOn: 'Đang bật · {every}',
     linkOff: 'Đang tắt',
     open: 'Mở',
+    // Dùng chung thư mục giữa hai máy
+    remoteText: 'Có bản sao lưu mới hơn từ máy khác ({when}). Lấy về máy này?',
+    remoteWarn: 'Thay đổi trên máy này từ lần sao lưu trước sẽ được thay (vẫn hoàn tác được trong Cài đặt).',
+    remoteDo: 'Lấy về',
+    remoteSkip: 'Bỏ qua',
+    remoteDone: 'Đã lấy dữ liệu từ máy khác ({n} mục).',
+    syncTip: 'Dùng hai máy? Cho cả hai lưu vào cùng một thư mục Google Drive / OneDrive: khi máy kia có bản mới hơn, Hibi sẽ hỏi bạn có muốn lấy về không.',
   },
   en: {
     title: 'Automatic backup',
@@ -109,6 +116,12 @@ export const S = defineStrings({
     linkOn: 'On · {every}',
     linkOff: 'Off',
     open: 'Open',
+    remoteText: 'A newer backup from another device is available ({when}). Load it here?',
+    remoteWarn: 'Changes on this device since its last backup will be replaced (you can undo this in Settings).',
+    remoteDo: 'Load',
+    remoteSkip: 'Skip',
+    remoteDone: 'Loaded data from the other device ({n} items).',
+    syncTip: 'Using two devices? Point both to the same Google Drive / OneDrive folder: when the other device has a newer backup, Hibi asks whether to load it.',
   },
   ja: {
     title: '自動バックアップ',
@@ -133,5 +146,8 @@ export const S = defineStrings({
     linkOn: 'オン · {every}',
     linkOff: 'オフ',
     open: '開く',
+    remoteText: '別の端末に新しいバックアップがあります（{when}）。この端末に読み込みますか？',
+    remoteDo: '読み込む',
+    remoteSkip: 'スキップ',
   },
 })

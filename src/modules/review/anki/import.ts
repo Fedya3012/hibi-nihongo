@@ -2,11 +2,12 @@
  * NHẬP GÓI ANKI VÀO ÔN TẬP
  * Ghép các bước: đọc gói (read.ts) → đổi ghi chú thành thẻ (convert.ts) → lưu vào bảng srsCards.
  */
-import { getAll, putMany } from '@/core/db'
+import { getAll } from '@/core/db'
 import { blobToDataUrl, buildCard, imageToDataUrl } from '../store'
 import type { CardKind, SrsCard } from '../types'
 import { convertNote, convertSchedule, mainCard, HIBI_NOTE_TYPE, type ConvertedNote, type Target } from './convert'
 import type { AnkiNote, AnkiPackage } from './read'
+import { writeCards } from '../media'
 
 /** Cách nhập một loại ghi chú: trường nào vào ô nào, và là loại thẻ gì. */
 export interface TypePlan {
@@ -95,7 +96,7 @@ export async function importAnki(
       }
       fresh.push(card)
     }
-    if (fresh.length) await putMany('srsCards', fresh)
+    if (fresh.length) await writeCards(fresh) // ảnh/tiếng tự tách sang bảng srsMedia
     result.added += fresh.length
     onProgress?.(Math.min(notes.length, start + BATCH), notes.length)
   }
