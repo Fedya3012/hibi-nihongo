@@ -11,6 +11,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { ButtonLink, Button } from '@/design/components/Button'
 import { useLang, useT } from '@/core/i18n'
 import { usePomodoro } from '@/modules/pomodoro/store'
+import { inFlight, useFlight } from '@/modules/pomodoro/flight/store'
 import { ACTIONS, GROUPS, actionFor, comboOf, hasModifier, keysFor, pickLabel, useKeymap, type Group } from './keymap'
 import { Kbd } from './Kbd'
 import { S } from './strings'
@@ -99,7 +100,8 @@ export function ShortcutsHost() {
       if (!hasModifier(comboOf(e)) && isTyping(e.target)) return
       e.preventDefault()
       if (id === 'global.help') setHelp((h) => !h)
-      else if (id === 'global.pomodoro') usePomodoro.getState().toggle()
+      // Đang có chuyến bay tập trung thì tạm dừng / bay tiếp chuyến bay, không thì hẹn giờ cổ điển
+      else if (id === 'global.pomodoro') (inFlight(useFlight.getState()) ? useFlight.getState().toggle() : usePomodoro.getState().toggle())
       else if (GO[id]) navigate(GO[id])
     }
     window.addEventListener('keydown', onKey)

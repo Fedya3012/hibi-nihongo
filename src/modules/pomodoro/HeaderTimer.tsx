@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom'
 import { useT } from '@/core/i18n'
 import { fmtClock, remainingNow, usePomodoro } from './store'
 import { S } from './strings'
+import { flightRemaining, inFlight, useFlight } from './flight/store'
 
 /** Vẽ lại mỗi giây khi `on` (để đồng hồ nhảy số). */
 export function useNow(on: boolean) {
@@ -23,10 +24,25 @@ export function useNow(on: boolean) {
 export function PomodoroHeaderButton() {
   const t = useT(S)
   const s = usePomodoro()
+  const f = useFlight()
+  const flying = inFlight(f) && !!f.booking
   const active = s.status !== 'idle'
-  const now = useNow(s.status === 'running')
+  const now = useNow(s.status === 'running' || f.status === 'flying')
   const time = fmtClock(remainingNow(s, now))
   const work = s.phase === 'work'
+
+  // Đang có chuyến bay tập trung: hiện ✈ + thời gian tới nơi
+  if (flying) {
+    const ft = fmtClock(flightRemaining(f, now))
+    return (
+      <Link to="/pomodoro" aria-label={`Chuyến bay tới ${f.booking!.to}, còn ${ft}`}
+        className="flex h-10 shrink-0 items-center gap-1.5 rounded-xl bg-primary-soft px-2.5 text-sm font-semibold text-text outline-none transition focus-visible:ring-2 focus-visible:ring-primary md:ml-auto">
+        <span aria-hidden className="text-primary">✈</span>
+        <span className="hidden sm:inline" aria-hidden>{f.booking!.to}</span>
+        <span className={`tabular-nums ${f.status === 'paused' ? 'opacity-60' : ''}`} aria-hidden>{ft}{f.status === 'paused' ? ' ⏸' : ''}</span>
+      </Link>
+    )
+  }
 
   return (
     <Link

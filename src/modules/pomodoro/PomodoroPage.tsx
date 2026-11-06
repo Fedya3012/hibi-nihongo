@@ -55,7 +55,8 @@ function NumberField({ label, value, min, max, onChange }: { label: string; valu
   )
 }
 
-export default function PomodoroPage() {
+/** Hẹn giờ Pomodoro cổ điển (25/5/15), giờ nằm trong tab "Hẹn giờ". */
+export function ClassicTimer() {
   const t = useT(S)
   const lang = useLang()
   const s = usePomodoro()
@@ -93,10 +94,9 @@ export default function PomodoroPage() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <h1 className="text-2xl font-bold">{t('title')}</h1>
-      <p className="mt-1 text-muted">{t('intro')}</p>
+      <p className="text-muted">{t('intro')}</p>
 
-      <Card className="mt-5 flex flex-col items-center gap-5">
+      <Card className="mt-4 flex flex-col items-center gap-5">
         <Segmented<Phase>
           label={t('phase')}
           value={s.phase}
