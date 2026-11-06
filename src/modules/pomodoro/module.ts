@@ -3,6 +3,7 @@ import { lazy } from 'react'
 import { defineModule } from '@/modules/define'
 // Đồng hồ Pomodoro chạy ngầm trong cả app: hết giờ thì chuyển phiên, kêu chuông, thông báo
 import './ticker'
+import './flight/ticker'
 
 export default defineModule({
   id: 'pomodoro',
@@ -13,10 +14,10 @@ export default defineModule({
   status: 'ready',
   phase: 2,
   order: 920,
-  description: 'Hẹn giờ học tập trung 25 phút, nghỉ 5 phút; thống kê số phiên mỗi ngày',
+  description: 'Chuyến bay tập trung tới Nhật Bản: đặt vé, sân bay, nhập cảnh, ngắm cảnh từng vùng, hộ chiếu; kèm hẹn giờ 25/5',
   text: {
     en: { title: 'Pomodoro', description: 'Focus timer: 25 minutes of study, 5 minutes break; daily session stats' },
     ja: { title: 'ポモドーロ', description: '集中タイマー：25分学習・5分休憩、毎日の記録' },
   },
-  page: lazy(() => import('./PomodoroPage')),
+  page: lazy(() => import('./FlightPage')),
 })

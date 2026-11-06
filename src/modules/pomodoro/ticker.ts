@@ -17,7 +17,7 @@ export interface DayLog { count: number; minutes: number }
 export const LOG_KEY = 'pomodoro:log'
 
 /** Ghi thêm một phiên tập trung đã xong vào nhật ký theo ngày học. */
-async function logWork(minutes: number) {
+export async function logWork(minutes: number) {
   const day = dayKey(Date.now(), await getDayStartHour())
   const log = await kvGet<Record<string, DayLog>>(LOG_KEY, {})
   const d = log[day] ?? { count: 0, minutes: 0 }
