@@ -103,7 +103,18 @@ export interface ReviewSettings {
    */
   leechThreshold: number
   leechAction: 'suspend' | 'tag' // tự tạm ẩn, hay chỉ gắn nhãn
+  /** Tham số FSRS riêng, học từ lịch sử ôn (nút "Tối ưu"). Không có = tham số mặc định. */
+  weights?: number[] | null
+  /** Lần tối ưu gần nhất: lúc nào, dùng bao nhiêu lượt ôn. */
+  optimized?: { at: number; reviews: number } | null
+  /** Dàn đều thẻ: chọn ngày ít thẻ nhất trong khoảng vài ngày quanh ngày FSRS hẹn. */
+  loadBalance: boolean
+  /** Ngày học nhẹ theo thứ trong tuần, chỉ số 0 = Chủ nhật … 6 = Thứ bảy. */
+  easyDays: EasyDay[]
 }
+
+/** Mức học của một thứ trong tuần: bình thường, nhẹ (ít thẻ hơn), hoặc tối thiểu (tránh hẹn thẻ vào ngày này). */
+export type EasyDay = 'normal' | 'reduced' | 'minimum'
 
 export const DEFAULT_SETTINGS: ReviewSettings = {
   retention: 0.9,
@@ -113,4 +124,6 @@ export const DEFAULT_SETTINGS: ReviewSettings = {
   dayStartHour: 4,
   leechThreshold: 8,
   leechAction: 'tag',
+  loadBalance: true,
+  easyDays: ['normal', 'normal', 'normal', 'normal', 'normal', 'normal', 'normal'],
 }

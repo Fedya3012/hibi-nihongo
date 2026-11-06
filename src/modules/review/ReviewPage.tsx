@@ -18,6 +18,7 @@ import { Session } from './Session'
 import { CardsTab } from './CardsTab'
 import { SettingsTab } from './SettingsTab'
 import { StatsTab } from './StatsTab'
+import { CustomStudyCard, VacationCard } from './StudyExtras'
 import type { QuestionMode, ReviewSettings, SrsCard } from './types'
 
 type Tab = 'study' | 'cards' | 'stats' | 'settings'
@@ -27,6 +28,7 @@ interface Running {
   pool: SrsCard[]
   settings: ReviewSettings
   quick: boolean
+  practice?: boolean
 }
 
 export default function ReviewPage() {
@@ -38,6 +40,12 @@ export default function ReviewPage() {
   const start = async (quick: boolean, deck: string | null = null, tags?: string[]) => {
     const [queue, pool, settings] = await Promise.all([buildQueue({ quick, deck, tags }), allCards(), getSettings()])
     setRunning({ queue, pool, settings, quick })
+  }
+
+  /** Ôn thêm: thẻ đã chọn sẵn, chấm không đổi lịch thật. */
+  const startPractice = async (queue: SrsCard[]) => {
+    const [pool, settings] = await Promise.all([allCards(), getSettings()])
+    setRunning({ queue, pool, settings, quick: false, practice: true })
   }
 
   // /review?quick=1 → vào thẳng ôn nhanh 5 phút
@@ -66,6 +74,7 @@ export default function ReviewPage() {
         pool={running.pool}
         settings={running.settings}
         quick={running.quick}
+        practice={running.practice}
         onExit={() => setRunning(null)}
       />
     )
@@ -78,7 +87,7 @@ export default function ReviewPage() {
         <Segmented<Tab> label="Mục" value={tab} onChange={setTab}
           options={[{ value: 'study', label: 'Ôn tập' }, { value: 'cards', label: 'Thẻ' }, { value: 'stats', label: 'Thống kê' }, { value: 'settings', label: 'Cài đặt' }]} />
       </div>
-      {tab === 'study' && <StudyTab onStart={start} onGoCards={() => setTab('cards')} />}
+      {tab === 'study' && <StudyTab onStart={start} onPractice={(q) => void startPractice(q)} onGoCards={() => setTab('cards')} />}
       {tab === 'cards' && <CardsTab initialQuery={cardQuery} />}
       {tab === 'stats' && (
         <StatsTab
@@ -91,7 +100,11 @@ export default function ReviewPage() {
   )
 }
 
-function StudyTab({ onStart, onGoCards }: { onStart: (quick: boolean, deck?: string | null) => Promise<void>; onGoCards: () => void }) {
+function StudyTab({ onStart, onPractice, onGoCards }: {
+  onStart: (quick: boolean, deck?: string | null) => Promise<void>
+  onPractice: (cards: SrsCard[]) => void
+  onGoCards: () => void
+}) {
   const { data: ov, loading } = useDbQuery(() => getOverview(), [], ['srsCards', 'srsLogs', 'kv'])
   const { data: settings } = useDbQuery(getSettings, [], ['kv'])
   const [adding, setAdding] = useState(false)
@@ -174,6 +187,9 @@ function StudyTab({ onStart, onGoCards }: { onStart: (quick: boolean, deck?: str
           ))}
         </ul>
       </Card>
+
+      <CustomStudyCard decks={ov.decks.map((d) => d.deck)} onStart={onPractice} />
+      <VacationCard />
     </div>
   )
 }

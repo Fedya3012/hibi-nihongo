@@ -66,3 +66,9 @@ export const attachReviewMedia = (
   source: { module: string; ref: string },
   media: { image?: string | Blob; audio?: string | Blob },
 ) => attachMediaBySource(source, media)
+
+/**
+ * Những ngày đang/đã bật chế độ nghỉ ('YYYY-MM-DD'). Module Hôm nay dùng để không làm đứt streak.
+ *   const rest = await getVacationDays()
+ */
+export { getVacationDays } from './vacation'

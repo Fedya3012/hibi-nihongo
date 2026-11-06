@@ -2,8 +2,9 @@
  * HÀNG ĐỢI MỘT BUỔI ÔN và CHỌN DẠNG CÂU HỎI
  */
 import { retrievability, DAY } from './fsrs'
-import { allCards, getOverview, isBuried } from './store'
-import { CardState, type QuestionMode, type QuestionType, type SrsCard } from './types'
+import { getAllByIndex } from '@/core/db'
+import { allCards, getOverview, isBuried, isLeech } from './store'
+import { CardState, type QuestionMode, type QuestionType, type SrsCard, type SrsLog } from './types'
 
 export interface QueueOptions {
   deck?: string | null // chỉ ôn một bộ; null = tất cả
@@ -41,6 +42,62 @@ export async function buildQueue(opts: QueueOptions = {}, now = Date.now()): Pro
     if (j < fresh.length) out.push(fresh[j++])
   }
   return out
+}
+
+// ---------- Ôn thêm (custom study) ----------
+
+/** Kiểu ôn thêm. Buổi ôn thêm KHÔNG đổi lịch ôn thật và không ghi lịch sử (xem Session, practice). */
+export type CustomKind = 'ahead' | 'forgot' | 'hard' | 'random' | 'preview'
+
+export const CUSTOM_LABEL: Record<CustomKind, { label: string; hint: string }> = {
+  ahead: { label: 'Ôn trước thẻ sắp đến hạn', hint: 'Thẻ sẽ đến hạn trong vài ngày tới, vd trước khi đi xa hoặc trước kỳ thi.' },
+  forgot: { label: 'Thẻ vừa quên', hint: 'Thẻ bạn đã bấm Quên trong mấy ngày gần đây.' },
+  hard: { label: 'Thẻ khó nhất', hint: 'Thẻ có độ khó FSRS cao nhất và thẻ khó nhớ (leech).' },
+  random: { label: 'Ngẫu nhiên', hint: 'Trộn ngẫu nhiên các thẻ đã học.' },
+  preview: { label: 'Xem trước thẻ mới', hint: 'Lướt thẻ chưa học. Thẻ vẫn giữ là thẻ mới.' },
+}
+
+export interface CustomStudy {
+  kind: CustomKind
+  deck?: string | null
+  /** Chỉ lấy thẻ có nhãn này (để trống = mọi thẻ). */
+  tag?: string
+  /** Số ngày tới (ôn trước) hoặc số ngày qua (thẻ vừa quên). */
+  days: number
+  limit: number
+}
+
+/** Lấy thẻ cho buổi ôn thêm. */
+export async function buildCustomQueue(opt: CustomStudy, now = Date.now()): Promise<SrsCard[]> {
+  const tag = opt.tag?.trim()
+  const pool = (await allCards()).filter((c) => !c.suspended && (!opt.deck || c.deck === opt.deck)
+    && (!tag || !!c.tags?.includes(tag)))
+  const learned = pool.filter((c) => c.state !== CardState.New)
+  let out: SrsCard[]
+  switch (opt.kind) {
+    case 'ahead':
+      out = learned.filter((c) => c.due > now && c.due <= now + opt.days * DAY).sort((a, b) => a.due - b.due)
+      break
+    case 'forgot': {
+      const logs = await getAllByIndex<SrsLog>('srsLogs', 'by_time', IDBKeyRange.lowerBound(now - opt.days * DAY))
+      const misses = new Map<string, number>()
+      for (const l of logs) if (l.rating === 1) misses.set(l.cardId, (misses.get(l.cardId) ?? 0) + 1)
+      out = learned.filter((c) => misses.has(c.id)).sort((a, b) => misses.get(b.id)! - misses.get(a.id)!)
+      break
+    }
+    case 'hard':
+      out = learned
+        .filter((c) => c.state === CardState.Review || isLeech(c))
+        .sort((a, b) => Number(isLeech(b)) - Number(isLeech(a)) || b.difficulty - a.difficulty || b.lapses - a.lapses)
+      break
+    case 'random':
+      out = shuffle([...learned])
+      break
+    case 'preview':
+      out = pool.filter((c) => c.state === CardState.New).sort((a, b) => a.createdAt - b.createdAt)
+      break
+  }
+  return out.slice(0, Math.max(1, opt.limit))
 }
 
 const hasKanji = (s: string) => /[一-鿿々]/.test(s)

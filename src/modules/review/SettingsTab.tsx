@@ -2,10 +2,11 @@
 import { useDbQuery } from '@/core/db'
 import { Card } from '@/design/components/Card'
 import { getSettings, saveSettings } from './store'
+import { EasyDaysRow, OptimizerRow } from './SmartSchedule'
 
-function Row({ label, hint, children }: { label: string; hint: string; children: React.ReactNode }) {
+function Row({ label, hint, children, wide }: { label: string; hint: string; children: React.ReactNode; wide?: boolean }) {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border py-4 last:border-0">
+    <div className={`flex flex-wrap justify-between gap-3 border-b border-border py-4 last:border-0 ${wide ? 'flex-col' : 'items-center'}`}>
       <div className="max-w-md">
         <p className="font-medium">{label}</p>
         <p className="text-sm text-muted">{hint}</p>
@@ -21,6 +22,7 @@ export function SettingsTab() {
   const { data: s } = useDbQuery(getSettings, [], ['kv'])
   if (!s) return <p className="text-muted">Đang tải…</p>
   return (
+    <div className="grid gap-4">
     <Card>
       <Row label={`Tỉ lệ nhớ mong muốn: ${Math.round(s.retention * 100)}%`}
         hint="FSRS hẹn ngày ôn sao cho lúc đó bạn còn nhớ khoảng chừng này phần trăm. Cao hơn = ôn nhiều hơn nhưng chắc hơn. 90% là mức cân bằng.">
@@ -52,5 +54,22 @@ export function SettingsTab() {
           onChange={(e) => void saveSettings({ maxInterval: Math.max(30, Math.min(36500, Number(e.target.value) || 3650)) })} />
       </Row>
     </Card>
+    <Card>
+      <h2 className="font-semibold">Lịch ôn thông minh</h2>
+      <Row wide label="Tối ưu FSRS theo trí nhớ của bạn"
+        hint="FSRS mặc định dùng tham số “trung bình” của mọi người. Bấm Tối ưu để app học từ lịch sử ôn của chính bạn: ôn ít hơn mà vẫn nhớ bằng. Nên làm lại mỗi vài tháng.">
+        <OptimizerRow s={s} />
+      </Row>
+      <Row label="Dàn đều thẻ mỗi ngày"
+        hint="Xếp thẻ vào ngày ít thẻ nhất trong khoảng vài ngày quanh ngày hẹn, để không có ngày quá tải xen ngày trống.">
+        <input type="checkbox" checked={s.loadBalance} aria-label="Dàn đều thẻ mỗi ngày"
+          onChange={(e) => void saveSettings({ loadBalance: e.target.checked })} className="size-5 accent-[var(--primary)]" />
+      </Row>
+      <Row wide label="Ngày học nhẹ"
+        hint="Ngày “Nhẹ”: ít thẻ ôn hơn và chỉ nửa số thẻ mới. Ngày “Nghỉ”: tránh hẹn thẻ vào ngày đó, không có thẻ mới. Cần bật Dàn đều thẻ.">
+        <EasyDaysRow s={s} />
+      </Row>
+    </Card>
+    </div>
   )
 }
