@@ -25,11 +25,11 @@ import { openPageSource, type PageSource } from './pages'
 import { buildSpreads, clampZoom, spreadSize } from './layout'
 import { chapterLabel } from './naming'
 import { useMangaIntegrations, type OcrBlock } from './integrations'
-import { addBubble, listChapterNotes, readingOrder, saveNote, toggleBookmark } from './notes'
+import { addBubble, addPin, deleteNote, listChapterNotes, readingOrder, saveNote, toggleBookmark } from './notes'
 import { BubbleCard } from './study/BubbleCard'
-import { BubblesTab, MarksTab, PracticeTab, WordsTab } from './study/Panels'
+import { BubblesTab, MarksTab, PinCard, PracticeTab, WordsTab } from './study/Panels'
 import type {
-  Box, FitMode, MangaBookmark, MangaBubble, MangaChapter, MangaSeries, PageLayout, ReadDirection, ReaderPrefs,
+  Box, FitMode, MangaBookmark, MangaBubble, MangaChapter, MangaPin, MangaSeries, PageLayout, ReadDirection, ReaderPrefs,
 } from './types'
 import { actionFor } from '@/modules/shortcuts/keymap'
 
@@ -98,7 +98,7 @@ function Shell({ children }: { children: React.ReactNode }) {
   return <div className="fixed inset-0 z-40 bg-bg text-text">{children}</div>
 }
 
-type Panel = 'settings' | 'lookup' | 'bubble' | 'bubbles' | 'words' | 'marks' | 'practice'
+type Panel = 'settings' | 'lookup' | 'bubble' | 'pin' | 'bubbles' | 'words' | 'marks' | 'practice'
 const STUDY_TABS: { id: Panel; label: string }[] = [
   { id: 'bubbles', label: 'Bong bóng' },
   { id: 'words', label: 'Từ & Kanji' },
@@ -124,10 +124,11 @@ function ReaderView({
   const [panel, setPanel] = useState<Panel | null>(null)
   const [atEnd, setAtEnd] = useState(false)
   const [zoom, setZoom] = useState(1)
-  const [draw, setDraw] = useState<'ocr' | 'bubble' | null>(null)
+  const [draw, setDraw] = useState<DrawMode | null>(null)
   const [ocrResult, setOcrResult] = useState<{ blocks: OcrBlock[]; busy: boolean; error?: string }>()
   const [size, setSize] = useState({ w: window.innerWidth, h: window.innerHeight })
   const [selected, setSelected] = useState<{ id: string; editing?: boolean } | null>(null)
+  const [pinId, setPinId] = useState<string>()
   const [highlight, setHighlight] = useState<string>()
   const [rate, setRate] = useState(1)
   const [toast, setToast] = useState<{ text: string; undo?: () => void }>()
@@ -158,6 +159,8 @@ function ReaderView({
   )
   const allBubbles = useMemo(() => notes.filter((n): n is MangaBubble => n.kind === 'bubble'), [notes])
   const marks = useMemo(() => notes.filter((n): n is MangaBookmark => n.kind === 'bookmark'), [notes])
+  const pins = useMemo(() => notes.filter((n): n is MangaPin => n.kind === 'pin'), [notes])
+  const selectedPin = pins.find((p) => p.id === pinId)
   const selectedBubble = selected ? allBubbles.find((b) => b.id === selected.id) : undefined
   const markHere = marks.find((m) => spread.includes(m.page))
 
@@ -278,6 +281,7 @@ function ReaderView({
     setUi(true)
   }
   const startBubble = () => { setDraw('bubble'); setPanel(null); setUi(true) }
+  const openPin = (p: MangaPin) => { setPinId(p.id); setPanel('pin'); setUi(true) }
 
   // ----- Phím tắt -----
   const toggleFullscreen = () => {
@@ -480,6 +484,11 @@ function ReaderView({
     const hit = regionToPage(rect)
     if (!hit) { flash('Hãy khoanh vào trong trang truyện.'); return }
     const ocr = integrations.ocr
+    if (mode === 'pin') {
+      const p = await addPin({ seriesId: chapter.seriesId, chapterId: chapter.id, page: hit.page, x: hit.box.x, y: hit.box.y })
+      openPin(p)
+      return
+    }
     if (mode === 'bubble') {
       let text = ''
       if (ocr) {
@@ -513,8 +522,16 @@ function ReaderView({
   const pageText = spread.length > 1 ? `${Math.min(...spread) + 1}–${Math.max(...spread) + 1}` : `${spread[0] + 1}`
   const imgFilter = `${prefs.tone === 'sepia' ? 'sepia(0.35) ' : ''}brightness(${prefs.brightness})`
   const overlayFor = (p: number) => study && (
-    <BubbleOverlay bubbles={allBubbles.filter((b) => b.page === p)} selected={selected?.id} highlight={highlight}
-      onOpen={(b) => openBubble(b)} />
+    <>
+      <BubbleOverlay bubbles={allBubbles.filter((b) => b.page === p)} selected={selected?.id} highlight={highlight}
+        onOpen={(b) => openBubble(b)} />
+      {pins.filter((pin) => pin.page === p).map((pin) => (
+        <button key={pin.id} type="button" title={pin.note || 'Ghi chú ghim'} aria-label={`Ghi chú ghim: ${pin.note || 'trống'}`}
+          onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); openPin(pin) }}
+          className={`absolute z-10 -translate-x-1/2 -translate-y-full text-2xl drop-shadow transition hover:scale-110 ${pin.id === pinId && panel === 'pin' ? 'scale-125' : ''}`}
+          style={{ left: `${pin.x * 100}%`, top: `${pin.y * 100}%` }}>📌</button>
+      ))}
+    </>
   )
   const inStudyTabs = panel && STUDY_TABS.some((t) => t.id === panel)
 
@@ -532,6 +549,7 @@ function ReaderView({
           {study ? '📖 Học sâu' : '☕ Đọc chill'}
         </button>
         {study && <IconBtn label="Thêm bong bóng thoại (N, hoặc giữ trên trang)" active={draw === 'bubble'} onClick={startBubble}>＋</IconBtn>}
+        {study && <IconBtn label="Ghim ghi chú lên khung tranh" active={draw === 'pin'} onClick={() => { setDraw((v) => (v === 'pin' ? null : 'pin')); setPanel(null); setUi(true) }}>📌</IconBtn>}
         <IconBtn label={markHere ? 'Bỏ đánh dấu trang (B)' : 'Đánh dấu trang (B)'} active={!!markHere} onClick={bookmark}>🔖</IconBtn>
         {study && <IconBtn label="Bảng học: bong bóng, từ, luyện tập" active={!!inStudyTabs} onClick={() => setPanel(inStudyTabs ? null : 'bubbles')}>📚</IconBtn>}
         <IconBtn label="Tra từ" active={panel === 'lookup'} onClick={() => setPanel(panel === 'lookup' ? null : 'lookup')}><span className="jp">辞</span></IconBtn>
@@ -626,10 +644,19 @@ function ReaderView({
               }}
             />
           )}
-          {panel === 'bubbles' && <BubblesTab bubbles={bubbles} page={spread[0]} rate={rate} onOpen={(b) => { goHighlight(b.page); openBubble(b) }} onGo={goHighlight} />}
+          {panel === 'bubbles' && <BubblesTab bubbles={bubbles} series={series} page={spread[0]} rate={rate} onOpen={(b) => { goHighlight(b.page); openBubble(b) }} onGo={goHighlight} />}
           {panel === 'words' && <WordsTab bubbles={bubbles} chapter={chapter} series={series} />}
-          {panel === 'practice' && <PracticeTab bubbles={bubbles} />}
-          {panel === 'marks' && <MarksTab marks={marks} page={spread[0]} onGo={(p) => goTo(p)} onToggle={bookmark} />}
+          {panel === 'practice' && <PracticeTab bubbles={bubbles} pageBlob={(p) => source.blob(p)} />}
+          {panel === 'marks' && <MarksTab marks={marks} pins={pins} page={spread[0]} onGo={(p) => goTo(p)} onToggle={bookmark} onOpenPin={(p) => { goTo(p.page); openPin(p) }} />}
+          {panel === 'pin' && selectedPin && (
+            <PinCard pin={selectedPin} onClose={() => { setPanel(null); setPinId(undefined) }}
+              onDelete={async () => {
+                const p = selectedPin
+                await deleteNote(p.id)
+                setPanel(null); setPinId(undefined)
+                flash('Đã xóa ghi chú ghim', () => { void saveNote(p); setToast(undefined) })
+              }} />
+          )}
         </aside>
       )}
 
@@ -688,10 +715,16 @@ function BubbleOverlay({ bubbles, selected, highlight, onOpen }: {
             title={b.text}
             onPointerDown={(e) => e.stopPropagation()}
             onClick={(e) => { e.stopPropagation(); onOpen(b) }}
-            className={`absolute rounded-lg border-2 transition ${on ? 'border-primary bg-primary/15' : 'border-primary/50 border-dashed hover:bg-primary/10'}`}
+            className={`absolute rounded-lg border-2 transition ${on ? 'border-primary bg-primary/15'
+              : b.mark === 'good' ? 'border-good/70 hover:bg-good/10' : b.mark === 'hard' ? 'border-warn hover:bg-warn/10'
+              : 'border-primary/50 border-dashed hover:bg-primary/10'}`}
             style={{ left: `${b.box.x * 100}%`, top: `${b.box.y * 100}%`, width: `${b.box.w * 100}%`, height: `${b.box.h * 100}%` }}
           >
-            {b.minedAt && <span className="absolute -right-1 -top-2 text-xs text-primary" aria-hidden>★</span>}
+            {(b.minedAt || b.mark) && (
+              <span className="absolute -right-1 -top-2 text-xs text-primary" aria-hidden>
+                {b.mark === 'good' ? '⭐' : b.mark === 'hard' ? '⚠' : ''}{b.minedAt ? '★' : ''}
+              </span>
+            )}
           </button>
         )
       })}
@@ -780,7 +813,9 @@ function LazyPage({ source, index, near, filter }: { source: PageSource; index: 
 }
 
 /** Lớp phủ để khoanh một vùng (bong bóng mới, hoặc OCR). */
-function RegionSelect({ mode, onDone, onCancel }: { mode: 'ocr' | 'bubble'; onDone: (r: DOMRect) => void; onCancel: () => void }) {
+type DrawMode = 'ocr' | 'bubble' | 'pin'
+
+function RegionSelect({ mode, onDone, onCancel }: { mode: DrawMode; onDone: (r: DOMRect) => void; onCancel: () => void }) {
   const [start, setStart] = useState<{ x: number; y: number }>()
   const [cur, setCur] = useState<{ x: number; y: number }>()
   const rect = start && cur
@@ -790,12 +825,17 @@ function RegionSelect({ mode, onDone, onCancel }: { mode: 'ocr' | 'bubble'; onDo
     <div className="absolute inset-0 z-30 cursor-crosshair" style={{ touchAction: 'none' }}
       onPointerDown={(e) => { e.currentTarget.setPointerCapture(e.pointerId); setStart({ x: e.clientX, y: e.clientY }); setCur({ x: e.clientX, y: e.clientY }) }}
       onPointerMove={(e) => start && setCur({ x: e.clientX, y: e.clientY })}
-      onPointerUp={() => { if (rect && rect.width > 8 && rect.height > 8) onDone(rect); else if (start) onCancel(); setStart(undefined) }}>
+      onPointerUp={() => {
+        if (mode === 'pin' && start) onDone(new DOMRect(start.x, start.y, 1, 1))
+        else if (rect && rect.width > 8 && rect.height > 8) onDone(rect)
+        else if (start) onCancel()
+        setStart(undefined)
+      }}>
       <div className="absolute left-1/2 top-16 flex -translate-x-1/2 items-center gap-2 rounded-full bg-surface px-4 py-2 text-sm shadow-card">
-        {mode === 'bubble' ? 'Kéo để khoanh bong bóng thoại' : 'Kéo để khoanh vùng chữ cần đọc'}
+        {mode === 'bubble' ? 'Kéo để khoanh bong bóng thoại' : mode === 'pin' ? 'Chạm vào chỗ muốn ghim ghi chú' : 'Kéo để khoanh vùng chữ cần đọc'}
         <button className="rounded-full px-2 text-muted hover:text-text" onPointerDown={(e) => e.stopPropagation()} onClick={onCancel}>Hủy</button>
       </div>
-      {rect && (
+      {rect && mode !== 'pin' && (
         <div className="pointer-events-none fixed rounded border-2 border-primary bg-primary-soft/30"
           style={{ left: rect.left, top: rect.top, width: rect.width, height: rect.height }} />
       )}

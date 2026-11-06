@@ -9,6 +9,9 @@
  * Ảnh trang nằm trong mangaBlobs, KHÔNG sao lưu (quá nặng, và là file của bạn, nhập lại được).
  */
 
+import type { VoiceKind } from './study/audio'
+export type { VoiceKind }
+
 /** Chiều đọc: 'rtl' = phải sang trái (manga Nhật), 'ltr' = trái sang phải. */
 export type ReadDirection = 'rtl' | 'ltr'
 
@@ -56,7 +59,39 @@ export interface MangaSeries {
   favorite?: boolean
   /** Cài đặt đọc riêng cho series này (ghi đè cài đặt chung). */
   prefs?: Partial<ReaderPrefs>
+  /** Độ khó do bạn đặt: 5 = N5 (dễ) ... 1 = N1 (khó). */
+  level?: SeriesLevel
+  /** Trạng thái đặt tay. Không đặt = app tự tính theo tiến độ đọc. */
+  status?: SeriesStatus
+  /** Nhân vật của bộ truyện: cách nói đặc trưng, giọng đọc. */
+  characters?: MangaCharacter[]
+  /** Sổ tay riêng của bộ truyện (ghi chép tự do). */
+  notebook?: string
 }
+
+export type SeriesLevel = 1 | 2 | 3 | 4 | 5
+export type SeriesStatus = 'want' | 'reading' | 'done'
+
+export const LEVEL_LABEL: Record<SeriesLevel, string> = {
+  5: 'N5 · Sơ cấp', 4: 'N4 · Sơ cấp', 3: 'N3 · Trung cấp', 2: 'N2 · Cao cấp', 1: 'N1 · Cao cấp',
+}
+export const STATUS_LABEL: Record<SeriesStatus, string> = { want: 'Muốn đọc', reading: 'Đang đọc', done: 'Đã hoàn thành' }
+
+
+export interface MangaCharacter {
+  /** Tên dùng trong ô "Người nói" của bong bóng. */
+  name: string
+  /** Kiểu nói (chọn nhanh), ví dụ "Thô lỗ", "Dễ thương". */
+  styles: string[]
+  note?: string
+  voice: VoiceKind
+}
+
+/** Gợi ý nhanh các kiểu nói khi ghi chú nhân vật. */
+export const SPEECH_STYLES = [
+  'Thô lỗ', 'Dễ thương', 'Trang trọng', 'Lịch sự', 'Lạnh lùng', 'Nóng nảy', 'Tsundere', 'Kansai',
+  'Cổ trang', 'Ông già', 'Trẻ con', 'Tiểu thư', 'Giang hồ', 'Nam tính', 'Nữ tính', 'Rụt rè',
+]
 
 /** Kích thước một trang (pixel), dùng để nhận ra trang đôi (ảnh ngang) khi xem hai trang. */
 export interface PageMeta {
@@ -121,6 +156,22 @@ export interface MangaBubble {
   createdAt: number
   /** Đã lưu vào Ôn tập (sentence mining). */
   minedAt?: number
+  /** Đánh dấu: câu hay (muốn nhớ) hoặc câu khó (cần xem lại). */
+  mark?: 'good' | 'hard'
+}
+
+/** Ghi chú ghim trên khung tranh (một điểm trên trang). */
+export interface MangaPin {
+  id: string
+  kind: 'pin'
+  seriesId: string
+  chapterId: string
+  page: number
+  /** Vị trí ghim (tỉ lệ 0–1 của trang). */
+  x: number
+  y: number
+  note: string
+  createdAt: number
 }
 
 /** Đánh dấu một trang, kèm ghi chú. */
@@ -134,7 +185,7 @@ export interface MangaBookmark {
   createdAt: number
 }
 
-export type MangaNote = MangaBubble | MangaBookmark
+export type MangaNote = MangaBubble | MangaBookmark | MangaPin
 
 /** Chế độ đọc: chill = chỉ đọc, không hiện khung bong bóng; study = học sâu. */
 export type ReadMode = 'chill' | 'study'

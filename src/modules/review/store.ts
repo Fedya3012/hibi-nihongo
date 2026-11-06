@@ -45,6 +45,8 @@ export interface NewCardInput {
   notes?: string
   /** Ảnh minh họa: data URL, hoặc Blob/File (tự nén thành JPEG ≤ 900px). */
   image?: string | Blob
+  /** Ảnh mặt hỏi (thay cho chữ mặt trước), vd panel manga đã che chữ. Blob tự nén như `image`. */
+  frontImage?: string | Blob
   /** Tiếng nói gốc: data URL, hoặc Blob (vd đoạn thoại anime ghi bằng MediaRecorder). */
   audio?: string | Blob
   tags?: string[]
@@ -52,7 +54,7 @@ export interface NewCardInput {
 }
 
 /** Nội dung thẻ sau khi đã xử lý ảnh (ảnh luôn là chuỗi data URL). */
-type CleanInput = Omit<NewCardInput, 'image' | 'audio'> & { image?: string; audio?: string }
+type CleanInput = Omit<NewCardInput, 'image' | 'audio' | 'frontImage'> & { image?: string; audio?: string; frontImage?: string }
 
 const makeId = () =>
   typeof crypto !== 'undefined' && 'randomUUID' in crypto
@@ -73,6 +75,7 @@ function cleanInput(input: CleanInput): CleanInput {
   const t = (s?: string) => (s && s.trim() ? s.trim() : undefined)
   return {
     image: input.image || undefined,
+    frontImage: input.frontImage || undefined,
     audio: input.audio || undefined,
     deck: input.deck.trim() || 'Thẻ của tôi',
     kind: input.kind,
@@ -167,10 +170,11 @@ export function blobToDataUrl(b: Blob): Promise<string> {
 }
 
 async function prepareImage(input: NewCardInput): Promise<CleanInput> {
-  const { image, audio, ...rest } = input
+  const { image, audio, frontImage, ...rest } = input
   return {
     ...rest,
     image: !image || typeof image === 'string' ? image : await imageToDataUrl(image),
+    frontImage: !frontImage || typeof frontImage === 'string' ? frontImage : await imageToDataUrl(frontImage),
     audio: !audio || typeof audio === 'string' ? audio : await blobToDataUrl(audio),
   }
 }
